@@ -1,0 +1,144 @@
+-- โครงสร้างตาราง `found_items`
+--
+
+CREATE TABLE `found_items` (
+  `found_id` int NOT NULL,
+  `finder_name` varchar(255) NOT NULL,
+  `finder_contact` varchar(255) DEFAULT NULL,
+  `found_type` varchar(255) DEFAULT NULL,
+  `found_description` text,
+  `found_date` date DEFAULT NULL,
+  `found_location` varchar(255) DEFAULT NULL,
+  `found_image` blob,
+  `matching_item_id` int DEFAULT NULL,
+  `status_id` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- โครงสร้างตาราง `lost_items`
+--
+
+CREATE TABLE `lost_items` (
+  `item_id` int NOT NULL,
+  `owner_name` varchar(255) NOT NULL,
+  `owner_contact` varchar(255) DEFAULT NULL,
+  `item_type` varchar(255) DEFAULT NULL,
+  `item_description` text,
+  `lost_date` date DEFAULT NULL,
+  `lost_location` varchar(255) DEFAULT NULL,
+  `item_image` blob,
+  `finder_image` blob,
+  `status_id` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- โครงสร้างตาราง `statuses`
+--
+
+CREATE TABLE `statuses` (
+  `status_id` int NOT NULL,
+  `status_name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- โครงสร้างตาราง `users`
+--
+
+CREATE TABLE `users` (
+  `id` double NOT NULL,
+  `UserAdminID` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'username',
+  `Password` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'password',
+  `UserAdminName` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'ชื่อ-นามสกุล',
+  `position_id` int NOT NULL COMMENT 'รหัสตำแหน่ง',
+  `group_id` int NOT NULL COMMENT 'รหัสกลุ่มงาน',
+  `level_id` int NOT NULL COMMENT 'รหัสระดับ',
+  `email` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'อีเมล์'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `found_items`
+--
+ALTER TABLE `found_items`
+  ADD PRIMARY KEY (`found_id`),
+  ADD KEY `matching_item_id` (`matching_item_id`),
+  ADD KEY `status_id` (`status_id`);
+
+--
+-- Indexes for table `lost_items`
+--
+ALTER TABLE `lost_items`
+  ADD PRIMARY KEY (`item_id`),
+  ADD KEY `status_id` (`status_id`);
+
+--
+-- Indexes for table `statuses`
+--
+ALTER TABLE `statuses`
+  ADD PRIMARY KEY (`status_id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `UserAdminID` (`UserAdminID`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `found_items`
+--
+ALTER TABLE `found_items`
+  MODIFY `found_id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `lost_items`
+--
+ALTER TABLE `lost_items`
+  MODIFY `item_id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `statuses`
+--
+ALTER TABLE `statuses`
+  MODIFY `status_id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` double NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `found_items`
+--
+ALTER TABLE `found_items`
+  ADD CONSTRAINT `found_items_ibfk_1` FOREIGN KEY (`matching_item_id`) REFERENCES `lost_items` (`item_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `found_items_ibfk_2` FOREIGN KEY (`status_id`) REFERENCES `statuses` (`status_id`);
+
+--
+-- Constraints for table `lost_items`
+--
+ALTER TABLE `lost_items`
+  ADD CONSTRAINT `lost_items_ibfk_1` FOREIGN KEY (`status_id`) REFERENCES `statuses` (`status_id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

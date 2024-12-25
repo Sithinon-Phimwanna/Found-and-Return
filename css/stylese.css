@@ -1,0 +1,5 @@
+/* Highlight matching items */
+table tr td:nth-child(7) button {
+    background-color: #4CAF50;
+    color: white;
+}
