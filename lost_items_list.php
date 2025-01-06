@@ -40,7 +40,7 @@ $query = "
     WHERE 
         lost_items.owner_name LIKE ? 
         OR lost_items.item_type LIKE ? 
-        OR lost_items.lost_location LIKE ?
+        OR lost_items.lost_location LIKE ? 
         OR lost_items.lost_date LIKE ?
 ";
 
@@ -86,12 +86,12 @@ if (!$result) {
                 <th>รหัส</th>
                 <th>ชื่อเจ้าของ</th>
                 <th>ติดต่อ</th>
-                <th>ประเภท</th>
+                <th>ทรัพย์สิน</th>
                 <th>รายละเอียด</th>
                 <th>วันที่</th>
                 <th>สถานที่</th>
-                <th>ภาพของหาย</th>
-                <th>ภาพคนรับ</th>
+                <th>ภาพทรัพย์สิน</th>
+                <th>ภาพผู้รับคืน</th>
                 <th>สถานะ&emsp;</th>
                 <th>อัปเดตข้อมูล</th>
             </tr>
@@ -104,18 +104,23 @@ if (!$result) {
                     <td><?= htmlspecialchars($row['owner_contact']) ?></td>
                     <td><?= htmlspecialchars($row['item_type']) ?></td>
                     <td><?= htmlspecialchars($row['item_description']) ?></td>
-                    <td><?= $row['lost_date'] ?></td>
+                    <td>
+                        <!-- เปลี่ยนรูปแบบวันที่เป็น วัน/เดือน/ปี -->
+                        <?= date('d/m/Y', strtotime($row['lost_date'])) ?>
+                    </td>
                     <td><?= htmlspecialchars($row['lost_location']) ?></td>
                     <td>
                         <?php if ($row['item_image']): ?>
-                            <img src="data:image/jpeg;base64,<?= base64_encode($row['item_image']) ?>" alt="ภาพของหาย" style="max-width:100px;">
+                            <!-- แสดงภาพจากโฟลเดอร์ lost_images -->
+                            <img src="lost_images/<?= htmlspecialchars($row['item_image']) ?>" alt="ภาพทรัพย์สินหาย" style="max-width:100px;">
                         <?php else: ?>
                             ไม่มีภาพ
                         <?php endif; ?>
                     </td>
                     <td>
                         <?php if ($row['finder_image']): ?>
-                            <img src="data:image/jpeg;base64,<?= base64_encode($row['finder_image']) ?>" alt="ภาพคนรับ" style="max-width:100px;">
+                            <!-- แสดงภาพผู้รับจากโฟลเดอร์ return_images -->
+                            <img src="return_images/<?= htmlspecialchars($row['finder_image']) ?>" alt="ภาพผู้รับคืน" style="max-width:100px;">
                         <?php else: ?>
                             ไม่มีภาพ
                         <?php endif; ?>
@@ -136,7 +141,7 @@ if (!$result) {
                                     </option>
                                 <?php endwhile; ?>
                             </select>
-                            <a>ใส่รูปผู้รับของคืน </a>
+                            <a>ผู้ติดต่อรับคืน </a>
                             <input type="file" name="finder_image">
                             <button type="submit">อัปเดต</button>
                         </form>

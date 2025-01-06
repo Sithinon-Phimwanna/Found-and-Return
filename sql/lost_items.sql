@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: 26 ธ.ค. 2024 เมื่อ 01:03 PM
+-- Generation Time: 06 ม.ค. 2025 เมื่อ 03:04 PM
 -- เวอร์ชันของเซิร์ฟเวอร์: 8.0.40-0ubuntu0.20.04.1
 -- PHP Version: 7.4.3-4ubuntu2.24
 
@@ -36,8 +36,8 @@ CREATE TABLE `lost_items` (
   `item_description` text,
   `lost_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `lost_location` varchar(255) DEFAULT NULL,
-  `item_image` mediumblob,
-  `finder_image` mediumblob,
+  `item_image` varchar(255) DEFAULT NULL,
+  `finder_image` varchar(255) DEFAULT NULL,
   `status_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -46,7 +46,7 @@ CREATE TABLE `lost_items` (
 --
 
 INSERT INTO `lost_items` (`item_id`, `owner_name`, `owner_contact`, `item_type`, `item_description`, `lost_date`, `lost_location`, `item_image`, `finder_image`, `status_id`) VALUES
-(2, 'John Doe', 'john@example.com', 'Wallet', 'Black leather wallet', '2024-12-26 04:14:59', 'Central Park', NULL, NULL, 1);
+(1, 'dd', 'dd', 'dd', 'กก', '2025-01-06 06:17:42', 'กก', 'เมาส์ปากกา.jpg', '001465902.jpg', 3);
 
 --
 -- Indexes for dumped tables
@@ -58,6 +58,16 @@ INSERT INTO `lost_items` (`item_id`, `owner_name`, `owner_contact`, `item_type`,
 ALTER TABLE `lost_items`
   ADD PRIMARY KEY (`item_id`),
   ADD KEY `status_id` (`status_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `lost_items`
+--
+ALTER TABLE `lost_items`
+  MODIFY `item_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables

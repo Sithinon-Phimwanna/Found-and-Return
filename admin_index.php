@@ -47,6 +47,9 @@ session_regenerate_id(true);
                 <li class="nav-item mb-2">
                     <a href="#" class="nav-link" data-target="found_items_list.php">รายการของที่พบ</a>
                 </li>
+                <li class="nav-item mb-2">
+                    <a href="#" class="nav-link" data-target="register.php">สมัครสมาชิก</a>
+                </li>
             </ul>
         </div>
 

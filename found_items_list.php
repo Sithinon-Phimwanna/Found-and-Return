@@ -3,17 +3,15 @@ session_start();
 
 // ตรวจสอบว่าได้ล็อกอินหรือยัง
 if (!isset($_SESSION['user_id'])) {
-    
-        // ป้องกันการแคชอย่างเข้มงวด
-        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-        header("Cache-Control: post-check=0, pre-check=0", false);
-        header("Pragma: no-cache");
+    // ป้องกันการแคชอย่างเข้มงวด
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
 
     header('Location: login.php'); // ถ้าไม่ได้ล็อกอินให้ไปหน้าเข้าสู่ระบบ
     exit;
 }
-?>
-<?php
+
 require 'config.php';
 
 // ดึงค่าค้นหาจาก GET (ถ้ามี)
@@ -83,13 +81,13 @@ if (!$result) {
         <thead>
             <tr>
                 <th>รหัส</th>
-                <th>ชื่อผู้พบ</th>
-                <th>ติดต่อ</th>
-                <th>ประเภท</th>
+                <th>ชื่อผู้แจ้ง</th>
+                <th>ช่องทางการติดต่อ</th>
+                <th>ทรัพย์สิน</th>
                 <th>รายละเอียด</th>
-                <th>สถานที่</th>
-                <th>วันที่</th>
-                <th>ภาพ</th>
+                <th>สถานที่เก็บได้</th>
+                <th>วันที่เก็บได้</th>
+                <th>ภาพทรัพย์สิน</th>
                 <th>สถานะ</th>
                 <th>อัปเดตสถานะ</th>
             </tr>
@@ -103,10 +101,14 @@ if (!$result) {
                     <td><?= htmlspecialchars($row['found_type']) ?></td>
                     <td><?= htmlspecialchars($row['found_description']) ?></td>
                     <td><?= htmlspecialchars($row['found_location']) ?></td>
-                    <td><?= $row['found_date'] ?></td>
+                    <td>
+                        <!-- เปลี่ยนรูปแบบวันที่เป็น วัน/เดือน/ปี -->
+                        <?= date('d/m/Y', strtotime($row['found_date'])) ?>
+                    </td>
                     <td>
                         <?php if ($row['found_image']): ?>
-                            <img src="data:image/jpeg;base64,<?= base64_encode($row['found_image']) ?>" alt="ภาพของที่พบ" style="max-width:100px;">
+                            <!-- แสดงภาพจากโฟลเดอร์ found_images -->
+                            <img src="found_images/<?= htmlspecialchars($row['found_image']) ?>" alt="ภาพของที่พบ" style="max-width:100px;">
                         <?php else: ?>
                             ไม่มีภาพ
                         <?php endif; ?>

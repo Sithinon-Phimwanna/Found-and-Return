@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: 26 ธ.ค. 2024 เมื่อ 01:04 PM
+-- Generation Time: 06 ม.ค. 2025 เมื่อ 03:04 PM
 -- เวอร์ชันของเซิร์ฟเวอร์: 8.0.40-0ubuntu0.20.04.1
 -- PHP Version: 7.4.3-4ubuntu2.24
 
@@ -38,9 +38,10 @@ CREATE TABLE `statuses` (
 --
 
 INSERT INTO `statuses` (`status_id`, `status_name`) VALUES
-(1, 'รับแจ้ง'),
-(2, 'ได้รับคืนแล้ว'),
-(3, 'ยังไม่มีคนรับ');
+(1, 'แจ้งหาย'),
+(2, 'แจ้งพบ'),
+(3, 'ได้รับคืนแล้ว'),
+(4, 'ยังไม่มีคนรับ');
 
 --
 -- Indexes for dumped tables
