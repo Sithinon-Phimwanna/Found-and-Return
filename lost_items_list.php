@@ -32,6 +32,7 @@ $query = "
         lost_items.lost_location,
         lost_items.item_image,
         lost_items.finder_image,
+        lost_items.deliverer,  -- เพิ่มคอลัมน์นี้
         statuses.status_name AS status
     FROM 
         lost_items
@@ -60,6 +61,9 @@ $result = $stmt->get_result();
 if (!$result) {
     die('Error fetching result: ' . $mysqli->error);
 }
+
+// ตรวจสอบว่าในเซสชันมีการตั้งค่า UserAdminName หรือไม่
+$current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminName'] : 'ไม่ทราบชื่อ';
 ?>
 
 <!DOCTYPE html>
@@ -84,15 +88,16 @@ if (!$result) {
         <thead>
             <tr>
                 <th>รหัส</th>
-                <th>ชื่อเจ้าของ</th>
-                <th>ติดต่อ</th>
+                <th>ชื่อผู้แจ้ง</th>
+                <th>ช่องทางการติดต่อ</th>
                 <th>ทรัพย์สิน</th>
                 <th>รายละเอียด</th>
-                <th>วันที่</th>
+                <th>วันที่แจ้ง</th>
                 <th>สถานที่</th>
                 <th>ภาพทรัพย์สิน</th>
                 <th>ภาพผู้รับคืน</th>
                 <th>สถานะ&emsp;</th>
+                <th>ผู้ส่งมอบทรัพย์สิน</th> <!-- เพิ่มคอลัมน์นี้ -->
                 <th>อัปเดตข้อมูล</th>
             </tr>
         </thead>
@@ -106,7 +111,7 @@ if (!$result) {
                     <td><?= htmlspecialchars($row['item_description']) ?></td>
                     <td>
                         <!-- เปลี่ยนรูปแบบวันที่เป็น วัน/เดือน/ปี -->
-                        <?= date('d/m/Y', strtotime($row['lost_date'])) ?>
+                        <?= date('d/m/Y H:m:s', strtotime($row['lost_date'])) ?>
                     </td>
                     <td><?= htmlspecialchars($row['lost_location']) ?></td>
                     <td>
@@ -126,22 +131,26 @@ if (!$result) {
                         <?php endif; ?>
                     </td>
                     <td><?= htmlspecialchars($row['status']) ?></td>
+                    <td><?= htmlspecialchars($row['deliverer']) ?></td> <!-- แสดงชื่อผู้ส่งมอบ -->
                     <td>
                         <!-- ฟอร์มอัปเดตข้อมูล -->
                         <form method="POST" action="update_lost.php" enctype="multipart/form-data">
                             <input type="hidden" name="item_id" value="<?= $row['item_id'] ?>">
+                            <label for="deliverer">ชื่อผู้ส่งมอบ: </label>
+                            <input type="text" name="deliverer" value="<?= htmlspecialchars($current_user_name) ?>" readonly>
+                            <br>
                             <select name="status_id">
                                 <?php
-                                $status_query = "SELECT * FROM statuses";
-                                $status_result = $mysqli->query($status_query);
-                                while ($status = $status_result->fetch_assoc()):
+                                    $status_query = "SELECT * FROM statuses";
+                                    $status_result = $mysqli->query($status_query);
+                                    while ($status = $status_result->fetch_assoc()):
                                 ?>
                                     <option value="<?= $status['status_id'] ?>" <?= $row['status'] === $status['status_name'] ? 'selected' : '' ?>>
                                         <?= $status['status_name'] ?>
                                     </option>
                                 <?php endwhile; ?>
                             </select>
-                            <a>ผู้ติดต่อรับคืน </a>
+                            <a>เลือกภาพผู้ติดต่อรับคืน </a>
                             <input type="file" name="finder_image">
                             <button type="submit">อัปเดต</button>
                         </form>

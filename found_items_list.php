@@ -36,7 +36,7 @@ $query = "
     WHERE 
         found_items.finder_name LIKE ? 
         OR found_items.found_type LIKE ? 
-        OR found_items.found_location LIKE ?
+        OR found_items.found_location LIKE ? 
         OR found_items.found_date LIKE ?
 ";
 
@@ -103,15 +103,20 @@ if (!$result) {
                     <td><?= htmlspecialchars($row['found_location']) ?></td>
                     <td>
                         <!-- เปลี่ยนรูปแบบวันที่เป็น วัน/เดือน/ปี -->
-                        <?= date('d/m/Y', strtotime($row['found_date'])) ?>
+                        <?= date('d/m/Y H:m:s', strtotime($row['found_date'])) ?>
                     </td>
                     <td>
-                        <?php if ($row['found_image']): ?>
-                            <!-- แสดงภาพจากโฟลเดอร์ found_images -->
-                            <img src="found_images/<?= htmlspecialchars($row['found_image']) ?>" alt="ภาพของที่พบ" style="max-width:100px;">
-                        <?php else: ?>
-                            ไม่มีภาพ
-                        <?php endif; ?>
+                        <?php 
+                        // แยกชื่อไฟล์จากฐานข้อมูลและแสดงผลหลายรูป
+                        $images = explode(',', $row['found_image']);
+                        foreach ($images as $image):
+                            if (!empty($image)):
+                        ?>
+                            <img src="found_images/<?= htmlspecialchars($image) ?>" alt="ภาพของที่พบ" style="max-width:100px; margin-right: 5px;">
+                        <?php 
+                            endif;
+                        endforeach;
+                        ?>
                     </td>
                     <td><?= htmlspecialchars($row['status']) ?></td>
                     <td>

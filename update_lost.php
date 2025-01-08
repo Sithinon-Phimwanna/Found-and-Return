@@ -4,6 +4,7 @@ require 'config.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $item_id = $_POST['item_id'];
     $status_id = $_POST['status_id'];
+    $deliverer = $_POST['deliverer']; // รับค่าผู้ส่งมอบจากฟอร์ม
 
     // กำหนดโฟลเดอร์สำหรับจัดเก็บภาพ
     $upload_dir = 'return_images/';
@@ -48,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // ถ้ามีภาพให้เก็บชื่อไฟล์ในฐานข้อมูล
         $query = "
             UPDATE lost_items 
-            SET status_id = ?, finder_image = ? 
+            SET status_id = ?, finder_image = ?, deliverer = ? 
             WHERE item_id = ?
         ";
         $stmt = $mysqli->prepare($query);
@@ -57,13 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die('Error preparing statement: ' . $mysqli->error);
         }
 
-        // ส่งชื่อไฟล์แทน path
-        $stmt->bind_param('ssi', $status_id, $finder_image_name, $item_id);
+        // ส่งชื่อไฟล์แทน path และข้อมูลผู้ส่งมอบ
+        $stmt->bind_param('sssi', $status_id, $finder_image_name, $deliverer, $item_id);
     } else {
-        // ถ้าไม่มีภาพ ก็อัปเดตเฉพาะสถานะ
+        // ถ้าไม่มีภาพ ก็อัปเดตเฉพาะสถานะและผู้ส่งมอบ
         $query = "
             UPDATE lost_items 
-            SET status_id = ? 
+            SET status_id = ?, deliverer = ? 
             WHERE item_id = ?
         ";
         $stmt = $mysqli->prepare($query);
@@ -72,7 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die('Error preparing statement: ' . $mysqli->error);
         }
 
-        $stmt->bind_param('si', $status_id, $item_id);
+        // ส่งข้อมูลสถานะและผู้ส่งมอบ
+        $stmt->bind_param('ssi', $status_id, $deliverer, $item_id);
     }
 
     // ดำเนินการอัปเดต

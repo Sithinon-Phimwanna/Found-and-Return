@@ -1,0 +1,7 @@
+/* Reset and basic styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fc;
+    color: #343a40;
+    display: flex;
+}

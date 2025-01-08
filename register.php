@@ -1,4 +1,18 @@
 <?php
+session_start(); // เริ่มต้นเซสชัน
+
+// ตรวจสอบการล็อกอิน
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอินให้ไปหน้า login
+    exit;
+}
+
+// ป้องกันการแคช
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: 0"); // ให้หมดอายุทันที
+
 require 'config.php'; // เชื่อมต่อกับฐานข้อมูล
 
 // ตรวจสอบว่าเป็นการส่งข้อมูลสมัครสมาชิกหรือไม่
@@ -46,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>สมัครสมาชิก</title>
-    <link rel="stylesheet" href="css/styleregister.css">
+    <link rel="stylesheet" href="css/styleregiste.css">
 </head>
 <body>
     <h1>สมัครสมาชิก</h1>
@@ -83,7 +97,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <button type="submit">สมัครสมาชิก</button>
     </form>
-
-    <p>มีบัญชีแล้ว? <a href="login.php">เข้าสู่ระบบที่นี่</a></p>
 </body>
 </html>
