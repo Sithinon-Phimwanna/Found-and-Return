@@ -38,7 +38,7 @@ header("Expires: 0"); // ให้หมดอายุทันที
         <label>สถานที่หาย:</label>
         <input type="text" name="lost_location" required><br>
         <label>อัพโหลดภาพทรัพย์สิน(ถ้ามี):</label>
-        <input type="file" name="item_image"><br>
+        <input type="file" name="item_image[]"multiple><br>
         <button type="submit">ส่งข้อมูล</button>
     </form>
 </body>

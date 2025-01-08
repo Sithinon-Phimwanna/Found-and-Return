@@ -111,24 +111,34 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                     <td><?= htmlspecialchars($row['item_description']) ?></td>
                     <td>
                         <!-- เปลี่ยนรูปแบบวันที่เป็น วัน/เดือน/ปี -->
-                        <?= date('d/m/Y H:m:s', strtotime($row['lost_date'])) ?>
+                        <?= date('d/m/Y H:i:s', strtotime($row['lost_date'])) ?>
                     </td>
                     <td><?= htmlspecialchars($row['lost_location']) ?></td>
                     <td>
-                        <?php if ($row['item_image']): ?>
-                            <!-- แสดงภาพจากโฟลเดอร์ lost_images -->
-                            <img src="lost_images/<?= htmlspecialchars($row['item_image']) ?>" alt="ภาพทรัพย์สินหาย" style="max-width:100px;">
-                        <?php else: ?>
-                            ไม่มีภาพ
-                        <?php endif; ?>
+                        <?php 
+                            // แสดงภาพทรัพย์สินหายหลายภาพ
+                            if ($row['item_image']) {
+                                $item_images = explode(',', $row['item_image']);
+                                foreach ($item_images as $image) {
+                                    echo '<img src="lost_images/' . htmlspecialchars($image) . '" alt="ภาพทรัพย์สินหาย" style="max-width:100px; margin-right: 10px;">';
+                                }
+                            } else {
+                                echo 'ไม่มีภาพ';
+                            }
+                        ?>
                     </td>
                     <td>
-                        <?php if ($row['finder_image']): ?>
-                            <!-- แสดงภาพผู้รับจากโฟลเดอร์ return_images -->
-                            <img src="return_images/<?= htmlspecialchars($row['finder_image']) ?>" alt="ภาพผู้รับคืน" style="max-width:100px;">
-                        <?php else: ?>
-                            ไม่มีภาพ
-                        <?php endif; ?>
+                        <?php 
+                            // แสดงภาพผู้รับคืนหลายภาพ
+                            if ($row['finder_image']) {
+                                $finder_images = explode(',', $row['finder_image']);
+                                foreach ($finder_images as $image) {
+                                    echo '<img src="return_images/' . htmlspecialchars($image) . '" alt="ภาพผู้รับคืน" style="max-width:100px; margin-right: 10px;">';
+                                }
+                            } else {
+                                echo 'ไม่มีภาพ';
+                            }
+                        ?>
                     </td>
                     <td><?= htmlspecialchars($row['status']) ?></td>
                     <td><?= htmlspecialchars($row['deliverer']) ?></td> <!-- แสดงชื่อผู้ส่งมอบ -->
@@ -151,7 +161,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                 <?php endwhile; ?>
                             </select>
                             <a>เลือกภาพผู้ติดต่อรับคืน </a>
-                            <input type="file" name="finder_image">
+                            <input type="file" name="finder_image[]" multiple>
                             <button type="submit">อัปเดต</button>
                         </form>
                     </td>

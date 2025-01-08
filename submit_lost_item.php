@@ -19,63 +19,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // ตรวจสอบการอัปโหลดภาพ
-    $item_image = null;
-    if (isset($_FILES['item_image']) && $_FILES['item_image']['error'] === UPLOAD_ERR_OK) {
-        // ตรวจสอบขนาดไฟล์และประเภทไฟล์
-        $file_size = $_FILES['item_image']['size'];
-        $file_type = $_FILES['item_image']['type'];
+    $item_images = [];
+    if (isset($_FILES['item_image']) && $_FILES['item_image']['error'][0] === UPLOAD_ERR_OK) {
+        // ตรวจสอบแต่ละไฟล์
+        $files = $_FILES['item_image'];
+        for ($i = 0; $i < count($files['name']); $i++) {
+            if ($files['error'][$i] === UPLOAD_ERR_OK) {
+                // ตรวจสอบขนาดไฟล์และประเภทไฟล์
+                $file_size = $files['size'][$i];
+                $file_type = $files['type'][$i];
 
-        if ($file_size > 1048576) {  // 1MB
-            echo "<script>alert('ขออภัย, ขนาดไฟล์ใหญ่เกินไป (สูงสุด 1MB)'); window.history.back();</script>";
-            exit;
+                if ($file_size > 1048576) {  // 1MB
+                    echo "<script>alert('ขออภัย, ขนาดไฟล์ใหญ่เกินไป (สูงสุด 1MB)'); window.history.back();</script>";
+                    exit;
+                }
+
+                if (!in_array($file_type, ['image/jpeg', 'image/png'])) {
+                    echo "<script>alert('ขออภัย, ไฟล์ต้องเป็นภาพ JPEG หรือ PNG เท่านั้น'); window.history.back();</script>";
+                    exit;
+                }
+
+                // ใช้ชื่อไฟล์เดิม
+                $image_name = $files['name'][$i];
+                $target_dir = 'lost_images/'; // โฟลเดอร์ที่เก็บไฟล์
+                $target_file = $target_dir . $image_name;
+
+                // ตรวจสอบว่ามีไฟล์ที่มีชื่อเดียวกันอยู่แล้วในโฟลเดอร์หรือไม่
+                if (file_exists($target_file)) {
+                    echo "<script>alert('ขออภัย, ไฟล์นี้มีอยู่ในระบบแล้ว กรุณาเลือกไฟล์อื่น'); window.history.back();</script>";
+                    exit;
+                }
+
+                // ย้ายไฟล์ไปยังโฟลเดอร์ที่กำหนด
+                if (!move_uploaded_file($files['tmp_name'][$i], $target_file)) {
+                    echo "<script>alert('ขออภัย, เกิดข้อผิดพลาดในการอัปโหลดไฟล์'); window.history.back();</script>";
+                    exit;
+                }
+
+                $item_images[] = $image_name; // บันทึกชื่อไฟล์ในอาเรย์
+            }
         }
-
-        if (!in_array($file_type, ['image/jpeg', 'image/png'])) {
-            echo "<script>alert('ขออภัย, ไฟล์ต้องเป็นภาพ JPEG หรือ PNG เท่านั้น'); window.history.back();</script>";
-            exit;
-        }
-
-        // ใช้ชื่อไฟล์เดิม
-        $image_name = $_FILES['item_image']['name'];
-        $target_dir = 'lost_images/'; // โฟลเดอร์ที่เก็บไฟล์
-        $target_file = $target_dir . $image_name;
-
-        // ตรวจสอบว่ามีการเลือกไฟล์หรือไม่
-        if ($_FILES['item_image']['error'] === UPLOAD_ERR_NO_FILE) {
-            echo "<script>alert('ไม่ได้เลือกไฟล์อัปโหลด'); window.history.back();</script>";
-            exit;
-        }
-
-        // ตรวจสอบข้อผิดพลาดในการอัปโหลดไฟล์
-        if ($_FILES['item_image']['error'] !== UPLOAD_ERR_OK) {
-            echo "<script>alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์: " . $_FILES['item_image']['error'] . "'); window.history.back();</script>";
-            exit;
-        }
-
-        // ตรวจสอบสิทธิ์การเขียนในโฟลเดอร์
-        if (!is_writable($target_dir)) {
-            echo "<script>alert('ไม่สามารถเขียนไฟล์ไปยังโฟลเดอร์ $target_dir'); window.history.back();</script>";
-            exit;
-        }
-
-        // ตรวจสอบว่ามีไฟล์ที่มีชื่อเดียวกันอยู่แล้วในโฟลเดอร์หรือไม่
-        if (file_exists($target_file)) {
-            echo "<script>alert('ขออภัย, ไฟล์นี้มีอยู่ในระบบแล้ว กรุณาเลือกไฟล์อื่น'); window.history.back();</script>";
-            exit;
-        }
-
-        // ย้ายไฟล์ไปยังโฟลเดอร์ที่กำหนด
-        if (!move_uploaded_file($_FILES['item_image']['tmp_name'], $target_file)) {
-            echo "<script>alert('ขออภัย, เกิดข้อผิดพลาดในการอัปโหลดไฟล์'); window.history.back();</script>";
-            exit;
-        }
-
-        $item_image = $image_name; // บันทึกชื่อไฟล์ในฐานข้อมูล
-    } else if ($_FILES['item_image']['error'] !== UPLOAD_ERR_NO_FILE) {
-        // ข้อผิดพลาดที่ไม่ใช่การไม่อัปโหลดไฟล์
-        echo "<script>alert('ขออภัย, เกิดข้อผิดพลาดในการอัปโหลด'); window.history.back();</script>";
+    } else {
+        echo "<script>alert('ไม่ได้เลือกไฟล์อัปโหลด'); window.history.back();</script>";
         exit;
     }
+
+    // รวมชื่อไฟล์ทั้งหมดเป็นสตริงที่คั่นด้วยเครื่องหมายจุลภาค
+    $item_images_str = implode(',', $item_images);
 
     // เตรียมคำสั่ง SQL เพื่อบันทึกข้อมูล
     $stmt = $mysqli->prepare("
@@ -89,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $status_id = 1; // 'หาย' ในตาราง statuses
-    $stmt->bind_param("sssssssi", $owner_name, $owner_contact, $item_type, $item_description, $lost_date, $lost_location, $item_image, $status_id);
+    $stmt->bind_param("sssssssi", $owner_name, $owner_contact, $item_type, $item_description, $lost_date, $lost_location, $item_images_str, $status_id);
 
     // บันทึกข้อมูลลงฐานข้อมูล
     if ($stmt->execute()) {
