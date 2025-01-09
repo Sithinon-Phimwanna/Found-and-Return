@@ -22,52 +22,10 @@ session_regenerate_id(true);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Found&Return</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
     <script src="https://unpkg.com/feather-icons"></script>
-    <style>
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            padding: 90px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-        }
-
-        @media (max-width: 767.98px) {
-            .sidebar {
-                top: 11.5rem;
-                padding: 0;
-            }
-        }
-            
-        .navbar {
-            box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .1);
-        }
-
-        @media (min-width: 767.98px) {
-            .navbar {
-                top: 0;
-                position: sticky;
-                z-index: 999;
-            }
-        }
-
-        .sidebar .nav-link {
-            color: #333;
-        }
-
-        .sidebar .nav-link.active {
-            color: #0d6efd;
-        }
-        
-        main {
-            margin-left: 250px; /* ชดเชยสำหรับความกว้างของ sidebar */
-            padding: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="css/styleadmin.css">
 </head>
 <body>
     <nav class="navbar navbar-light bg-light p-3">
@@ -96,7 +54,7 @@ session_regenerate_id(true);
                 <div class="position-sticky">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                          <a class="nav-link active" id="homeTab" data-bs-toggle="pill" aria-current="page" href="dashboard_content.php">
+                          <a class="nav-link" id="homeTab" data-bs-toggle="pill" aria-current="page" href="dashboard_content.php">
                             <i data-feather="home"></i>
                             <script>feather.replace();</script>
                             <span class="ml-2">หน้าหลัก</span>
@@ -131,7 +89,7 @@ session_regenerate_id(true);
                           </a>
                         </li>
                         <li class="nav-item">
-                          <a class="nav-link" id="register" data-bs-toggle="pill" href="register.php">
+                          <a class="nav-link" id="register" data-bs-toggle="pill" data-bs-target="#main" href="register.php">
                             <i data-feather="users"></i>
                               <script>feather.replace();</script>
                             <span class="ml-2">สมัครสมาชิก</span>
@@ -144,28 +102,68 @@ session_regenerate_id(true);
     </div>
 
                 <!-- Main Content -->
-                <main class="col-md-9 ms-sm-auto col-lg-10 px-4">
-                <!-- ข้อมูลที่จะแสดงในพื้นที่นี้ -->
-                <h2>ยินดีต้อนรับสู่ Found&Return</h2>
-                <p>จัดการการแจ้งทรัพย์สินที่หายและที่เก็บได้ง่ายดาย</p>
-
-                <!-- เพิ่มเนื้อหาเพิ่มเติม เช่น ฟอร์ม รายการ ตาราง เป็นต้น -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-4">
+            
             </main>
             
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js" integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
     <script>
-        new Chartist.Line('#traffic-chart', {
-            labels: ['January', 'Februrary', 'March', 'April', 'May', 'June'],
-            series: [
-                [23000, 25000, 19000, 34000, 56000, 64000]
-            ]
-        }, {
-            low: 0,
-            showArea: true
->>>>>>> 098dcc7 (fourth commit)
+        document.addEventListener("DOMContentLoaded", function () {
+            const sidebarLinks = document.querySelectorAll(".sidebar .nav-link");
+
+            // โหลดสถานะจาก localStorage
+            const activeTab = localStorage.getItem("activeTab");
+            if (activeTab) {
+                const tab = document.getElementById(activeTab);
+                if (tab) {
+                    tab.classList.add("active");
+                    const url = tab.getAttribute("href");
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                            return response.text();
+                        })
+                        .then(data => {
+                            document.querySelector("main").innerHTML = data;
+                        })
+                        .catch(error => {
+                            console.error("Error fetching content:", error);
+                            document.querySelector("main").innerHTML = "<p>Error loading content. Please try again later.</p>";
+                        });
+                }
+            }
+
+            sidebarLinks.forEach(link => {
+                link.addEventListener("click", function (event) {
+                    event.preventDefault();
+
+                    sidebarLinks.forEach(link => link.classList.remove("active"));
+                    this.classList.add("active");
+
+                    const url = this.getAttribute("href");
+
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                            return response.text();
+                        })
+                        .then(data => {
+                            document.querySelector("main").innerHTML = data;
+                        })
+                        .catch(error => {
+                            console.error("Error fetching content:", error);
+                            document.querySelector("main").innerHTML = "<p>Error loading content. Please try again later.</p>";
+                        });
+
+                    // เก็บสถานะของ tab ที่เลือก
+                    localStorage.setItem("activeTab", this.id);
+                });
+            });
         });
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

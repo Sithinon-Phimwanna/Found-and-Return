@@ -1,4 +1,5 @@
 <?php
+session_start();
 require 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,8 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $update_stmt->close();
     $mysqli->close();
 
-    // รีไดเร็กต์ไปยังหน้ารายการของที่พบ
-    header("Location: found_items_list.php");  // เปลี่ยน "found_items_list.php" เป็นชื่อหน้าเดิมที่คุณต้องการ
+
+
+    // ส่งกลับไปยังหน้าเดิม
+    header('Location: found_items_list.php' );
     exit();
 }
 ?>

@@ -57,6 +57,7 @@ $result = $stmt->get_result();
 if (!$result) {
     die('Error fetching result: ' . $mysqli->error);
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -68,90 +69,121 @@ if (!$result) {
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>รายการของที่พบ</h1>
+    <header class="page-header">
+        <h1>รายการของที่พบ</h1>
+    </header>
+
+    <!-- แสดงข้อความแจ้งเตือน (ถ้ามี) -->
+    <?php
+    if (isset($_SESSION['status_update_message'])) {
+        echo '<div class="alert alert-success">' . $_SESSION['status_update_message'] . '</div>';
+        unset($_SESSION['status_update_message']);
+    }
+    ?>
 
     <!-- ฟอร์มค้นหา -->
-    <form method="GET">
-        <input type="text" name="search" placeholder="ค้นหา..." value="<?= htmlspecialchars($search_query) ?>">
-        <button type="submit">ค้นหา</button>
-    </form>
+    <section class="search-section">
+        <form method="GET" class="search-form">
+            <input type="text" name="search" placeholder="ค้นหา..." class="search-input">
+            <button type="submit" class="search-button">ค้นหา</button>
+        </form>
+    </section>
 
     <!-- แสดงข้อมูลในตาราง -->
-    <table>
-        <thead>
-            <tr>
-                <th>รหัส</th>
-                <th>ชื่อผู้แจ้ง</th>
-                <th>ช่องทางการติดต่อ</th>
-                <th>ทรัพย์สิน</th>
-                <th>รายละเอียด</th>
-                <th>สถานที่เก็บได้</th>
-                <th>วันที่เก็บได้</th>
-                <th>ภาพทรัพย์สิน</th>
-                <th>สถานะ</th>
-                <th>อัปเดตสถานะ</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($row = $result->fetch_assoc()): ?>
+    <section class="table-section">
+        <table class="found-items-table">
+            <thead>
                 <tr>
-                    <td><?= $row['found_id'] ?></td>
-                    <td><?= htmlspecialchars($row['finder_name']) ?></td>
-                    <td><?= htmlspecialchars($row['finder_contact']) ?></td>
-                    <td><?= htmlspecialchars($row['found_type']) ?></td>
-                    <td><?= htmlspecialchars($row['found_description']) ?></td>
-                    <td><?= htmlspecialchars($row['found_location']) ?></td>
-                    <td>
-                        <!-- เปลี่ยนรูปแบบวันที่เป็น วัน/เดือน/ปี -->
-                        <?= date('d/m/Y H:m:s', strtotime($row['found_date'])) ?>
-                    </td>
-                    <td>
-                        <?php 
-                        // แยกชื่อไฟล์จากฐานข้อมูลและแสดงผลหลายรูป
-                        $images = explode(',', $row['found_image']);
-                        foreach ($images as $image):
-                            if (!empty($image)):
-                        ?>
-                            <img src="found_images/<?= htmlspecialchars($image) ?>" alt="ภาพของที่พบ" style="max-width:100px; margin-right: 5px;">
-                        <?php 
-                            endif;
-                        endforeach;
-                        ?>
-                    </td>
-                    <td><?= htmlspecialchars($row['status']) ?></td>
-                    <td>
-                        <!-- ฟอร์มอัปเดตสถานะ -->
-                        <form method="POST" action="update_status_found.php">
-                            <input type="hidden" name="found_id" value="<?= $row['found_id'] ?>">
-                            <select name="status_id">
-                                <?php
-                                // ดึงข้อมูลสถานะทั้งหมด
-                                $status_query = "SELECT * FROM statuses";
-                                $status_result = $mysqli->query($status_query);
-                                while ($status = $status_result->fetch_assoc()):
-                                ?>
-                                    <option value="<?= $status['status_id'] ?>" <?= $row['status'] === $status['status_name'] ? 'selected' : '' ?>>
-                                        <?= $status['status_name'] ?>
-                                    </option>
-                                <?php endwhile; ?>
-                            </select>
-                            <button type="submit">อัปเดต</button>
-                        </form>
-                    </td>
+                    <th>รหัส</th>
+                    <th>ชื่อผู้แจ้ง</th>
+                    <th>ช่องทางการติดต่อ</th>
+                    <th>ทรัพย์สิน</th>
+                    <th>รายละเอียด</th>
+                    <th>สถานที่เก็บได้</th>
+                    <th>วันที่เก็บได้</th>
+                    <th>ภาพทรัพย์สิน</th>
+                    <th>สถานะ</th>
+                    <th>อัปเดตสถานะ</th>
                 </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= $row['found_id'] ?></td>
+                        <td><?= htmlspecialchars($row['finder_name']) ?></td>
+                        <td><?= htmlspecialchars($row['finder_contact']) ?></td>
+                        <td><?= htmlspecialchars($row['found_type']) ?></td>
+                        <td><?= htmlspecialchars($row['found_description']) ?></td>
+                        <td><?= htmlspecialchars($row['found_location']) ?></td>
+                        <td><?= date('d/m/Y H:m:s', strtotime($row['found_date'])) ?></td>
+                        <td class="image-cell">
+                            <?php 
+                            $images = explode(',', $row['found_image']);
+                            foreach ($images as $image):
+                                if (!empty($image)):
+                            ?>
+                                <img src="found_images/<?= htmlspecialchars($image) ?>" alt="ภาพของที่พบ" class="item-image">
+                            <?php 
+                                endif;
+                            endforeach;
+                            ?>
+                        </td>
+
+                        <td><?= htmlspecialchars($row['status']) ?></td>
+                        <td>
+                            <form method="POST" action="update_status_found.php" class="status-form">
+                                <input type="hidden" name="found_id" value="<?= $row['found_id'] ?>">
+                                <select name="status_id" class="status-select">
+                                    <?php
+                                    $status_query = "SELECT * FROM statuses";
+                                    $status_result = $mysqli->query($status_query);
+                                    while ($status = $status_result->fetch_assoc()):
+                                    ?>
+                                        <option value="<?= $status['status_id'] ?>" <?= $row['status'] === $status['status_name'] ? 'selected' : '' ?>>
+                                            <?= $status['status_name'] ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                </select>
+                                <button type="submit" class="update-button">อัปเดต</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </section>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const sidebarLinks = document.querySelectorAll(".sidebar .nav-link .update-button");
+
+            sidebarLinks.forEach(link => {
+                link.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    sidebarLinks.forEach(link => link.classList.remove("active"));
+                    this.classList.add("active");
+
+                    const url = this.getAttribute("href");
+
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                            return response.text();
+                        })
+                        .then(data => {
+                            document.querySelector("main").innerHTML = data;
+                        })
+                        .catch(error => {
+                            console.error("Error fetching content:", error);
+                            document.querySelector("main").innerHTML = "<p>Error loading content. Please try again later.</p>";
+                        });
+                });
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <footer class="page-footer">
+        <a href="admin_index.php" class="back-button">กลับหน้าแรก</a>
+    </footer>
 </body>
-<div style="display: flex; justify-content: center; align-items: center; height: 10vh;">
-    <a href="admin_index.php" style="background-color: green; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px;">
-        กลับหน้าแรก
-    </a>
-</div>
-
 </html>
-
-<?php
-$stmt->close();
-$mysqli->close();
-?>

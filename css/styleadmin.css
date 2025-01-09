@@ -1,56 +1,49 @@
-/* Reset default margin and padding */
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%; /* ความสูงเต็ม viewport */
-}
-
-body {
-    display: flex;
-    flex-direction: column; /* จัดวางให้ Footer อยู่ล่างสุด */
-    min-height: 100vh; /* ทำให้ body มีความสูงเต็ม viewport */
-}
-
-.main-container {
-    display: flex;
-    flex: 1; /* ทำให้เนื้อหายืดเต็มพื้นที่ */
-}
-
+/* Sidebar styles */
 .sidebar {
-    background-color: #28a745;
-    color: white;
-    width: 230px; /* กำหนดความกว้างของ Sidebar */
-    min-height: 100vh; /* สูงเต็มจอ */
-    overflow-y: auto; /* เพิ่ม scroll เมื่อเนื้อหาเกิน */
-    flex-shrink: 0; /* ไม่ให้ Sidebar หดตัว */
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 90px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        top: 11.5rem;
+        padding: 0;
+    }
+}
+
+/* Navbar styles */
+.navbar {
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .1);
+}
+
+@media (min-width: 767.98px) {
+    .navbar {
+        top: 0;
+        position: sticky;
+        z-index: 999;
+    }
+}
+
+/* Sidebar navigation links */
+.sidebar .nav-link {
+    color: #333;
+}
+
+.sidebar .nav-link.active {
+    color: #0d6efd;
+}
+
+/* Main content styles */
+/* Main content styles */
+main {
+    margin-left: 250px; /* Adjust for sidebar width */
     padding: 20px;
+    width: calc(100% - 250px); /* Ensure the main content fills the remaining space */
+    overflow: auto; /* Allow scrolling if content overflows */
 }
 
-.sidebar a {
-    color: white;
-    text-decoration: none;
-}
-
-.sidebar a:hover {
-    color: #c2d1ff;
-}
-
-.content {
-    flex: 1; /* เนื้อหาหลักขยายเต็มพื้นที่ */
-    padding: 20px;
-    background-color: #f8f9fc; /* สีพื้นหลังของ Content */
-}
-
-.card-custom {
-    border: 0;
-    border-left: 4px solid #4e73df;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-footer {
-    background-color: #e9ecef; /* สี Footer */
-    color: black;
-    text-align: center;
-    padding: 10px 0;
-    margin-top: auto; /* ดัน Footer ไปอยู่ล่างสุด */
-}

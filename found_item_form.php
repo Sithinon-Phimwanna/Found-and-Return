@@ -22,8 +22,8 @@ if (!isset($_SESSION['user_id'])) {
 try {
     $user_id = $_SESSION['user_id'];
     $query = "SELECT UserAdminName, email FROM users WHERE id = ?";
-    $stmt = $mysqli->prepare($query); // ใช้ $mysqli แทน $conn
-    $stmt->bind_param("d", $user_id);
+    $stmt = $mysqli->prepare($query); // ใช้ $mysqli
+    $stmt->bind_param("d", $user_id); // ใช้ integer สำหรับ user_id
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
@@ -45,26 +45,56 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>แจ้งเก็บทรัพย์สินได้</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/stylefrom.css">
 </head>
 <body>
-    <h1>แจ้งเก็บทรัพย์สินได้</h1>
-    <form action="submit_found_item.php" method="POST" enctype="multipart/form-data">
-        <label>ชื่อผู้แจ้ง:</label>
-        <input type="text" name="finder_name" value="<?php echo htmlspecialchars($name); ?>" required><br>
-        <label>ช่องทางการติดต่อ:</label>
-        <input type="text" name="finder_contact" value="<?php echo htmlspecialchars($contact); ?>" required><br>
-        <label>ทรัพย์สิน:</label>
-        <input type="text" name="found_type" required><br>
-        <label>รายละเอียด:</label>
-        <textarea name="found_description" required></textarea><br>
-        <label>วันที่เก็บได้:</label>
-        <input type="date" name="found_date" required><br>
-        <label>สถานที่เก็บได้:</label>
-        <input type="text" name="found_location" required><br>
-        <label>อัพโหลดภาพทรัพย์สินที่เก็บได้:</label>
-        <input type="file" name="found_image[]" multiple><br>
-        <button type="submit">ส่งข้อมูล</button>
-    </form>
+    <div class="container mt-3">
+        <div class="row justify-content-start ms-10">
+            <div class="col-10 col-md-10 col-lg-10">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">แจ้งเก็บทรัพย์สินได้</h5>
+                        <form action="submit_found_item.php" method="POST" enctype="multipart/form-data">
+                            <div class="mb-1">
+                                <label for="finder_name" class="form-label">ชื่อผู้แจ้ง:</label>
+                                <input type="text" class="form-control-sm" id="finder_name" name="finder_name" value="<?php echo htmlspecialchars($name); ?>" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="finder_contact" class="form-label">ช่องทางการติดต่อ:</label>
+                                <input type="text" class="form-control-sm" id="finder_contact" name="finder_contact" value="<?php echo htmlspecialchars($contact); ?>" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="found_type" class="form-label">ทรัพย์สิน:</label>
+                                <input type="text" class="form-control-sm" id="found_type" name="found_type" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="found_description" class="form-label">รายละเอียด:</label>
+                                <textarea class="form-control-sm" id="found_description" name="found_description" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-1">
+                                <label for="found_date" class="form-label">วันที่เก็บได้:</label>
+                                <input type="date" class="form-control-sm" id="found_date" name="found_date" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="found_location" class="form-label">สถานที่เก็บได้:</label>
+                                <input type="text" class="form-control-sm" id="found_location" name="found_location" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="found_image" class="form-label">อัพโหลดภาพทรัพย์สินที่เก็บได้:</label>
+                                <input class="form-control-sm" type="file" id="found_image" name="found_image[]" multiple>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">ส่งข้อมูล</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- รวมสคริปต์ Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

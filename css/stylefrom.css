@@ -1,7 +1,16 @@
-/* Reset and basic styling */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fc;
-    color: #343a40;
-    display: flex;
-}
+    /* ปรับระยะห่างระหว่าง label กับ input */
+    .input-group {
+        display: flex;
+        align-items: center;
+    }
+
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000; /* ให้แน่ใจว่า navbar จะอยู่ด้านบน */
+    }
+    body {
+        padding-top: 60px; /* ปรับขนาดให้เหมาะสมกับความสูงของ navbar */
+    }
