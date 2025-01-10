@@ -1,21 +1,15 @@
 <?php
-session_start(); // เริ่มต้นเซสชัน
+session_start(); // Start session
 
-// ตรวจสอบการล็อกอิน
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอินให้ไปหน้า login
-    exit;
-}
-
-// ป้องกันการแคช
+// Prevent caching
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
-header("Expires: 0"); // ให้หมดอายุทันที
+header("Expires: 0");
 
-require 'config.php'; // เชื่อมต่อกับฐานข้อมูล
+require 'config.php'; // Include the database connection
 
-// ตรวจสอบว่าเป็นการส่งข้อมูลสมัครสมาชิกหรือไม่
+// Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userAdminID = $_POST['UserAdminID'];
     $password = $_POST['Password'];
@@ -25,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $level_id = $_POST['level_id'];
     $email = $_POST['email'];
 
-    // ตรวจสอบว่าผู้ใช้มี UserAdminID หรือ Email นี้อยู่ในฐานข้อมูลหรือไม่
+    // Check if the username or email already exists
     $query = "SELECT * FROM users WHERE UserAdminID = ? OR email = ?";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param('ss', $userAdminID, $email);
@@ -35,10 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result->num_rows > 0) {
         $error = "ชื่อผู้ใช้หรืออีเมลนี้ถูกใช้งานแล้ว!";
     } else {
-        // เข้ารหัสรหัสผ่านด้วย MD5
+        // Hash the password
         $hashed_password = md5($password);
 
-        // แทรกข้อมูลผู้ใช้ใหม่
+        // Insert the new user into the database
         $query = "INSERT INTO users (UserAdminID, Password, UserAdminName, position_id, group_id, level_id, email) 
                   VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $mysqli->prepare($query);
@@ -53,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,39 +56,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/stylefrom.css">
 </head>
 <body>
-    <h1>สมัครสมาชิก</h1>
+    <div class="container mt-3">
+        <div class="row justify-content-start ms-10">
+            <div class="col-10 col-md-10 col-lg-10">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">สมัครสมาชิก</h5>
 
-    <?php if (isset($error)): ?>
-        <p style="color: red;"><?= $error ?></p>
-    <?php endif; ?>
+                        <!-- Error message -->
+                        <?php if (isset($error)): ?>
+                            <p style="color: red;"><?= $error ?></p>
+                        <?php endif; ?>
 
-    <?php if (isset($message)): ?>
-        <p style="color: green;"><?= $message ?></p>
-    <?php endif; ?>
+                        <!-- Success message -->
+                        <?php if (isset($message)): ?>
+                            <p style="color: green;"><?= $message ?></p>
+                        <?php endif; ?>
 
-    <form method="POST">
-        <label for="UserAdminID">ชื่อผู้ใช้:</label>
-        <input type="text" name="UserAdminID" id="UserAdminID" required>
-
-        <label for="Password">รหัสผ่าน:</label>
-        <input type="password" name="Password" id="Password" required>
-
-        <label for="UserAdminName">ชื่อ-นามสกุล:</label>
-        <input type="text" name="UserAdminName" id="UserAdminName" required>
-
-        <label for="position_id">ตำแหน่ง:</label>
-        <input type="number" name="position_id" id="position_id" required>
-
-        <label for="group_id">กลุ่ม:</label>
-        <input type="number" name="group_id" id="group_id" required>
-
-        <label for="level_id">ระดับการเข้าถึง:</label>
-        <input type="number" name="level_id" id="level_id" required>
-
-        <label for="email">อีเมล:</label>
-        <input type="email" name="email" id="email" required>
-
-        <button type="submit">สมัครสมาชิก</button>
-    </form>
+                        <!-- Registration form -->
+                        <form method="POST">
+                            <div class="mb-1">
+                                <label for="UserAdminID" class="form-label">ชื่อผู้ใช้:</label>
+                                <input type="text" class="form-control-sm" name="UserAdminID" id="UserAdminID" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="Password" class="form-label">รหัสผ่าน:</label>
+                                <input type="password" class="form-control-sm" name="Password" id="Password" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="UserAdminName" class="form-label">ชื่อ-นามสกุล:</label>
+                                <input type="text" class="form-control-sm" name="UserAdminName" id="UserAdminName" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="position_id" class="form-label">ตำแหน่ง:</label>
+                                <input type="number" class="form-control-sm" name="position_id" id="position_id" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="group_id" class="form-label">กลุ่ม:</label>
+                                <input type="number" class="form-control-sm" name="group_id" id="group_id" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="level_id" class="form-label">ระดับการเข้าถึง:</label>
+                                <input type="number" class="form-control-sm" name="level_id" id="level_id" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="email" class="form-label">อีเมล:</label>
+                                <input type="email" class="form-control-sm" name="email" id="email" required>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">สมัครสมาชิก</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

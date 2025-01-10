@@ -84,7 +84,7 @@ if (!$result) {
     <!-- ฟอร์มค้นหา -->
     <section class="search-section">
         <form method="GET" class="search-form">
-            <input type="text" name="search" placeholder="ค้นหา..." class="search-input">
+            <input type="text" name="search" placeholder="ค้นหา..." class="search-input" value="<?= htmlspecialchars($search_query) ?>">
             <button type="submit" class="search-button">ค้นหา</button>
         </form>
     </section>

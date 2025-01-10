@@ -89,7 +89,7 @@ session_regenerate_id(true);
                           </a>
                         </li>
                         <li class="nav-item">
-                          <a class="nav-link" id="register" data-bs-toggle="pill" data-bs-target="#main" href="register.php">
+                          <a class="nav-link" id="register" data-bs-toggle="pill"  href="register.php">
                             <i data-feather="users"></i>
                               <script>feather.replace();</script>
                             <span class="ml-2">สมัครสมาชิก</span>
