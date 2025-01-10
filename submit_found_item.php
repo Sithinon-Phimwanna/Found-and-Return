@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ใช้เวลาปัจจุบัน
     $found_date = date('Y-m-d H:i:s');
 
-    // ตรวจสอบและจัดการอัปโหลดภาพหลายไฟล์
+    // ตรวจสอบและจัดการอัปโหลดภาพหลายไฟล์ (ทำให้ไม่บังคับ)
     $images = [];
     if (isset($_FILES['found_image']) && !empty($_FILES['found_image']['name'][0])) {
         $upload_dir = 'found_images/';
@@ -51,14 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // ตรวจสอบว่ามีไฟล์ที่อัปโหลดไหม
-    if (empty($images)) {
-        echo "<script>alert('กรุณาอัปโหลดไฟล์'); window.history.back();</script>";
-        exit;
-    }
-
-    // แปลงอาร์เรย์ชื่อไฟล์เป็นสตริง (ใช้ , แยก)
-    $images_str = implode(',', $images);
+    // แปลงอาร์เรย์ชื่อไฟล์เป็นสตริง (ใช้ , แยก) หรือใช้ NULL ถ้าไม่อัปโหลดไฟล์
+    $images_str = !empty($images) ? implode(',', $images) : NULL;
 
     $status_id = 2; // 'พบ' ในตาราง statuses
 

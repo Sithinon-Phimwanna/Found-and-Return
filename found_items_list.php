@@ -28,15 +28,18 @@ $query = "
         found_items.found_date,
         found_items.found_location,
         found_items.found_image,
-        statuses.status_name AS status
+        statuses.status_name AS status,
+        locations.location_name
     FROM 
         found_items
     JOIN 
         statuses ON found_items.status_id = statuses.status_id
+    LEFT JOIN 
+        location AS locations ON found_items.found_location = locations.location_id
     WHERE 
         found_items.finder_name LIKE ? 
         OR found_items.found_type LIKE ? 
-        OR found_items.found_location LIKE ? 
+        OR locations.location_name LIKE ? 
         OR found_items.found_date LIKE ?
 ";
 
@@ -57,7 +60,6 @@ $result = $stmt->get_result();
 if (!$result) {
     die('Error fetching result: ' . $mysqli->error);
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -114,21 +116,21 @@ if (!$result) {
                         <td><?= htmlspecialchars($row['finder_contact']) ?></td>
                         <td><?= htmlspecialchars($row['found_type']) ?></td>
                         <td><?= htmlspecialchars($row['found_description']) ?></td>
-                        <td><?= htmlspecialchars($row['found_location']) ?></td>
-                        <td><?= date('d/m/Y H:m:s', strtotime($row['found_date'])) ?></td>
-                        <td class="image-cell">
+                        <td><?= htmlspecialchars($row['location_name']) ?></td> <!-- แสดงชื่อสถานที่ -->
+                        <td><?= date('d/m/Y H:i:s', strtotime($row['found_date'])) ?></td>
+                        <td>
                             <?php 
-                            $images = explode(',', $row['found_image']);
-                            foreach ($images as $image):
-                                if (!empty($image)):
-                            ?>
-                                <img src="found_images/<?= htmlspecialchars($image) ?>" alt="ภาพของที่พบ" class="item-image">
-                            <?php 
-                                endif;
-                            endforeach;
+                            // แสดงภาพทรัพย์สินหายหลายภาพ
+                            if ($row['found_image']) {
+                                $item_images = explode(',', $row['found_image']);
+                                foreach ($item_images as $image) {
+                                    echo '<img src="found_images/' . htmlspecialchars($image) . '" alt="ภาพทรัพย์สินหาย" style="max-width:100px; margin-right: 10px;">';
+                                }
+                            } else {
+                                echo 'ไม่มีภาพ';
+                            }
                             ?>
                         </td>
-
                         <td><?= htmlspecialchars($row['status']) ?></td>
                         <td>
                             <form method="POST" action="update_status_found.php" class="status-form">
@@ -152,34 +154,6 @@ if (!$result) {
             </tbody>
         </table>
     </section>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const sidebarLinks = document.querySelectorAll(".sidebar .nav-link .update-button");
-
-            sidebarLinks.forEach(link => {
-                link.addEventListener("click", function (event) {
-                    event.preventDefault();
-                    sidebarLinks.forEach(link => link.classList.remove("active"));
-                    this.classList.add("active");
-
-                    const url = this.getAttribute("href");
-
-                    fetch(url)
-                        .then(response => {
-                            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                            return response.text();
-                        })
-                        .then(data => {
-                            document.querySelector("main").innerHTML = data;
-                        })
-                        .catch(error => {
-                            console.error("Error fetching content:", error);
-                            document.querySelector("main").innerHTML = "<p>Error loading content. Please try again later.</p>";
-                        });
-                });
-            });
-        });
-    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
     <footer class="page-footer">

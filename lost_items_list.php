@@ -113,7 +113,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                         <!-- เปลี่ยนรูปแบบวันที่เป็น วัน/เดือน/ปี -->
                         <?= date('d/m/Y H:i:s', strtotime($row['lost_date'])) ?>
                     </td>
-                    <td><?= htmlspecialchars($row['lost_location']) ?></td>
+                    <td><?= htmlspecialchars($row['location_name']) ?></td>
                     <td>
                         <?php 
                             // แสดงภาพทรัพย์สินหายหลายภาพ

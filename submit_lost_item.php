@@ -18,9 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // ตรวจสอบการอัปโหลดภาพ
+    // ตรวจสอบการอัปโหลดภาพ (ไม่บังคับ)
     $item_images = [];
-    if (isset($_FILES['item_image']) && $_FILES['item_image']['error'][0] === UPLOAD_ERR_OK) {
+    if (isset($_FILES['item_image']) && !empty($_FILES['item_image']['name'][0])) {
         // ตรวจสอบแต่ละไฟล์
         $files = $_FILES['item_image'];
         for ($i = 0; $i < count($files['name']); $i++) {
@@ -59,13 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $item_images[] = $image_name; // บันทึกชื่อไฟล์ในอาเรย์
             }
         }
-    } else {
-        echo "<script>alert('ไม่ได้เลือกไฟล์อัปโหลด'); window.history.back();</script>";
-        exit;
     }
 
-    // รวมชื่อไฟล์ทั้งหมดเป็นสตริงที่คั่นด้วยเครื่องหมายจุลภาค
-    $item_images_str = implode(',', $item_images);
+    // ถ้าไม่มีการอัปโหลดภาพ ให้ส่งค่าเป็น NULL
+    $item_images_str = !empty($item_images) ? implode(',', $item_images) : NULL;
 
     // เตรียมคำสั่ง SQL เพื่อบันทึกข้อมูล
     $stmt = $mysqli->prepare("
@@ -84,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // บันทึกข้อมูลลงฐานข้อมูล
     if ($stmt->execute()) {
         echo "
-        <div style='display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f5f5f5;'>
+        <div style='display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f5f5f5;' >
             <div style='text-align: center; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
                 <p style='font-size: 24px; color: #4CAF50; margin-bottom: 20px;'>บันทึกข้อมูลสำเร็จ</p>
                 <a href='lost_items_list.php' style='display: inline-block; font-size: 18px; color: #ffffff; background-color: #007BFF; padding: 10px 20px; text-decoration: none; border-radius: 4px; transition: background-color 0.3s;'>ดูรายการ</a>

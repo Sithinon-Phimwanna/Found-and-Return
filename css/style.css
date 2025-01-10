@@ -33,17 +33,4 @@ select {
     border-radius: 5px;
 }
 
-/* สำหรับการแสดงรูปภาพในแนวนอน */
-.image-cell {
-    display: flex; /* ใช้ Flexbox เพื่อจัดรูปภาพ */
-    flex-wrap: wrap; /* ทำให้รูปภาพยืดหยุ่นได้หากมีหลายภาพ */
-    gap: 10px; /* กำหนดระยะห่างระหว่างรูปภาพ */
-    justify-content: flex-start; /* จัดรูปภาพเริ่มต้นจากทางซ้าย */
-}
-
-.item-image {
-    width: 100px; /* กำหนดขนาดรูปภาพ */
-    height: 100px; /* กำหนดขนาดรูปภาพ */
-    object-fit: cover; /* ทำให้รูปภาพไม่ผิดเพี้ยน */
-}
 

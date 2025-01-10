@@ -37,6 +37,15 @@ try {
 } catch (Exception $e) {
     die("ข้อผิดพลาด: " . $e->getMessage());
 }
+// ดึงข้อมูลสถานที่จากฐานข้อมูล
+try {
+    $query_locations = "SELECT location_id, location_name FROM location";
+    $stmt_locations = $mysqli->prepare($query_locations);
+    $stmt_locations->execute();
+    $locations = $stmt_locations->get_result();
+} catch (Exception $e) {
+    die("ข้อผิดพลาดในการดึงข้อมูลสถานที่: " . $e->getMessage());
+}
 ?>
 
 <!DOCTYPE html>
@@ -78,7 +87,12 @@ try {
                             </div>
                             <div class="mb-1">
                                 <label for="found_location" class="form-label">สถานที่เก็บได้:</label>
-                                <input type="text" class="form-control-sm" id="found_location" name="found_location" required>
+                                <select class="form-control-sm" id="found_location" name="found_location" required>
+                                    <option value="">เลือกสถานที่</option>
+                                    <?php while ($location = $locations->fetch_assoc()): ?>
+                                        <option value="<?php echo $location['location_id']; ?>"><?php echo htmlspecialchars($location['location_name']); ?></option>
+                                    <?php endwhile; ?>
+                                </select>
                             </div>
                             <div class="mb-1">
                                 <label for="found_image" class="form-label">อัพโหลดภาพทรัพย์สินที่เก็บได้:</label>
