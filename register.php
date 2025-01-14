@@ -40,6 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->execute()) {
             $message = "สมัครสมาชิกสำเร็จ! <a href='login.php'>เข้าสู่ระบบ</a>";
+            echo "<script>alert('สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ.'); window.location.href = 'login.php';</script>";
+            exit;
         } else {
             $error = "เกิดข้อผิดพลาดในการสมัครสมาชิก!";
         }
@@ -50,67 +52,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สมัครสมาชิก</title>
-    <link rel="stylesheet" href="css/stylefrom.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Found & Return</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="assets/plugins/fontawesome-free/css/all.min.css">
+  <!-- icheck bootstrap -->
+  <link rel="stylesheet" href="assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
 </head>
-<body>
-    <div class="container mt-3">
-        <div class="row justify-content-start ms-10">
-            <div class="col-10 col-md-10 col-lg-10">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <h5 class="card-title text-center">สมัครสมาชิก</h5>
+<body class="hold-transition register-page">
+<div class="register-box">
+  <div class="register-logo">
+    <a href="#"><b>Found</b> & <b>Return</b></a>
+  </div>
 
-                        <!-- Error message -->
-                        <?php if (isset($error)): ?>
-                            <p style="color: red;"><?= $error ?></p>
-                        <?php endif; ?>
+  <div class="card">
+    <div class="card-body register-card-body">
+      <p class="login-box-msg">Register a new membership</p>
 
-                        <!-- Success message -->
-                        <?php if (isset($message)): ?>
-                            <p style="color: green;"><?= $message ?></p>
-                        <?php endif; ?>
-
-                        <!-- Registration form -->
-                        <form method="POST">
-                            <div class="mb-1">
-                                <label for="UserAdminID" class="form-label">ชื่อผู้ใช้:</label>
-                                <input type="text" class="form-control-sm" name="UserAdminID" id="UserAdminID" required>
-                            </div>
-                            <div class="mb-1">
-                                <label for="Password" class="form-label">รหัสผ่าน:</label>
-                                <input type="password" class="form-control-sm" name="Password" id="Password" required>
-                            </div>
-                            <div class="mb-1">
-                                <label for="UserAdminName" class="form-label">ชื่อ-นามสกุล:</label>
-                                <input type="text" class="form-control-sm" name="UserAdminName" id="UserAdminName" required>
-                            </div>
-                            <div class="mb-1">
-                                <label for="position_id" class="form-label">ตำแหน่ง:</label>
-                                <input type="number" class="form-control-sm" name="position_id" id="position_id" required>
-                            </div>
-                            <div class="mb-1">
-                                <label for="group_id" class="form-label">กลุ่ม:</label>
-                                <input type="number" class="form-control-sm" name="group_id" id="group_id" required>
-                            </div>
-                            <div class="mb-1">
-                                <label for="level_id" class="form-label">ระดับการเข้าถึง:</label>
-                                <input type="number" class="form-control-sm" name="level_id" id="level_id" required>
-                            </div>
-                            <div class="mb-1">
-                                <label for="email" class="form-label">อีเมล:</label>
-                                <input type="email" class="form-control-sm" name="email" id="email" required>
-                            </div>
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary">สมัครสมาชิก</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+      <form action="#" method="POST">
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="ชื่อผู้ใช้" name="UserAdminID" id="UserAdminID" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-user"></span>
             </div>
+          </div>
         </div>
+        <div class="input-group mb-3">
+          <input type="email" class="form-control" placeholder="อีเมล" name="email" id="email" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-envelope"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" class="form-control" placeholder="รหัสผ่าน" name="Password" id="Password" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="ชื่อ-นามสกุล" name="UserAdminName" id="UserAdminName" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-address-card"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="ตำแหน่ง" name="position_id" id="position_id" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-star"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="กลุ่ม" name="group_id" id="group_id" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-users"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="ระดับการเข้าถึง" name="level_id" id="level_id" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-wrench"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <!-- /.col -->
+          <div class="col-4">
+            <button type="submit" class="btn btn-primary btn-block">สมัครสมาชิก</button>
+          </div>
+          <!-- /.col -->
+        </div>
+      </form>
     </div>
+    <!-- /.form-box -->
+  </div><!-- /.card -->
+</div>
+<!-- /.register-box -->
+
+<!-- jQuery -->
+<script src="assets/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE App -->
+<script src="assets/dist/js/adminlte.min.js"></script>
 </body>
 </html>

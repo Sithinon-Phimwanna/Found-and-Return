@@ -19,151 +19,253 @@ session_regenerate_id(true);
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Found&Return</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
-    <script src="https://unpkg.com/feather-icons"></script>
-    <link rel="stylesheet" href="css/styleadmin.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Found & Return</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="assets/plugins/fontawesome-free/css/all.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
+  <!-- summernote -->
+  <link rel="stylesheet" href="assets/plugins/summernote/summernote-bs4.min.css">
 </head>
-<body>
-    <nav class="navbar navbar-light bg-light p-3">
-        <div class="d-flex col-12 col-md-3 col-lg-2 mb-2 mb-lg-0 flex-wrap flex-md-nowrap justify-content-between">
-            <a class="navbar-brand" href="#">Found&Return</a>
-            <button class="navbar-toggler d-md-none collapsed mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="index.php" class="nav-link">Home</a>
+      </li>
+    </ul>
+  </nav>
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="index3.php" class="brand-link">
+      <img src="assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+      <span class="brand-text font-weight-light">Found & Return</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+          <img src="assets/dist/img/avatar5.png" class="img-circle elevation-2" alt="User Image">
         </div>
-        <div class="dropdown">
-            <i data-feather="user"></i>
-            <script>feather.replace();</script>
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-expanded="false">
-              <span class="me-3"><?= htmlspecialchars($_SESSION['UserAdminName']); ?></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <li><a class="dropdown-item" href="logout.php">Sign out</a></li>
+        <div class="info">
+        <span class="me-3" style="color: white;"><?= htmlspecialchars($_SESSION['UserAdminName']); ?></span>
+        </div>
+      </div>
+
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <!-- Add icons to the links using the .nav-icon class
+               with font-awesome or any other icon font library -->
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-edit"></i>
+              <p>
+              รายการแจ้ง
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="found_item_form.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>แจ้งเก็บทรัพย์สินได้</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="lost_item_form.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>แจ้งทรัพย์สินหาย</p>
+                </a>
+              </li>
             </ul>
-        </div>
-    </nav>
-
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                <div class="position-sticky">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                          <a class="nav-link" id="homeTab" data-bs-toggle="pill" aria-current="page" href="dashboard_content.php">
-                            <i data-feather="home"></i>
-                            <script>feather.replace();</script>
-                            <span class="ml-2">หน้าหลัก</span>
-                          </a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" id="foundTab" data-bs-toggle="pill" href="found_item_form.php">
-                            <i data-feather="folder-plus"></i>
-                            <script>feather.replace();</script>
-                            <span class="ml-2">แจ้งเก็บทรัพย์สินได้</span>
-                          </a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" id="lostTab" data-bs-toggle="pill" href="lost_item_form.php">
-                            <i data-feather="folder-minus"></i>
-                            <script>feather.replace();</script>
-                            <span class="ml-2">แจ้งทรัพย์สินหาย</span>
-                          </a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" id="foundTabTwo" data-bs-toggle="pill" href="found_items_list.php">
-                              <i data-feather="align-justify"></i>
-                              <script>feather.replace();</script>
-                            <span class="ml-2">รายการแจ้งทรัพย์สินที่เก็บได้</span>
-                          </a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" id="lostTabTow" data-bs-toggle="pill" href="lost_items_list.php">
-                            <i data-feather="align-left"></i>
-                              <script>feather.replace();</script>
-                            <span class="ml-2">รายการแจ้งทรัพย์สินสูญหาย</span>
-                          </a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" id="register" data-bs-toggle="pill"  href="register.php">
-                            <i data-feather="users"></i>
-                              <script>feather.replace();</script>
-                            <span class="ml-2">สมัครสมาชิก</span>
-                          </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </div>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-table"></i>
+              <p>
+                ตารางทรัพย์สิน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="found_items_list.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ตารางแจ้งทรัพย์สินที่เก็บได้</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="lost_items_list.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ตารางแจ้งทรัพย์สินหาย</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-header">การจัดการ</li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon far fa-user"></i>
+              <p>
+                จัดการ แอดมิน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="register.php" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>สมัครสมากชิก</p>
+                    </a>
+                  </li>
+            </ul>
+            <li class="nav-item">
+                    <a href="logout.php" class="nav-link">
+                      <i class="far fa-sign-out nav-icon"></i>
+                      <p>ลงชื่อออก</p>
+                    </a>
+            </li>
+        </ul>
+      </nav>
+      <!-- /.sidebar-menu -->
     </div>
+    <!-- /.sidebar -->
+  </aside>
 
-                <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-4">
-            
-            </main>
-            
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js" integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const sidebarLinks = document.querySelectorAll(".sidebar .nav-link");
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">หน้าหลัก</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">หน้าหลัก</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
 
-            // โหลดสถานะจาก localStorage
-            const activeTab = localStorage.getItem("activeTab");
-            if (activeTab) {
-                const tab = document.getElementById(activeTab);
-                if (tab) {
-                    tab.classList.add("active");
-                    const url = tab.getAttribute("href");
-                    fetch(url)
-                        .then(response => {
-                            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                            return response.text();
-                        })
-                        .then(data => {
-                            document.querySelector("main").innerHTML = data;
-                        })
-                        .catch(error => {
-                            console.error("Error fetching content:", error);
-                            document.querySelector("main").innerHTML = "<p>Error loading content. Please try again later.</p>";
-                        });
-                }
-            }
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3>150</h3>
 
-            sidebarLinks.forEach(link => {
-                link.addEventListener("click", function (event) {
-                    event.preventDefault();
+                <p>New Orders</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-bag"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3>53<sup style="font-size: 20px">%</sup></h3>
 
-                    sidebarLinks.forEach(link => link.classList.remove("active"));
-                    this.classList.add("active");
+                <p>Bounce Rate</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3>44</h3>
 
-                    const url = this.getAttribute("href");
+                <p>User Registrations</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-person-add"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-danger">
+              <div class="inner">
+                <h3>65</h3>
 
-                    fetch(url)
-                        .then(response => {
-                            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                            return response.text();
-                        })
-                        .then(data => {
-                            document.querySelector("main").innerHTML = data;
-                        })
-                        .catch(error => {
-                            console.error("Error fetching content:", error);
-                            document.querySelector("main").innerHTML = "<p>Error loading content. Please try again later.</p>";
-                        });
+                <p>Unique Visitors</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-pie-graph"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="main-footer text-center">
+    <strong>สำนักวิทยบริการและเทคโนโลยีสารสนเทศ มหาวิทยาลัยราชภัฏพิบูลสงราม. &copy; 2024 <a href="https://library.psru.ac.th/">LIBRARY.PSRU</a>.</strong>
+  </footer>
 
-                    // เก็บสถานะของ tab ที่เลือก
-                    localStorage.setItem("activeTab", this.id);
-                });
-            });
-        });
-    </script>
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery -->
+<script src="assets/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Summernote -->
+<script src="assets/plugins/summernote/summernote-bs4.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE App -->
+<script src="assets/dist/js/adminlte.js"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src="assets/dist/js/pages/dashboard.js"></script>
 </body>
 </html>

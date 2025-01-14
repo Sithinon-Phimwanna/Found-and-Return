@@ -1,91 +1,38 @@
 <?php
+session_start();
 require 'config.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $item_id = $_POST['item_id'];
-    $status_id = $_POST['status_id'];
-    $deliverer = $_POST['deliverer']; // รับค่าผู้ส่งมอบจากฟอร์ม
+// ตรวจสอบการอัปเดต
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_FILES['finder_image']) && !empty($_FILES['finder_image']['name'][0])) {
+        $upload_dir = 'return_images/';
+        $file_names = [];
 
-    // กำหนดโฟลเดอร์สำหรับจัดเก็บภาพ
-    $upload_dir = 'return_images/';
-    $finder_image_path = null;
+        foreach ($_FILES['finder_image']['name'] as $key => $value) {
+            $file_tmp = $_FILES['finder_image']['tmp_name'][$key];
+            $file_name = basename($_FILES['finder_image']['name'][$key]);
+            $file_path = $upload_dir . $file_name;
 
-    if (isset($_FILES['finder_image']) && $_FILES['finder_image']['error'] === UPLOAD_ERR_OK) {
-        $file_tmp = $_FILES['finder_image']['tmp_name'];
-        $file_size = $_FILES['finder_image']['size'];
-        $file_name = $_FILES['finder_image']['name']; // ใช้ชื่อไฟล์เดิม
-        $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-
-        // ตรวจสอบประเภทและขนาดไฟล์
-        if ($file_size > 1048576) { // 1MB
-            echo "<script>alert('ขออภัย, ขนาดไฟล์ใหญ่เกินไป (สูงสุด 1MB)'); window.history.back();</script>";
-            exit;
+            if (move_uploaded_file($file_tmp, $file_path)) {
+                $file_names[] = $file_name;
+            } else {
+                echo "เกิดข้อผิดพลาดในการอัปโหลดไฟล์: $file_name";
+            }
         }
 
-        if (!in_array($file_extension, ['jpeg', 'jpg', 'png'])) {
-            echo "<script>alert('ขออภัย, ไฟล์ต้องเป็นภาพ JPEG หรือ PNG เท่านั้น'); window.history.back();</script>";
-            exit;
+        $finder_image = implode(',', $file_names);
+
+        $stmt = $mysqli->prepare("UPDATE lost_items SET finder_image = ? WHERE item_id = ?");
+        $stmt->bind_param('si', $finder_image, $_POST['item_id']);
+        if ($stmt->execute()) {
+            // ส่งกลับไปยังหน้าเดิมและแสดงข้อความ
+            header("Location: lost_items_list.php?update_success=true");
+            exit();
+        } else {
+            echo "เกิดข้อผิดพลาดในการอัปเดตข้อมูล: " . $stmt->error;
         }
-
-        // กำหนดชื่อไฟล์ใหม่ (ถ้าต้องการ) หรือใช้ชื่อไฟล์เดิม
-        $new_file_name = $file_name;  // ถ้าไม่ต้องการเปลี่ยนชื่อ ให้ใช้ชื่อเดิม
-
-        // กำหนด path สำหรับจัดเก็บ (ใช้ชื่อไฟล์ใหม่)
-        $finder_image_path = $upload_dir . $new_file_name;
-
-        // ย้ายไฟล์ไปยังโฟลเดอร์เป้าหมาย
-        if (!move_uploaded_file($file_tmp, $finder_image_path)) {
-            $error_code = $_FILES['finder_image']['error'];
-            echo "<script>alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์ : $error_code'); window.history.back();</script>";
-            exit;
-        }
-
-        // เก็บแค่ชื่อไฟล์ในฐานข้อมูล
-        $finder_image_name = $new_file_name;
-    }
-
-    // เริ่มต้นคำสั่ง SQL สำหรับการอัปเดต
-    if ($finder_image_name) {
-        // ถ้ามีภาพให้เก็บชื่อไฟล์ในฐานข้อมูล
-        $query = "
-            UPDATE lost_items 
-            SET status_id = ?, finder_image = ?, deliverer = ? 
-            WHERE item_id = ?
-        ";
-        $stmt = $mysqli->prepare($query);
-
-        if (!$stmt) {
-            die('Error preparing statement: ' . $mysqli->error);
-        }
-
-        // ส่งชื่อไฟล์แทน path และข้อมูลผู้ส่งมอบ
-        $stmt->bind_param('sssi', $status_id, $finder_image_name, $deliverer, $item_id);
     } else {
-        // ถ้าไม่มีภาพ ก็อัปเดตเฉพาะสถานะและผู้ส่งมอบ
-        $query = "
-            UPDATE lost_items 
-            SET status_id = ?, deliverer = ? 
-            WHERE item_id = ?
-        ";
-        $stmt = $mysqli->prepare($query);
-
-        if (!$stmt) {
-            die('Error preparing statement: ' . $mysqli->error);
-        }
-
-        // ส่งข้อมูลสถานะและผู้ส่งมอบ
-        $stmt->bind_param('ssi', $status_id, $deliverer, $item_id);
+        echo "กรุณาเลือกไฟล์เพื่ออัปโหลด";
     }
-
-    // ดำเนินการอัปเดต
-    if ($stmt->execute()) {
-        header('Location: lost_items_list.php'); // กลับไปยังหน้าเดิม
-        exit;
-    } else {
-        echo "เกิดข้อผิดพลาด: " . $stmt->error;
-    }
-
-    $stmt->close();
-    $mysqli->close();
 }
 ?>
