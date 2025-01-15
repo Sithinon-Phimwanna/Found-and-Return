@@ -1,5 +1,76 @@
 <?php
-session_start(); // เริ่มเซสชัน
+session_start();
+
+require 'config.php';
+
+
+// ดึงค่าค้นหาจาก GET (ถ้ามี)
+$search_query = isset($_GET['search']) ? $_GET['search'] : '';
+
+// ตรวจสอบว่า $search_query ไม่ว่าง
+if (!empty($search_query)) {
+    $query = "
+        SELECT 
+            found_items.found_id,
+            found_items.finder_name,
+            found_items.finder_contact,
+            found_items.found_type,
+            found_items.found_description,
+            found_items.found_date,
+            found_items.found_location,
+            found_items.found_image,
+            statuses.status_name AS status
+        FROM 
+            found_items
+        JOIN 
+            statuses ON found_items.status_id = statuses.status_id
+        WHERE 
+            found_items.finder_name LIKE ? 
+            OR found_items.found_type LIKE ? 
+            OR found_items.found_location LIKE ? 
+            OR found_items.found_date LIKE ?
+    ";
+} else {
+    // ถ้าไม่มีการค้นหาให้ดึงข้อมูลทั้งหมด
+    $query = "
+        SELECT 
+            found_items.found_id,
+            found_items.finder_name,
+            found_items.finder_contact,
+            found_items.found_type,
+            found_items.found_description,
+            found_items.found_date,
+            location.location_name AS found_location, -- ใช้ location_name แทน location_id
+            found_items.found_image,
+            statuses.status_name AS status
+        FROM 
+            found_items
+        JOIN 
+            location ON found_items.found_location = location.location_id -- เชื่อมกับตาราง location
+        JOIN 
+            statuses ON found_items.status_id = statuses.status_id
+    ";
+}
+
+// เตรียมการ query
+$stmt = $mysqli->prepare($query);
+if (!$stmt) {
+    die('Error preparing statement: ' . $mysqli->error);
+}
+
+$search_term = '%' . $search_query . '%';
+if (!empty($search_query)) {
+    $stmt->bind_param('ssss', $search_term, $search_term, $search_term, $search_term);
+}
+
+if (!$stmt->execute()) {
+    die('Error executing statement: ' . $stmt->error);
+}
+
+$result = $stmt->get_result();
+if (!$result) {
+    die('Error fetching result: ' . $mysqli->error);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -172,6 +243,65 @@ session_start(); // เริ่มเซสชัน
         </div>
         <!-- /.row -->
       </div><!-- /.container-fluid -->
+
+      <!-- table found -->
+      <div class="card direct-tabel-found direct-tabel-found-primary">
+          <?php
+            // Define the function to convert month number to Thai month name
+            function getThaiMonth($month) {
+                $thaiMonths = [
+                    '01' => 'มกราคม',
+                    '02' => 'กุมภาพันธ์',
+                    '03' => 'มีนาคม',
+                    '04' => 'เมษายน',
+                    '05' => 'พฤษภาคม',
+                    '06' => 'มิถุนายน',
+                    '07' => 'กรกฎาคม',
+                    '08' => 'สิงหาคม',
+                    '09' => 'กันยายน',
+                    '10' => 'ตุลาคม',
+                    '11' => 'พฤศจิกายน',
+                    '12' => 'ธันวาคม'
+                ];
+                return $thaiMonths[$month] ?? '';
+              }
+          ?>
+
+          <div class="container py-4">
+            <div class="row justify-content-start">
+              <?php while ($row = $result->fetch_assoc()): ?>
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                  <div class="card shadow h-100 border-0">
+                    <!-- รูปภาพ -->
+                    <img src="found_images/<?= htmlspecialchars(explode(',', $row['found_image'])[0]) ?>" 
+                        class="card-img-top img-fluid rounded-top" 
+                        alt="ไม่มีรูปภาพ" 
+                        style="max-width:150px; margin-right: 30px; margin-top: 10px;">
+                    <!-- เนื้อหา -->
+                    <div class="card-body">
+                      <!-- ชื่อ -->
+                      <p class="card-title  text-primary text-center">
+                        <strong><?= htmlspecialchars($row['found_type']) ?></strong>
+                      </p>
+                      <!-- สถานที่เก็บได้ -->
+                      <p class="card-text"><strong>สถานที่เก็บได้:</strong> <?= htmlspecialchars($row['found_location']) ?></p>
+                      <!-- รายละเอียด -->
+                      <p class="card-text"><strong>รายละเอียด:</strong> <?= htmlspecialchars($row['found_description']) ?></p>
+                      <!-- สถานะ -->
+                      <p class="card-text"><strong>สถานะ:</strong> <?= htmlspecialchars($row['status']) ?></p>
+                    </div>
+                    <!-- วันที่ -->
+                    <div class="card-footer text-muted text-center">
+                      <?= date('d ', strtotime($row['found_date'])) . getThaiMonth(date('m', strtotime($row['found_date']))) . date(' Y, H:i', strtotime($row['found_date'])) ?>
+                    </div>
+                  </div>
+                </div>
+              <?php endwhile; ?>
+            </div>
+          </div>
+
+        </div>
+              <!-- /.card-footer-->
     </section>
     <!-- /.content -->
   </div>

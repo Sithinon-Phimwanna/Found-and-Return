@@ -27,17 +27,19 @@ if (!empty($search_query)) {
             found_items.found_type,
             found_items.found_description,
             found_items.found_date,
-            found_items.found_location,
+            location.location_name AS found_location, -- ใช้ location_name แทน location_id
             found_items.found_image,
             statuses.status_name AS status
         FROM 
             found_items
         JOIN 
+            location ON found_items.found_location = location.location_id -- เชื่อมกับตาราง locations
+        JOIN 
             statuses ON found_items.status_id = statuses.status_id
         WHERE 
             found_items.finder_name LIKE ? 
             OR found_items.found_type LIKE ? 
-            OR found_items.found_location LIKE ? 
+            OR location.location_name LIKE ? -- ค้นหาจากชื่อสถานที่
             OR found_items.found_date LIKE ?
     ";
 } else {
@@ -50,11 +52,13 @@ if (!empty($search_query)) {
             found_items.found_type,
             found_items.found_description,
             found_items.found_date,
-            found_items.found_location,
+            location.location_name AS found_location, -- ใช้ location_name แทน location_id
             found_items.found_image,
             statuses.status_name AS status
         FROM 
             found_items
+        JOIN 
+            location ON found_items.found_location = location.location_id -- เชื่อมกับตาราง location
         JOIN 
             statuses ON found_items.status_id = statuses.status_id
     ";
@@ -80,6 +84,7 @@ if (!$result) {
     die('Error fetching result: ' . $mysqli->error);
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -197,17 +202,18 @@ if (!$result) {
             </a>
                 <ul class="nav nav-treeview">
                   <li class="nav-item">
-                    <a href="login.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>ล็อกอิน</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
                     <a href="register.php" class="nav-link">
                       <i class="far fa-circle nav-icon"></i>
                       <p>สมัครสมากชิก</p>
                     </a>
                   </li>
+            </ul>
+            <li class="nav-item">
+                    <a href="logout.php" class="nav-link">
+                      <i class="far fa-sign-out nav-icon"></i>
+                      <p>ลงชื่อออก</p>
+                    </a>
+            </li>
             </ul>
         </ul>
       </nav>

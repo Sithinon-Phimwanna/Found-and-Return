@@ -29,7 +29,7 @@ $query = "
         lost_items.item_type,
         lost_items.item_description,
         lost_items.lost_date,
-        lost_items.lost_location,
+        location.location_name AS lost_location,
         lost_items.item_image,
         lost_items.finder_image,
         lost_items.deliverer,  -- เพิ่มคอลัมน์นี้
@@ -37,11 +37,13 @@ $query = "
     FROM 
         lost_items
     JOIN 
+        location ON lost_items.lost_location = location.location_id
+    JOIN 
         statuses ON lost_items.status_id = statuses.status_id
     WHERE 
         lost_items.owner_name LIKE ? 
         OR lost_items.item_type LIKE ? 
-        OR lost_items.lost_location LIKE ? 
+        OR location.location_name LIKE ? 
         OR lost_items.lost_date LIKE ?
 ";
 
@@ -182,17 +184,18 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
             </a>
                 <ul class="nav nav-treeview">
                   <li class="nav-item">
-                    <a href="login.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>ล็อกอิน</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
                     <a href="register.php" class="nav-link">
                       <i class="far fa-circle nav-icon"></i>
                       <p>สมัครสมากชิก</p>
                     </a>
                   </li>
+            </ul>
+            <li class="nav-item">
+                    <a href="logout.php" class="nav-link">
+                      <i class="far fa-sign-out nav-icon"></i>
+                      <p>ลงชื่อออก</p>
+                    </a>
+            </li>
             </ul>
         </ul>
       </nav>
@@ -249,6 +252,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                 <th>สถานะ&emsp;</th>
                 <th>ผู้ส่งมอบทรัพย์สิน</th> <!-- เพิ่มคอลัมน์นี้ -->
                 <th>อัปเดตข้อมูล</th>
+                <th>ลบข้อมูล</th>
             </tr>
         </thead>
         <tbody>
@@ -263,7 +267,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                         <!-- เปลี่ยนรูปแบบวันที่เป็น วัน/เดือน/ปี -->
                         <?= date('d/m/Y H:i:s', strtotime($row['lost_date'])) ?>
                     </td>
-                    <td><?= htmlspecialchars($row['location_name']) ?></td>
+                    <td><?= htmlspecialchars($row['lost_location']) ?></td>
                     <td>
                         <?php
                             if ($row['item_image']) {
@@ -316,6 +320,11 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                             <button type="submit" class="update" style=" margin-top: 5px;">อัปเดต</button>
                         </form>
                     </td>
+                    <td>
+                    <!-- ปุ่มลบ -->
+                    <button onclick="deleteItem(<?= $row['item_id'] ?>)" class="delete">ลบ</button>
+                    <!-- ปุ่มแก้ไข -->
+                </td>
                 </tr>
             <?php endwhile; ?>
         </tbody>
