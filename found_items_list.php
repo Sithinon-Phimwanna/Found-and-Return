@@ -99,6 +99,10 @@ if (!$result) {
   <link rel="stylesheet" href="assets/plugins/fontawesome-free/css/all.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- table -->
+  <link rel="stylesheet" href="assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+  <link rel="stylesheet" href="assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
   <!-- summernote -->
@@ -114,7 +118,7 @@ if (!$result) {
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="index.php" class="nav-link">Home</a>
+        <a href="admin_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -123,7 +127,7 @@ if (!$result) {
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="index3.php" class="brand-link">
+    <a href="admin_index.php" class="brand-link">
       <img src="assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
@@ -133,7 +137,7 @@ if (!$result) {
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="assets/dist/img/avatar5.png" class="img-circle elevation-2" alt="User Image">
+          <img src="assets/dist/img/user-gear.png" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
         <span class="me-3" style="color: white;"><?= htmlspecialchars($_SESSION['UserAdminName']); ?></span>
@@ -245,75 +249,81 @@ if (!$result) {
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
+      <div class="card-body">
             <!-- ฟอร์มค้นหา -->
             <section class="search-section" style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
                 <form method="GET" class="search-form" style="text-align: right;">
-                    <input type="text" name="search" placeholder="ค้นหา..." class="search-input" style="padding: 5px; width: 250px;">
-                    <button type="submit" class="search-button" style="padding: 5px 10px;">ค้นหา</button>
+                    <input type="text" name="search" placeholder="ค้นหา..." class="search-input" style="padding: 2px; width: 150px;">
+                    <button type="submit" class="search-button" style="padding: 2px 10px;">ค้นหา</button>
                 </form>
             </section>
+                  <table table id="example1" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>รหัส</th>
+                                <th>ชื่อผู้แจ้ง</th>
+                                <th>ช่องทางการติดต่อ</th>
+                                <th>ทรัพย์สิน</th>
+                                <th>รายละเอียด</th>
+                                <th>สถานที่เก็บได้</th>
+                                <th>วันที่เก็บได้</th>
+                                <th>ภาพทรัพย์สิน</th>
+                                <th>สถานะ</th>
+                                <th>อัปเดตสถานะ</th>
+                                <th>ลบข้อมูล</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($row = $result->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?= $row['found_id'] ?></td>
+                                    <td><?= htmlspecialchars($row['finder_name']) ?></td>
+                                    <td><?= htmlspecialchars($row['finder_contact']) ?></td>
+                                    <td><?= htmlspecialchars($row['found_type']) ?></td>
+                                    <td><?= htmlspecialchars($row['found_description']) ?></td>
+                                    <td><?= htmlspecialchars($row['found_location']) ?></td>
+                                    <td><?= date('d/m/Y H:m', strtotime($row['found_date'])) ?></td>
+                                    <td>
+                                        <?php 
+                                        $images = explode(',', $row['found_image']);
+                                        foreach ($images as $image):
+                                            if (!empty($image)):
+                                        ?>
+                                            <img src="found_images/<?= htmlspecialchars($image) ?>" alt="ภาพของที่พบ" style="max-width: 100px; margin-right: 10px;">
+                                        <?php 
+                                            endif;
+                                        endforeach;
+                                        ?>
+                                    </td>
 
-      <table table id="example1" class="table table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th>รหัส</th>
-                    <th>ชื่อผู้แจ้ง</th>
-                    <th>ช่องทางการติดต่อ</th>
-                    <th>ทรัพย์สิน</th>
-                    <th>รายละเอียด</th>
-                    <th>สถานที่เก็บได้</th>
-                    <th>วันที่เก็บได้</th>
-                    <th>ภาพทรัพย์สิน</th>
-                    <th>สถานะ</th>
-                    <th>อัปเดตสถานะ</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= $row['found_id'] ?></td>
-                        <td><?= htmlspecialchars($row['finder_name']) ?></td>
-                        <td><?= htmlspecialchars($row['finder_contact']) ?></td>
-                        <td><?= htmlspecialchars($row['found_type']) ?></td>
-                        <td><?= htmlspecialchars($row['found_description']) ?></td>
-                        <td><?= htmlspecialchars($row['found_location']) ?></td>
-                        <td><?= date('d/m/Y H:m:s', strtotime($row['found_date'])) ?></td>
-                        <td>
-                            <?php 
-                            $images = explode(',', $row['found_image']);
-                            foreach ($images as $image):
-                                if (!empty($image)):
-                            ?>
-                                <img src="found_images/<?= htmlspecialchars($image) ?>" alt="ภาพของที่พบ" style="max-width: 100px; margin-right: 10px;">
-                            <?php 
-                                endif;
-                            endforeach;
-                            ?>
-                        </td>
 
-
-                        <td><?= htmlspecialchars($row['status']) ?></td>
-                        <td>
-                            <form method="POST" action="update_status_found.php" class="status-form">
-                                <input type="hidden" name="found_id" value="<?= $row['found_id'] ?>">
-                                <select name="status_id" class="status-select">
-                                    <?php
-                                    $status_query = "SELECT * FROM statuses";
-                                    $status_result = $mysqli->query($status_query);
-                                    while ($status = $status_result->fetch_assoc()):
-                                    ?>
-                                        <option value="<?= $status['status_id'] ?>" <?= $row['status'] === $status['status_name'] ? 'selected' : '' ?>>
-                                            <?= $status['status_name'] ?>
-                                        </option>
-                                    <?php endwhile; ?>
-                                </select>
-                                <button type="submit" class="update-button"  style=" margin-top: 5px;">อัปเดต</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
+                                    <td><?= htmlspecialchars($row['status']) ?></td>
+                                    <td>
+                                        <form method="POST" action="update_status_found.php" class="status-form">
+                                            <input type="hidden" name="found_id" value="<?= $row['found_id'] ?>">
+                                            <select name="status_id" class="status-select">
+                                                <?php
+                                                $status_query = "SELECT * FROM statuses";
+                                                $status_result = $mysqli->query($status_query);
+                                                while ($status = $status_result->fetch_assoc()):
+                                                ?>
+                                                    <option value="<?= $status['status_id'] ?>" <?= $row['status'] === $status['status_name'] ? 'selected' : '' ?>>
+                                                        <?= $status['status_name'] ?>
+                                                    </option>
+                                                <?php endwhile; ?>
+                                            </select>
+                                            <button type="submit" class="update-button"  style=" margin-top: 5px;">อัปเดต</button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <!-- ปุ่มลบข้อมูล -->
+                                        <button onclick="deleteItem(<?= $row['found_id'] ?>)" class="delete">ลบ</button>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+          </div>
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
@@ -337,11 +347,40 @@ if (!$result) {
 <script src="assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- Summernote -->
 <script src="assets/plugins/summernote/summernote-bs4.min.js"></script>
-<!-- overlayScrollbars -->
-<script src="assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="assets/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="assets/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="assets/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="assets/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="assets/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="assets/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="assets/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- AdminLTE App -->
 <script src="assets/dist/js/adminlte.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="assets/dist/js/pages/dashboard.js"></script><s></s>
+<!-- ส่วน script สำหรับการลบ -->
+<script>
+    function deleteItem(foundId) {
+        if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?")) {
+            // ส่งคำขอ POST ไปยังไฟล์ลบข้อมูล
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'delete_found.php'; // เปลี่ยนเส้นทางไปที่ไฟล์ลบข้อมูล
+
+            // สร้าง hidden input สำหรับ found_id
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'found_id';
+            input.value = foundId;
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
 </body>
 </html>

@@ -44,7 +44,7 @@ session_regenerate_id(true);
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="index.php" class="nav-link">Home</a>
+        <a href="admin_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -53,7 +53,7 @@ session_regenerate_id(true);
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="index3.php" class="brand-link">
+    <a href="admin_index.php" class="brand-link">
       <img src="assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
@@ -63,7 +63,7 @@ session_regenerate_id(true);
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="assets/dist/img/avatar5.png" class="img-circle elevation-2" alt="User Image">
+          <img src="assets/dist/img/user-gear.png" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
         <span class="me-3" style="color: white;"><?= htmlspecialchars($_SESSION['UserAdminName']); ?></span>

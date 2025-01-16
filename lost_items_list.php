@@ -81,6 +81,10 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
   <link rel="stylesheet" href="assets/plugins/fontawesome-free/css/all.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- table -->
+  <link rel="stylesheet" href="assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+  <link rel="stylesheet" href="assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
   <!-- summernote -->
@@ -96,7 +100,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="index.php" class="nav-link">Home</a>
+        <a href="admin_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -105,7 +109,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="index3.php" class="brand-link">
+    <a href="admin_index.php" class="brand-link">
       <img src="assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
@@ -115,7 +119,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="assets/dist/img/avatar5.png" class="img-circle elevation-2" alt="User Image">
+          <img src="assets/dist/img/user-gear.png" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
         <span class="me-3" style="color: white;"><?= htmlspecialchars($_SESSION['UserAdminName']); ?></span>
@@ -227,110 +231,106 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
+      <div class="card-body">
         <!-- ฟอร์มค้นหา -->
         <section class="search-section" style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
                 <form method="GET" class="search-form" style="text-align: right;">
-                    <input type="text" name="search" placeholder="ค้นหา..." class="search-input" style="padding: 5px; width: 250px;">
-                    <button type="submit" class="search-button" style="padding: 5px 10px;">ค้นหา</button>
+                    <input type="text" name="search" placeholder="ค้นหา..." class="search-input" style="padding: 2px; width: 150px;">
+                    <button type="submit" class="search-button" style="padding: 2px 5px;">ค้นหา</button>
                 </form>
             </section>
-    <!-- /.card-header -->
-    <class="card-body">
-    <!-- แสดงข้อมูลในตาราง -->
-    <table id="example1" class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>รหัส</th>
-                <th>ชื่อผู้แจ้ง</th>
-                <th>ช่องทางการติดต่อ</th>
-                <th>ทรัพย์สิน</th>
-                <th>รายละเอียด</th>
-                <th>วันที่แจ้ง</th>
-                <th>สถานที่</th>
-                <th>ภาพทรัพย์สิน</th>
-                <th>ภาพผู้รับคืน</th>
-                <th>สถานะ&emsp;</th>
-                <th>ผู้ส่งมอบทรัพย์สิน</th> <!-- เพิ่มคอลัมน์นี้ -->
-                <th>อัปเดตข้อมูล</th>
-                <th>ลบข้อมูล</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?= $row['item_id'] ?></td>
-                    <td><?= htmlspecialchars($row['owner_name']) ?></td>
-                    <td><?= htmlspecialchars($row['owner_contact']) ?></td>
-                    <td><?= htmlspecialchars($row['item_type']) ?></td>
-                    <td><?= htmlspecialchars($row['item_description']) ?></td>
-                    <td>
-                        <!-- เปลี่ยนรูปแบบวันที่เป็น วัน/เดือน/ปี -->
-                        <?= date('d/m/Y H:i:s', strtotime($row['lost_date'])) ?>
-                    </td>
-                    <td><?= htmlspecialchars($row['lost_location']) ?></td>
-                    <td>
-                        <?php
-                            if ($row['item_image']) {
-                                // แยกหลายภาพที่เก็บในฐานข้อมูล
-                                $item_images = explode(',', $row['item_image']);
-                                foreach ($item_images as $image) {
-                                    echo '<img src="lost_images/' . htmlspecialchars(trim($image)) . '" alt="ภาพทรัพย์สินหาย" style="max-width:100px; margin-right: 10px;">';
-                                }
-                            } else {
-                                echo 'ไม่มีภาพ';
-                            }
-                        ?>
+              <!-- แสดงข้อมูลในตาราง -->
+              <table id="example1" class="table table-bordered table-hover">
+                  <thead>
+                      <tr>
+                          <th>รหัส</th>
+                          <th>ชื่อผู้แจ้ง</th>
+                          <th>ช่องทางการติดต่อ</th>
+                          <th>ทรัพย์สิน</th>
+                          <th>รายละเอียด</th>
+                          <th>วันที่และเวลาที่แจ้ง</th>
+                          <th>สถานที่</th>
+                          <th>ภาพทรัพย์สิน</th>
+                          <th>ภาพผู้รับคืน</th>
+                          <th>สถานะ</th>
+                          <th>ผู้ส่งมอบทรัพย์สิน</th> <!-- เพิ่มคอลัมน์นี้ -->
+                          <th>อัปเดตข้อมูล</th>
+                          <th>ลบข้อมูล</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <?php while ($row = $result->fetch_assoc()): ?>
+                          <tr>
+                              <td><?= $row['item_id'] ?></td>
+                              <td><?= htmlspecialchars($row['owner_name']) ?></td>
+                              <td><?= htmlspecialchars($row['owner_contact']) ?></td>
+                              <td><?= htmlspecialchars($row['item_type']) ?></td>
+                              <td><?= htmlspecialchars($row['item_description']) ?></td>
+                              <td>
+                                  <!-- เปลี่ยนรูปแบบวันที่เป็น วัน/เดือน/ปี -->
+                                  <?= date('d/m/Y  H:i', strtotime($row['lost_date'])) ?>
+                              </td>
+                              <td><?= htmlspecialchars($row['lost_location']) ?></td>
+                              <td>
+                                  <?php
+                                      if ($row['item_image']) {
+                                          // แยกหลายภาพที่เก็บในฐานข้อมูล
+                                          $item_images = explode(',', $row['item_image']);
+                                          foreach ($item_images as $image) {
+                                              echo '<img src="lost_images/' . htmlspecialchars(trim($image)) . '" alt="ภาพทรัพย์สินหาย" style="max-width:100px; margin-right: 10px;">';
+                                          }
+                                      } else {
+                                          echo 'ไม่มีภาพ';
+                                      }
+                                  ?>
 
-                    </td>
-                    <td>
-                        <?php 
-                            // แสดงภาพผู้รับคืนหลายภาพ
-                            if ($row['finder_image']) {
-                                $finder_images = explode(',', $row['finder_image']);
-                                foreach ($finder_images as $image) {
-                                    echo '<img src="return_images/' . htmlspecialchars($image) . '" alt="ภาพผู้รับคืน" style="max-width:100px; margin-right: 10px;">';
-                                }
-                            } else {
-                                echo 'ไม่มีภาพ';
-                            }
-                        ?>
-                    </td>
-                    <td><?= htmlspecialchars($row['status']) ?></td>
-                    <td><?= htmlspecialchars($row['deliverer']) ?></td> <!-- แสดงชื่อผู้ส่งมอบ -->
-                    <td>
-                        <!-- ฟอร์มอัปเดตข้อมูล -->
-                        <form method="POST" action="update_lost.php" enctype="multipart/form-data">
-                            <input type="hidden" name="item_id" value="<?= $row['item_id'] ?>">
-                            <label for="deliverer">ชื่อผู้ส่งมอบ: </label>
-                            <input type="text" name="deliverer" value="<?= htmlspecialchars($current_user_name) ?>" readonly>
-                            <br>
-                            <select name="status_id" class="status" style=" margin-top: 5px;">
-                                <?php
-                                    $status_query = "SELECT * FROM statuses";
-                                    $status_result = $mysqli->query($status_query);
-                                    while ($status = $status_result->fetch_assoc()):
-                                ?>
-                                    <option value="<?= $status['status_id'] ?>" <?= $row['status'] === $status['status_name'] ? 'selected' : '' ?>>
-                                        <?= $status['status_name'] ?>
-                                    </option>
-                                <?php endwhile; ?>
-                            </select>
-                            <div><label>เลือกภาพผู้ติดต่อรับคืน </label></div>
-                            <input type="file" name="finder_image[]" multiple> <!-- อัปโหลดไฟล์หลายๆ ไฟล์ -->
-                            <button type="submit" class="update" style=" margin-top: 5px;">อัปเดต</button>
-                        </form>
-                    </td>
-                    <td>
-                    <!-- ปุ่มลบ -->
-                    <button onclick="deleteItem(<?= $row['item_id'] ?>)" class="delete">ลบ</button>
-                    <!-- ปุ่มแก้ไข -->
-                </td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
-    </div>
-    <!-- /.card -->
+                              </td>
+                              <td>
+                                  <?php 
+                                      // แสดงภาพผู้รับคืนหลายภาพ
+                                      if ($row['finder_image']) {
+                                          $finder_images = explode(',', $row['finder_image']);
+                                          foreach ($finder_images as $image) {
+                                              echo '<img src="return_images/' . htmlspecialchars($image) . '" alt="ภาพผู้รับคืน" style="max-width:100px; margin-right: 10px;">';
+                                          }
+                                      } else {
+                                          echo 'ไม่มีภาพ';
+                                      }
+                                  ?>
+                              </td>
+                              <td><?= htmlspecialchars($row['status']) ?></td>
+                              <td><?= htmlspecialchars($row['deliverer']) ?></td> <!-- แสดงชื่อผู้ส่งมอบ -->
+                              <td>
+                                  <!-- ฟอร์มอัปเดตข้อมูล -->
+                                  <form method="POST" action="update_lost.php" enctype="multipart/form-data">
+                                      <input type="hidden" name="item_id" value="<?= $row['item_id'] ?>">
+                                      <label for="deliverer">ชื่อผู้ส่งมอบ: </label>
+                                      <input type="text" name="deliverer" value="<?= htmlspecialchars($current_user_name) ?>" readonly>
+                                      <br>
+                                      <select name="status_id" class="status" style=" margin-top: 5px;">
+                                          <?php
+                                              $status_query = "SELECT * FROM statuses";
+                                              $status_result = $mysqli->query($status_query);
+                                              while ($status = $status_result->fetch_assoc()):
+                                          ?>
+                                              <option value="<?= $status['status_id'] ?>" <?= $row['status'] === $status['status_name'] ? 'selected' : '' ?>>
+                                                  <?= $status['status_name'] ?>
+                                              </option>
+                                          <?php endwhile; ?>
+                                      </select>
+                                      <div><label>เลือกภาพผู้ติดต่อรับคืน </label></div>
+                                      <input type="file" name="finder_image[]" multiple> <!-- อัปโหลดไฟล์หลายๆ ไฟล์ -->
+                                      <button type="submit" class="update" style=" margin-top: 5px;">อัปเดต</button>
+                                  </form>
+                              </td>
+                              <td>
+                                  <button onclick="deleteItem(<?= $row['item_id'] ?>)" class="delete">ลบ</button>
+                              </td>
+                          </tr>
+                      <?php endwhile; ?>
+                  </tbody>
+              </table>
+            </div>
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
@@ -352,13 +352,44 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
 <script src="assets/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="assets/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="assets/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="assets/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="assets/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="assets/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="assets/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="assets/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Summernote -->
 <script src="assets/plugins/summernote/summernote-bs4.min.js"></script>
-<!-- overlayScrollbars -->
-<script src="assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
 <!-- AdminLTE App -->
 <script src="assets/dist/js/adminlte.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="assets/dist/js/pages/dashboard.js"></script>
+
+<!-- ส่วน script สำหรับการลบ -->
+<script>
+function deleteItem(itemId) {
+    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?")) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'delete_lost.php';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'item_id';
+        input.value = itemId;
+        form.appendChild(input);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+
+<button onclick="deleteItem(123)">ลบข้อมูล</button> <!-- ใส่ ID ที่ต้องการ -->
+
 </body>
 </html>
