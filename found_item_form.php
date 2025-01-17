@@ -208,45 +208,219 @@ try {
       <div class="container-fluid">
         <div class="card shadow">
                         <div class="card-body">
-                            <form action="submit_found_item.php" method="POST" enctype="multipart/form-data">
-                                <div class="mb-1">
-                                    <label for="finder_name" class="form-label">ชื่อผู้แจ้ง:</label>
-                                    <input type="text" class="form-control-sm" id="finder_name" name="finder_name" value="<?php echo htmlspecialchars($name); ?>" required>
+                            <form action="" method="POST" enctype="multipart/form-data">
+                                <div class="form-group row">
+                                    <label for="finder_name" class="col-sm-2">ชื่อผู้แจ้ง:</label>
+                                    <input type="text" class="form-control-sm-4" id="finder_name" name="finder_name" value="<?php echo htmlspecialchars($name); ?>" required>
                                 </div>
-                                <div class="mb-1">
-                                    <label for="finder_contact" class="form-label">ช่องทางการติดต่อ:</label>
-                                    <input type="text" class="form-control-sm" id="finder_contact" name="finder_contact" value="<?php echo htmlspecialchars($contact); ?>" required>
+                                <div class="form-group row">
+                                    <label for="finder_contact" class="col-sm-2">ช่องทางการติดต่อ:</label>
+                                    <input type="text" class="form-control-sm-4" id="finder_contact" name="finder_contact" value="<?php echo htmlspecialchars($contact); ?>" required>
                                 </div>
-                                <div class="mb-1">
-                                    <label for="found_type" class="form-label">ทรัพย์สิน:</label>
-                                    <input type="text" class="form-control-sm" id="found_type" name="found_type" required>
+                                <div class="form-group row">
+                                    <label for="found_type" class="col-sm-2">ทรัพย์สิน:</label>
+                                    <input type="text" class="form-control-sm-4" id="found_type" name="found_type" required>
                                 </div>
-                                <div class="mb-1">
-                                    <label for="found_description" class="form-label">รายละเอียด:</label>
-                                    <textarea class="form-control-sm" id="found_description" name="found_description" rows="3" required></textarea>
+                                <div class="form-group row">
+                                    <label for="found_description" class="col-sm-2">รายละเอียด:</label>
+                                    <textarea class="form-control-sm-4" id="found_description" name="found_description" rows="3" required></textarea>
                                 </div>
-                                <div class="mb-1">
-                                    <label for="found_date" class="form-label">วันที่เก็บได้:</label>
-                                    <input type="date" class="form-control-sm" id="found_date" name="found_date" required>
+                                <div class="form-group row">
+                                    <label for="found_date" class="col-sm-2">วันที่เก็บได้:</label>
+                                    <input type="date" class="form-control-sm-4" id="found_date" name="found_date" required>
                                 </div>
-                                <div class="mb-1">
-                                    <label for="found_location" class="form-label">สถานที่เก็บได้:</label>
-                                    <select class="form-control-sm" id="found_location" name="found_location" required>
+                                <div class="form-group row">
+                                    <label for="found_location" class="col-sm-2">สถานที่เก็บได้:</label>
+                                    <select class="form-control-sm-4" id="found_location" name="found_location" required>
                                         <option value="">เลือกสถานที่</option>
                                         <?php while ($location = $locations->fetch_assoc()): ?>
                                             <option value="<?php echo $location['location_id']; ?>"><?php echo htmlspecialchars($location['location_name']); ?></option>
                                         <?php endwhile; ?>
                                     </select>
                                 </div>
-                                <div class="mb-1">
-                                    <label for="found_image" class="form-label">อัพโหลดภาพทรัพย์สินที่เก็บได้:</label>
-                                    <input class="form-control-sm" type="file" id="found_image" name="found_image[]" multiple>
+                                <div class="form-group row">
+                                    <label for="found_image" class="col-sm-2">อัพโหลดภาพทรัพย์สินที่เก็บได้:</label>
+                                    <input class="form-control-sm-4" type="file" id="found_image" name="found_image[]" multiple>
                                 </div>
-                                <div class="text-center">
+                                <div class="form-group row">
+                                <label class="col-sm-2"></label>
+                                  <div class="col-sm-4">
                                     <button type="submit" class="btn btn-primary">ส่งข้อมูล</button>
+                                  </div>
                                 </div>
                             </form>
                         </div>
+                    <!--php submit -->
+                    <?php
+require 'config.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // รับค่าจากฟอร์ม
+    $finder_name = $_POST['finder_name'];
+    $finder_contact = $_POST['finder_contact'];
+    $found_type = $_POST['found_type'];
+    $found_description = $_POST['found_description'];
+    $found_location = $_POST['found_location'];
+
+    // ใช้เวลาปัจจุบัน
+    $found_date = date('Y-m-d H:i:s');
+
+    // ตรวจสอบและจัดการอัปโหลดภาพหลายไฟล์ (ทำให้ไม่บังคับ)
+    $images = [];
+    if (isset($_FILES['found_image']) && !empty($_FILES['found_image']['name'][0])) {
+        $upload_dir = 'found_images/';
+
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true); // สร้างโฟลเดอร์ถ้ายังไม่มี
+        }
+
+        foreach ($_FILES['found_image']['name'] as $key => $filename) {
+            $tmp_name = $_FILES['found_image']['tmp_name'][$key];
+            $error = $_FILES['found_image']['error'][$key];
+            $file_size = $_FILES['found_image']['size'][$key];
+            $file_type = $_FILES['found_image']['type'][$key];
+
+            if ($error === UPLOAD_ERR_OK) {
+                // ตรวจสอบขนาดไฟล์ (1MB)
+                if ($file_size > 1048576) {
+                  // sweet alert 
+                  echo '
+                  <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                  echo '<script>
+                          setTimeout(function() {
+                              swal({
+                              title: "ไฟล์ $filename มีขนาดใหญ่เกินไป (สูงสุด 1MB",
+                              type: "error"
+                              }, function() {
+                              window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                              });
+                          }, 1000);
+                        </script>';
+                    exit;
+                }
+
+                // ตรวจสอบประเภทไฟล์
+                if (!in_array($file_type, ['image/jpeg', 'image/png'])) {
+                  // sweet alert 
+                  echo '
+                  <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                  echo '<script>
+                          setTimeout(function() {
+                              swal({
+                              title: "ไฟล์ $filename ต้องเป็น JPEG หรือ PNG เท่านั้น",
+                              type: "error"
+                              }, function() {
+                              window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                              });
+                          }, 1000);
+                        </script>';
+                    exit;
+                }
+
+                // ตรวจสอบว่ามีไฟล์ที่ชื่อเดียวกันหรือไม่
+                $target_file = $upload_dir . basename($filename);
+                if (file_exists($target_file)) {
+                  // sweet alert 
+                    echo '
+                    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                    echo '<script>
+                            setTimeout(function() {
+                                swal({
+                                title: "ขออภัย, ไฟล์นี้มีอยู่ในระบบแล้ว กรุณาเลือกไฟล์อื่น",
+                                type: "error"
+                                }, function() {
+                                window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                                });
+                            }, 1000);
+                          </script>';
+                    exit;
+                }
+
+                // ย้ายไฟล์ไปยังโฟลเดอร์ที่กำหนด
+                if (move_uploaded_file($tmp_name, $target_file)) {
+                    $images[] = basename($target_file); // เก็บชื่อไฟล์ที่อัปโหลดสำเร็จ
+                } else {
+                    // sweet alert 
+                    echo '
+                    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                    echo '<script>
+                            setTimeout(function() {
+                                swal({
+                                title: "ขออภัย, เกิดข้อผิดพลาดในการอัปโหลดไฟล์",
+                                type: "error"
+                                }, function() {
+                                window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                                });
+                            }, 1000);
+                          </script>';
+                    exit;
+                }
+            }
+        }
+    }
+
+    // แปลงอาร์เรย์ชื่อไฟล์เป็นสตริง (ใช้ , แยก) หรือใช้ NULL ถ้าไม่อัปโหลดไฟล์
+    $images_str = !empty($images) ? implode(',', $images) : NULL;
+
+    $status_id = 2; // 'พบ' ในตาราง statuses
+
+    // เตรียมคำสั่ง SQL เพื่อบันทึกข้อมูล
+    $stmt = $mysqli->prepare("INSERT INTO found_items (finder_name, finder_contact, found_type, found_description, found_date, found_location, found_image, status_id) 
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+    if ($stmt === false) {
+        die('เกิดข้อผิดพลาดในการเตรียมคำสั่ง SQL: ' . $mysqli->error);
+    }
+
+    // ผูกค่าตัวแปรกับคำสั่ง SQL
+    $stmt->bind_param("sssssssi", $finder_name, $finder_contact, $found_type, $found_description, $found_date, $found_location, $images_str, $status_id);
+
+    // บันทึกข้อมูลลงฐานข้อมูล
+    if ($stmt->execute()) {
+        // sweet alert 
+        echo '
+        <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+
+        echo '<script>
+            setTimeout(function() {
+                swal({
+                    title: "เพิ่มข้อมูลสำเร็จ",
+                    type: "success"
+                }, function() {
+                    window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                });
+            }, 1000);
+        </script>';
+    } else {
+        echo '<script>
+            setTimeout(function() {
+                swal({
+                    title: "เกิดข้อผิดพลาด",
+                    type: "error"
+                }, function() {
+                    window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                });
+            }, 1000);
+        </script>';
+    }
+
+    // ปิดการเชื่อมต่อฐานข้อมูล
+    $stmt->close();
+    $mysqli->close();
+}
+?>
+
+                      
             </div>
         </div>
         <!-- /.row -->

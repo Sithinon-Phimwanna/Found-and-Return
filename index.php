@@ -229,14 +229,14 @@ if (!$result) {
             <!-- small box -->
             <div class="small-box bg-danger">
               <div class="inner">
-                <h3>กราฟ</h3>
+                <h3>แผนภูมิ</h3>
 
                 <p>แสดงจำนวนทรัพย์สิน</p>
               </div>
               <div class="icon">
                 <i class="ion ion-pie-graph"></i>
               </div>
-              <a href="chart.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
+              <a href="chart_user.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
           <!-- ./col -->

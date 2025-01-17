@@ -236,7 +236,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
         <section class="search-section" style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
                 <form method="GET" class="search-form" style="text-align: right;">
                     <input type="text" name="search" placeholder="ค้นหา..." class="search-input" style="padding: 2px; width: 150px;">
-                    <button type="submit" class="search-button" style="padding: 2px 5px;">ค้นหา</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 2px 5px;">ค้นหา</button>
                 </form>
             </section>
               <!-- แสดงข้อมูลในตาราง -->
@@ -320,11 +320,11 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                       </select>
                                       <div><label>เลือกภาพผู้ติดต่อรับคืน </label></div>
                                       <input type="file" name="finder_image[]" multiple> <!-- อัปโหลดไฟล์หลายๆ ไฟล์ -->
-                                      <button type="submit" class="update" style=" margin-top: 5px;">อัปเดต</button>
+                                      <button type="submit" class="btn btn-primary" style=" margin-top: 5px;">อัปเดต</button>
                                   </form>
                               </td>
                               <td>
-                                  <button onclick="deleteItem(<?= $row['item_id'] ?>)" class="delete">ลบ</button>
+                                  <button onclick="deleteItem(<?= $row['item_id'] ?>)" class="btn btn-danger">ลบ</button>
                               </td>
                           </tr>
                       <?php endwhile; ?>

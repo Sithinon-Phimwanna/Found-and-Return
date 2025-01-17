@@ -254,7 +254,7 @@ if (!$result) {
             <section class="search-section" style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
                 <form method="GET" class="search-form" style="text-align: right;">
                     <input type="text" name="search" placeholder="ค้นหา..." class="search-input" style="padding: 2px; width: 150px;">
-                    <button type="submit" class="search-button" style="padding: 2px 10px;">ค้นหา</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 2px 10px;">ค้นหา</button>
                 </form>
             </section>
                   <table table id="example1" class="table table-bordered table-hover">
@@ -282,7 +282,7 @@ if (!$result) {
                                     <td><?= htmlspecialchars($row['found_type']) ?></td>
                                     <td><?= htmlspecialchars($row['found_description']) ?></td>
                                     <td><?= htmlspecialchars($row['found_location']) ?></td>
-                                    <td><?= date('d/m/Y H:m', strtotime($row['found_date'])) ?></td>
+                                    <td><?= date('d/m/Y H:i', strtotime($row['found_date'])) ?></td>
                                     <td>
                                         <?php 
                                         $images = explode(',', $row['found_image']);
@@ -312,12 +312,12 @@ if (!$result) {
                                                     </option>
                                                 <?php endwhile; ?>
                                             </select>
-                                            <button type="submit" class="update-button"  style=" margin-top: 5px;">อัปเดต</button>
+                                            <button type="submit" class="btn btn-primary"  style=" margin-top: 5px;">อัปเดต</button>
                                         </form>
                                     </td>
                                     <td>
                                         <!-- ปุ่มลบข้อมูล -->
-                                        <button onclick="deleteItem(<?= $row['found_id'] ?>)" class="delete">ลบ</button>
+                                        <button onclick="deleteItem(<?= $row['found_id'] ?>)" class="btn btn-danger">ลบ</button>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
