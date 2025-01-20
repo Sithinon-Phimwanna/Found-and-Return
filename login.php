@@ -3,7 +3,20 @@ session_start(); // เริ่มต้นเซสชัน
 
 // ตรวจสอบการล็อกอิน
 if (isset($_SESSION['user_id'])) {
-    header('Location: admin_index.php'); // ถ้าเคยล็อกอินแล้วจะไปที่หน้าแดชบอร์ด
+    // ตรวจสอบ level_id และเปลี่ยนเส้นทางไปตามบทบาท
+    switch ($_SESSION['level_id']) {
+        case 1:
+            header('Location: user_dashboard.php');
+            break;
+        case 2:
+            header('Location: staff_dashboard.php');
+            break;
+        case 3:
+            header('Location: admin_index.php');
+            break;
+        default:
+            header('Location: login.php');
+    }
     exit;
 }
 
@@ -35,8 +48,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['UserAdminID'] = $user['UserAdminID'];
             $_SESSION['UserAdminName'] = $user['UserAdminName'];
+            $_SESSION['level_id'] = $user['level_id'];
 
-            header('Location: admin_index.php'); // เปลี่ยนเส้นทางไปหน้าแดชบอร์ด
+            // เปลี่ยนเส้นทางไปยังหน้าแดชบอร์ดตาม level_id
+            switch ($user['level_id']) {
+                case 1:
+                    header('Location: user_dashboard.php'); // ผู้ใช้
+                    break;
+                case 2:
+                    header('Location: staff_index.php'); // สตาฟ
+                    break;
+                case 3:
+                    header('Location: admin_index.php'); // แอดมิน
+                    break;
+                default:
+                    $error = "ไม่พบสิทธิ์ที่เหมาะสม!";
+            }
             exit;
         } else {
             $error = "รหัสผ่านไม่ถูกต้อง!";
@@ -46,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

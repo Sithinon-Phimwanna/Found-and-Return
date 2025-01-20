@@ -96,17 +96,17 @@ if (!$result) {
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="assets/plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
   <!-- table -->
-  <link rel="stylesheet" href="assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
-  <link rel="stylesheet" href="assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
-  <link rel="stylesheet" href="assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+  <link rel="stylesheet" href="../assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="../assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+  <link rel="stylesheet" href="../assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <!-- Theme style -->
-  <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <!-- summernote -->
-  <link rel="stylesheet" href="assets/plugins/summernote/summernote-bs4.min.css">
+  <link rel="stylesheet" href="../assets/plugins/summernote/summernote-bs4.min.css">
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -118,7 +118,7 @@ if (!$result) {
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="admin_index.php" class="nav-link">Home</a>
+        <a href="../staff_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -127,8 +127,8 @@ if (!$result) {
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="admin_index.php" class="brand-link">
-      <img src="assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+    <a href="../staff_index.php" class="brand-link">
+      <img src="../assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
 
@@ -137,7 +137,7 @@ if (!$result) {
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="assets/dist/img/user-gear.png" class="img-circle elevation-2" alt="User Image">
+          <img src="../assets/dist/img/user-gear.png" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
         <span class="me-3" style="color: white;"><?= htmlspecialchars($_SESSION['UserAdminName']); ?></span>
@@ -213,7 +213,7 @@ if (!$result) {
                   </li>
             </ul>
             <li class="nav-item">
-                    <a href="logout.php" class="nav-link">
+                    <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
                       <p>ลงชื่อออก</p>
                     </a>
@@ -270,7 +270,6 @@ if (!$result) {
                                 <th>ภาพทรัพย์สิน</th>
                                 <th>สถานะ</th>
                                 <th>อัปเดตสถานะ</th>
-                                <th>ลบข้อมูล</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -284,16 +283,17 @@ if (!$result) {
                                     <td><?= htmlspecialchars($row['found_location']) ?></td>
                                     <td><?= date('d/m/Y H:i', strtotime($row['found_date'])) ?></td>
                                     <td>
-                                        <?php 
-                                        $images = explode(',', $row['found_image']);
-                                        foreach ($images as $image):
-                                            if (!empty($image)):
-                                        ?>
-                                            <img src="found_images/<?= htmlspecialchars($image) ?>" alt="ภาพของที่พบ" style="max-width: 100px; margin-right: 10px;">
-                                        <?php 
-                                            endif;
-                                        endforeach;
-                                        ?>
+                                        <?php
+                                      if ($row['found_image']) {
+                                          // แยกหลายภาพที่เก็บในฐานข้อมูล
+                                          $found_images = explode(',', $row['found_image']);
+                                          foreach ($found_images as $image) {
+                                              echo '<img src="../found_images/' . htmlspecialchars(trim($image)) . '" alt="ไม่มีรูปภาพทรัพย์สินในโฟลเดอร์" style="max-width:100px; margin-right: 10px;">';
+                                          }
+                                      } else {
+                                          echo 'ไม่มีภาพ';
+                                      }
+                                  ?>
                                     </td>
 
 
@@ -314,10 +314,6 @@ if (!$result) {
                                             </select>
                                             <button type="submit" class="btn btn-primary"  style=" margin-top: 5px;">อัปเดต</button>
                                         </form>
-                                    </td>
-                                    <td>
-                                        <!-- ปุ่มลบข้อมูล -->
-                                        <button onclick="deleteItem(<?= $row['found_id'] ?>)" class="btn btn-danger">ลบ</button>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
@@ -342,25 +338,25 @@ if (!$result) {
 <!-- ./wrapper -->
 
 <!-- jQuery -->
-<script src="assets/plugins/jquery/jquery.min.js"></script>
+<script src="../assets/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
-<script src="assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- Summernote -->
-<script src="assets/plugins/summernote/summernote-bs4.min.js"></script>
+<script src="../assets/plugins/summernote/summernote-bs4.min.js"></script>
 <!-- DataTables  & Plugins -->
-<script src="assets/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="assets/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="assets/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="assets/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="assets/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="assets/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="assets/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="../assets/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="../assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="../assets/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="../assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="../assets/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="../assets/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="../assets/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="../assets/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="../assets/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- AdminLTE App -->
-<script src="assets/dist/js/adminlte.js"></script>
+<script src="../assets/dist/js/adminlte.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="assets/dist/js/pages/dashboard.js"></script><s></s>
+<script src="../assets/dist/js/pages/dashboard.js"></script><s></s>
 <!-- ส่วน script สำหรับการลบ -->
 <script>
     function deleteItem(foundId) {
