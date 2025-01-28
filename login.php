@@ -53,10 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // เปลี่ยนเส้นทางไปยังหน้าแดชบอร์ดตาม level_id
             switch ($user['level_id']) {
                 case 1:
-                    header('Location: user_dashboard.php'); // ผู้ใช้
+                    header('Location: staff_index1.php'); // สตาฟ1
                     break;
                 case 2:
-                    header('Location: staff_index.php'); // สตาฟ
+                    header('Location: staff_index.php'); // สตาฟ2
                     break;
                 case 3:
                     header('Location: admin_index.php'); // แอดมิน
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AdminLTE 3 | Log in</title>
+  <title>Found & Return| Log in</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">

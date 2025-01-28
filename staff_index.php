@@ -1,6 +1,53 @@
 <?php
 session_start(); // เริ่มเซสชัน
 
+require 'config.php';
+
+// ดึงวันที่ปัจจุบัน
+$current_date = date('Y-m-d');
+
+// ตรวจสอบว่ามี Cookie "visited_today" หรือไม่
+if (!isset($_COOKIE['visited_today'])) {
+    // ถ้ายังไม่มี Cookie ให้เพิ่มการนับในฐานข้อมูล
+    $result = $mysqli->query("SELECT visit_count FROM visitor_counter WHERE visit_date = '$current_date'");
+
+    if ($result->num_rows > 0) {
+        // อัปเดตจำนวนผู้เข้าชมสำหรับวันนี้
+        $mysqli->query("UPDATE visitor_counter SET visit_count = visit_count + 1 WHERE visit_date = '$current_date'");
+    } else {
+        // เพิ่มแถวใหม่สำหรับวันที่ปัจจุบัน
+        $mysqli->query("INSERT INTO visitor_counter (visit_date, visit_count) VALUES ('$current_date', 1)");
+    }
+
+    // ตั้ง Cookie "visited_today" หมดอายุในเวลา 23:59:59
+    $expiry_time = strtotime('tomorrow') - 1; // เวลาเที่ยงคืนวันนี้
+    setcookie('visited_today', '1', $expiry_time);
+}
+
+// ดึงจำนวนผู้เข้าชมทั้งหมด
+$result_total = $mysqli->query("SELECT SUM(visit_count) AS total_visits FROM visitor_counter");
+$total_visits = $result_total->fetch_assoc()['total_visits'];
+
+// ดึงจำนวนผู้เข้าชมวันนี้
+$result_today = $mysqli->query("SELECT visit_count FROM visitor_counter WHERE visit_date = '$current_date'");
+$visits_today = $result_today->fetch_assoc()['visit_count'];
+
+// นับจำนวนแจ้งทรัพย์สินหาย
+$result_lost = $mysqli->query("SELECT COUNT(*) AS lost_count FROM lost_items WHERE item_id");
+$lost_count = $result_lost->fetch_assoc()['lost_count'];
+
+// นับจำนวนแจ้งทรัพย์สินที่เก็บได้
+$result_found = $mysqli->query("SELECT COUNT(*) AS found_count FROM found_items WHERE found_id");
+$found_count = $result_found->fetch_assoc()['found_count'];
+
+// นับจำนวนแจ้งทรัพย์สินหาย (เฉพาะวันปัจจุบัน)
+$result_lost_today = $mysqli->query("SELECT COUNT(*) AS lost_count_today FROM lost_items WHERE item_id AND DATE(lost_date) = '$current_date'");
+$lost_count_today = $result_lost_today->fetch_assoc()['lost_count_today'];
+
+// นับจำนวนแจ้งทรัพย์สินที่เก็บได้ (เฉพาะวันปัจจุบัน)
+$result_found_today = $mysqli->query("SELECT COUNT(*) AS found_count_today FROM found_items WHERE found_id AND DATE(found_date) = '$current_date'");
+$found_count_today = $result_found_today->fetch_assoc()['found_count_today'];
+
 // ตรวจสอบว่าผู้ใช้ล็อกอินและบทบาทเป็นแอดมินหรือไม่
 if (!isset($_SESSION['user_id']) || $_SESSION['level_id'] !== 2) {
     header('Location: login.php'); // ถ้าไม่ได้ล็อกอินหรือไม่ใช่แอดมิน ให้เปลี่ยนเส้นทางไปหน้า login
@@ -179,18 +226,18 @@ $adminName = $_SESSION['UserAdminName'];
       <div class="container-fluid">
         <!-- Small boxes (Stat box) -->
         <div class="row">
-          <div class="col-lg-3 col-6">
+        <div class="col-lg-3 col-6">
             <!-- small box -->
             <div class="small-box bg-info">
               <div class="inner">
-                <h3>150</h3>
+                <h3><?= $lost_count ?></h3>
 
-                <p>New Orders</p>
+                <p>จำนวนทรัพย์สินหาย</p>
               </div>
               <div class="icon">
-                <i class="ion ion-bag"></i>
+                <i class="ion ion-stats-bars"></i>
               </div>
-              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+              <a href="#" class="small-box-footer">แจ้งทรัพย์สินหาย (วันนี้): <?= $lost_count_today ?></a>
             </div>
           </div>
           <!-- ./col -->
@@ -198,14 +245,14 @@ $adminName = $_SESSION['UserAdminName'];
             <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
-                <h3>53<sup style="font-size: 20px">%</sup></h3>
+                <h3><?= $found_count ?></h3>
 
-                <p>Bounce Rate</p>
+                <p>จำนวนทรัพย์สินที่เก็บได้</p>
               </div>
               <div class="icon">
                 <i class="ion ion-stats-bars"></i>
               </div>
-              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+              <a href="#" class="small-box-footer">แจ้งทรัพย์สินที่เก็บได้(วันนี้): <?= $found_count_today ?></a>
             </div>
           </div>
           <!-- ./col -->
@@ -213,14 +260,14 @@ $adminName = $_SESSION['UserAdminName'];
             <!-- small box -->
             <div class="small-box bg-warning">
               <div class="inner">
-                <h3>44</h3>
+                <h3><?= $total_visits ?></h3>
 
-                <p>User Registrations</p>
+                <p>จำนวนผู้เข้าชม</p>
               </div>
               <div class="icon">
                 <i class="ion ion-person-add"></i>
               </div>
-              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+              <a href="#" class="small-box-footer">จำนวนผู้เข้าชมวันนี้: <?= $visits_today ?></a>
             </div>
           </div>
           <!-- ./col -->

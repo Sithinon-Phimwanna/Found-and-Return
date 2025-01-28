@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $finder_images = explode(',', $row['finder_image']);
 
             foreach ($item_images as $image) {
-                $file_path = 'lost_images/' . trim($image);
+                $file_path = '../lost_images/' . trim($image);
                 if (file_exists($file_path)) {
                     unlink($file_path); // ลบไฟล์ภาพ
                 }

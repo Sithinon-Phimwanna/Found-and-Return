@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // ลบไฟล์ภาพ
             $images = explode(',', $row['found_image']);
             foreach ($images as $image) {
-                $file_path = 'found_images/' . trim($image);
+                $file_path = '../found_images/' . trim($image);
                 
                 // ตรวจสอบว่าไฟล์มีอยู่จริง
                 if (file_exists($file_path)) {

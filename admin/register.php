@@ -213,7 +213,18 @@ header("Expires: 0");
           </div>
         </div>
         <div class="input-group mb-3 col-sm-4">
-          <input type="text" class="form-control" placeholder="ตำแหน่ง" name="position_id" id="position_id" required>
+          <input type="text" class="form-control" placeholder="ตำแหน่ง" name="position_id" id="position_id" required list="position">
+          <datalist id="position">
+          <option value="1">
+          <option value="2">
+          <option value="3">
+          <option value="4">
+          <option value="5">
+          <option value="6">
+          <option value="7">
+          <option value="8">
+          <option value="9">
+        </datalist>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-star"></span>
@@ -221,7 +232,14 @@ header("Expires: 0");
           </div>
         </div>
         <div class="input-group mb-3 col-sm-4">
-          <input type="text" class="form-control" placeholder="กลุ่ม" name="group_id" id="group_id" required>
+          <input type="text" class="form-control" placeholder="กลุ่ม" name="group_id" id="group_id" required list="group">
+          <datalist id="group">
+          <option value="1">
+          <option value="2">
+          <option value="3">
+          <option value="4">
+          <option value="5">
+        </datalist>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-users"></span>
@@ -229,7 +247,12 @@ header("Expires: 0");
           </div>
         </div>
         <div class="input-group mb-3 col-sm-4">
-          <input type="text" class="form-control" placeholder="ระดับการเข้าถึง" name="level_id" id="level_id" required>
+          <input type="text" class="form-control" placeholder="ระดับการเข้าถึง" name="level_id" id="level_id" required list="level">
+          <datalist id="level">
+          <option value="1"> สตาฟ1
+          <option value="2"> สตาฟ2
+          <option value="3"> แอดมิน
+        </datalist>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-wrench"></span>

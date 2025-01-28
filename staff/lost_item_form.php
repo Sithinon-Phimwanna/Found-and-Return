@@ -251,178 +251,152 @@ try {
     </div>
 </div>
                       <!--php sunmit -->
-                        <?php
-                        require 'config.php';
+                      <?php
+                      require 'config.php';
 
-                        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                            // รับค่าจากฟอร์ม
-                            $owner_name = $_POST['owner_name'] ?? '';
-                            $owner_contact = $_POST['owner_contact'] ?? '';
-                            $item_type = $_POST['item_type'] ?? '';
-                            $item_description = $_POST['item_description'] ?? '';
-                            $lost_location = $_POST['lost_location'] ?? '';
+                      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                          // รับค่าจากฟอร์ม
+                          $owner_name = $_POST['owner_name'];
+                          $owner_contact = $_POST['owner_contact'];
+                          $item_type = $_POST['item_type'];
+                          $item_description = $_POST['item_description'];
+                          $lost_location = $_POST['lost_location'];
 
-                            // ใช้เวลาปัจจุบัน
-                            $lost_date = date('Y-m-d H:i:s'); // วันที่และเวลาปัจจุบันในรูปแบบที่เหมาะสม
+                          // ใช้เวลาปัจจุบัน
+                          $lost_date = date('Y-m-d H:i:s');
 
-                            // ตรวจสอบการกรอกข้อมูล
-                            if (empty($owner_name) || empty($owner_contact) || empty($item_type) || empty($item_description) || empty($lost_location)) {
-                                echo "<script>alert('โปรดกรอกข้อมูลให้ครบถ้วน'); window.history.back();</script>";
-                                exit;
-                            }
+                          // ตรวจสอบและจัดการอัปโหลดภาพหลายไฟล์ (ทำให้ไม่บังคับ)
+                          $images = [];
+                          if (isset($_FILES['item_image']) && !empty($_FILES['item_image']['name'][0])) {
+                              $upload_dir = '../lost_images/';
 
-                            // ตรวจสอบการอัปโหลดภาพ (ไม่บังคับ)
-                            $item_images = [];
-                            if (isset($_FILES['item_image']) && !empty($_FILES['item_image']['name'][0])) {
-                                // ตรวจสอบแต่ละไฟล์
-                                $files = $_FILES['item_image'];
-                                for ($i = 0; $i < count($files['name']); $i++) {
-                                    if ($files['error'][$i] === UPLOAD_ERR_OK) {
-                                        // ตรวจสอบขนาดไฟล์และประเภทไฟล์
-                                        $file_size = $files['size'][$i];
-                                        $file_type = $files['type'][$i];
+                              if (!is_dir($upload_dir)) {
+                                  mkdir($upload_dir, 0777, true); // สร้างโฟลเดอร์ถ้ายังไม่มี
+                              }
 
-                                        if ($file_size > 1048576) {  // 1MB
-                                            // sweet alert 
-                                              echo '
-                                              <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                              <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                              <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-                                              echo '<script>
-                                                      setTimeout(function() {
-                                                          swal({
-                                                          title: "ไฟล์ $filename มีขนาดใหญ่เกินไป (สูงสุด 1MB",
-                                                          type: "error"
-                                                          }, function() {
-                                                          window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                                          });
-                                                      }, 1000);
-                                                    </script>';
-                                            exit;
-                                        }
+                              foreach ($_FILES['item_image']['name'] as $key => $filename) {
+                                  $tmp_name = $_FILES['item_image']['tmp_name'][$key];
+                                  $error = $_FILES['item_image']['error'][$key];
+                                  $file_size = $_FILES['item_image']['size'][$key];
+                                  $file_type = $_FILES['item_image']['type'][$key];
 
-                                        if (!in_array($file_type, ['image/jpeg', 'image/png'])) {
-                                            // sweet alert 
-                                            echo '
-                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-                                            echo '<script>
-                                                    setTimeout(function() {
-                                                        swal({
-                                                        title: "ขออภัย, ไฟล์ต้องเป็นภาพ JPEG หรือ PNG เท่านั้น",
-                                                        type: "error"
-                                                        }, function() {
-                                                        window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                                        });
-                                                    }, 1000);
-                                                  </script>';
-                                            exit;
-                                        }
-
-                                        // ใช้ชื่อไฟล์เดิม
-                                        $image_name = $files['name'][$i];
-                                        $target_dir = 'lost_images/'; // โฟลเดอร์ที่เก็บไฟล์
-                                        $target_file = $target_dir . $image_name;
-
-                                        // ตรวจสอบว่ามีไฟล์ที่มีชื่อเดียวกันอยู่แล้วในโฟลเดอร์หรือไม่
-                                        if (file_exists($target_file)) {
-                                            // sweet alert 
-                                            echo '
-                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-                                            echo '<script>
-                                                    setTimeout(function() {
-                                                        swal({
-                                                        title: "ขออภัย, ไฟล์นี้มีอยู่ในระบบแล้ว กรุณาเลือกไฟล์อื่น",
-                                                        type: "error"
-                                                        }, function() {
-                                                        window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                                        });
-                                                    }, 1000);
-                                                  </script>';
-                                            exit;
-                                        }
-
-                                        // ย้ายไฟล์ไปยังโฟลเดอร์ที่กำหนด
-                                        if (!move_uploaded_file($files['tmp_name'][$i], $target_file)) {
-                                          // sweet alert 
+                                  if ($error === UPLOAD_ERR_OK) {
+                                      // ตรวจสอบขนาดไฟล์ (1MB)
+                                      if ($file_size > 1048576) {
                                           echo '
                                           <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
                                           <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
                                           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
                                           echo '<script>
-                                                  setTimeout(function() {
-                                                      swal({
+                                              setTimeout(function() {
+                                                  swal({
+                                                      title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
+                                                      type: "error"
+                                                  }, function() {
+                                                      window.location = "lost_item_form.php";
+                                                  });
+                                              }, 1000);
+                                          </script>';
+                                          exit;
+                                      }
+
+                                      // ตรวจสอบประเภทไฟล์
+                                      if (!in_array($file_type, ['image/jpeg', 'image/png'])) {
+                                          echo '
+                                          <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                          <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                                          echo '<script>
+                                              setTimeout(function() {
+                                                  swal({
+                                                      title: "ไฟล์ ' . $filename . ' ต้องเป็น JPEG หรือ PNG เท่านั้น",
+                                                      type: "error"
+                                                  }, function() {
+                                                      window.location = "lost_item_form.php";
+                                                  });
+                                              }, 1000);
+                                          </script>';
+                                          exit;
+                                      }
+
+                                      // ตั้งชื่อไฟล์ใหม่
+                                      $timestamp = date('Y-m-d_H-i-s');
+                                      $extension = pathinfo($filename, PATHINFO_EXTENSION);
+                                      $new_filename = $timestamp . '_' . pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
+                                      $target_file = $upload_dir . $new_filename;
+
+                                      if (move_uploaded_file($tmp_name, $target_file)) {
+                                          $images[] = $new_filename;
+                                      } else {
+                                          echo '
+                                          <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                          <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                                          echo '<script>
+                                              setTimeout(function() {
+                                                  swal({
                                                       title: "ขออภัย, เกิดข้อผิดพลาดในการอัปโหลดไฟล์",
                                                       type: "error"
-                                                      }, function() {
-                                                      window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                                      });
-                                                  }, 1000);
-                                                </script>';
-                                            exit;
-                                        }
+                                                  }, function() {
+                                                      window.location = "lost_item_form.php";
+                                                  });
+                                              }, 1000);
+                                          </script>';
+                                          exit;
+                                      }
+                                  }
+                              }
+                          }
 
-                                        $item_images[] = $image_name; // บันทึกชื่อไฟล์ในอาเรย์
-                                    }
-                                }
-                            }
+                          $images_str = !empty($images) ? implode(',', $images) : NULL;
+                          $status_id = 1; // สถานะ "หาย"
 
-                            // ถ้าไม่มีการอัปโหลดภาพ ให้ส่งค่าเป็น NULL
-                            $item_images_str = !empty($item_images) ? implode(',', $item_images) : NULL;
+                          $stmt = $mysqli->prepare("INSERT INTO lost_items (owner_name, owner_contact, item_type, item_description, lost_date, lost_location, item_image, finder_image, deliverer, status_id) 
+                                                    VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?)");
 
-                            // เตรียมคำสั่ง SQL เพื่อบันทึกข้อมูล
-                            $stmt = $mysqli->prepare("
-                                INSERT INTO lost_items 
-                                (owner_name, owner_contact, item_type, item_description, lost_date, lost_location, item_image, status_id) 
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                            ");
+                          if ($stmt === false) {
+                              die('เกิดข้อผิดพลาดในการเตรียมคำสั่ง SQL: ' . $mysqli->error);
+                          }
 
-                            if ($stmt === false) {
-                                die('เกิดข้อผิดพลาดในการเตรียมคำสั่ง SQL: ' . $mysqli->error);
-                            }
+                          $stmt->bind_param("sssssssi", $owner_name, $owner_contact, $item_type, $item_description, $lost_date, $lost_location, $images_str, $status_id);
 
-                            $status_id = 1; // 'หาย' ในตาราง statuses
-                            $stmt->bind_param("sssssssi", $owner_name, $owner_contact, $item_type, $item_description, $lost_date, $lost_location, $item_images_str, $status_id);
-
-                            // บันทึกข้อมูลลงฐานข้อมูล
-                            if ($stmt->execute()) {
-                              // sweet alert 
+                          if ($stmt->execute()) {
                               echo '
                               <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
                               <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
                               <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-
                               echo '<script>
                                   setTimeout(function() {
-                                    swal({
-                                        title: "เพิ่มข้อมูลสำเร็จ",
-                                        type: "success"
-                                    }, function() {
-                                        window.location = "lost_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                    });
+                                      swal({
+                                          title: "เพิ่มข้อมูลสำเร็จ",
+                                          type: "success"
+                                      }, function() {
+                                          window.location = "lost_item_form.php";
+                                      });
                                   }, 1000);
                               </script>';
                           } else {
+                              echo '
+                              <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                              <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                              <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
                               echo '<script>
                                   setTimeout(function() {
-                                    swal({
-                                        title: "เกิดข้อผิดพลาด",
-                                        type: "error"
-                                    }, function() {
-                                        window.location = "lost_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                    });
+                                      swal({
+                                          title: "เกิดข้อผิดพลาด",
+                                          type: "error"
+                                      }, function() {
+                                          window.location = "lost_item_form.php";
+                                      });
                                   }, 1000);
                               </script>';
                           }
 
-                            // ปิดการเชื่อมต่อ
-                            $stmt->close();
-                            $mysqli->close();
-                        }
-                        ?>
+                          $stmt->close();
+                          $mysqli->close();
+                      }
+                      ?>
+
 
 
       </div><!-- /.container-fluid -->

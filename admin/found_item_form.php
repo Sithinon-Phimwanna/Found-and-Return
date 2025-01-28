@@ -268,7 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ตรวจสอบและจัดการอัปโหลดภาพหลายไฟล์ (ทำให้ไม่บังคับ)
     $images = [];
     if (isset($_FILES['found_image']) && !empty($_FILES['found_image']['name'][0])) {
-        $upload_dir = 'found_images/';
+        $upload_dir = '../found_images/';
 
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true); // สร้างโฟลเดอร์ถ้ายังไม่มี
@@ -321,26 +321,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
 
-                // ตรวจสอบว่ามีไฟล์ที่ชื่อเดียวกันหรือไม่
-                $target_file = $upload_dir . basename($filename);
-                if (file_exists($target_file)) {
-                  // sweet alert 
-                    echo '
-                    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-                    echo '<script>
-                            setTimeout(function() {
-                                swal({
-                                title: "ขออภัย, ไฟล์นี้มีอยู่ในระบบแล้ว กรุณาเลือกไฟล์อื่น",
-                                type: "error"
-                                }, function() {
-                                window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                });
-                            }, 1000);
-                          </script>';
-                    exit;
-                }
+                 // ตั้งชื่อไฟล์ใหม่ด้วยวันที่และเวลาตามด้วยชื่อไฟล์เดิม
+                $timestamp = date('Y-m-d_H-i-s');
+                $extension = pathinfo($filename, PATHINFO_EXTENSION); // ดึงนามสกุลไฟล์
+                $new_filename = $timestamp . '_' . pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
+                $target_file = $upload_dir . $new_filename;
 
                 // ย้ายไฟล์ไปยังโฟลเดอร์ที่กำหนด
                 if (move_uploaded_file($tmp_name, $target_file)) {
