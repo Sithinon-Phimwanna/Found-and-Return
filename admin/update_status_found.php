@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     // ส่งกลับไปยังหน้าเดิม
-    header('Location: found_items_list.php' );
+    header("Location: found_items_list.php?success=4" );
     exit();
 }
 ?>

@@ -1,23 +1,27 @@
 <?php
 session_start(); // เริ่มต้นเซสชัน
 
+// เปิดการแสดงข้อผิดพลาดสำหรับการดีบัก
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // ตรวจสอบการล็อกอิน
 if (isset($_SESSION['user_id'])) {
     // ตรวจสอบ level_id และเปลี่ยนเส้นทางไปตามบทบาท
     switch ($_SESSION['level_id']) {
         case 1:
-            header('Location: user_dashboard.php');
-            break;
+            header('Location: staff1_index.php');
+            exit;
         case 2:
-            header('Location: staff_dashboard.php');
-            break;
+            header('Location: staff_index.php');
+            exit;
         case 3:
             header('Location: admin_index.php');
-            break;
+            exit;
         default:
             header('Location: login.php');
+            exit;
     }
-    exit;
 }
 
 // ป้องกันการแคชของเบราว์เซอร์
@@ -53,18 +57,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // เปลี่ยนเส้นทางไปยังหน้าแดชบอร์ดตาม level_id
             switch ($user['level_id']) {
                 case 1:
-                    header('Location: staff_index1.php'); // สตาฟ1
-                    break;
+                    header('Location: staff1_index.php');
+                    exit;
                 case 2:
-                    header('Location: staff_index.php'); // สตาฟ2
-                    break;
+                    header('Location: staff_index.php');
+                    exit;
                 case 3:
-                    header('Location: admin_index.php'); // แอดมิน
-                    break;
+                    header('Location: admin_index.php');
+                    exit;
                 default:
                     $error = "ไม่พบสิทธิ์ที่เหมาะสม!";
             }
-            exit;
         } else {
             $error = "รหัสผ่านไม่ถูกต้อง!";
         }
@@ -102,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       <form method="post" action="">
         <div class="input-group mb-3">
-          <input type="text" class="form-control" placeholder="Username" name="UserAdminID" id="UserAdminID" required >
+          <input type="text" class="form-control" placeholder="Username" name="UserAdminID" id="UserAdminID" required>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
@@ -122,14 +125,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="btn btn-primary btn-block">Signin</button>
           </div>
         </div>
-
       </form>
 
-      
-    <!-- /.login-card-body -->
+      <?php if (isset($error)) { ?>
+        <div class="alert alert-danger mt-3"><?php echo $error; ?></div>
+      <?php } ?>
+
+    </div>
   </div>
 </div>
-<!-- /.login-box -->
 
 <!-- jQuery -->
 <script src="assets/plugins/jquery/jquery.min.js"></script>

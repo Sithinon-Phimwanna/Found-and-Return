@@ -13,56 +13,66 @@ if (!$mysqli) {
 
 // ตรวจสอบการอัปเดต
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // ตรวจสอบการอัปโหลดไฟล์
+    $finder_image = ""; // เก็บชื่อไฟล์ทั้งหมดเป็นสตริง
+
+    // ตรวจสอบว่ามีการอัปโหลดไฟล์หรือไม่
     if (isset($_FILES['finder_image']) && !empty($_FILES['finder_image']['name'][0])) {
-        $upload_dir = 'return_images/';
+        $upload_dir = '../return_images/'; // โฟลเดอร์เก็บรูป
         $file_names = [];
 
         foreach ($_FILES['finder_image']['name'] as $key => $value) {
             $file_tmp = $_FILES['finder_image']['tmp_name'][$key];
-            $file_name = basename($_FILES['finder_image']['name'][$key]);
-            $file_path = $upload_dir . $file_name;
 
-            // ตรวจสอบข้อผิดพลาดในการอัปโหลดไฟล์
-            if ($_FILES['finder_image']['error'][$key] !== UPLOAD_ERR_OK) {
-                echo "เกิดข้อผิดพลาดในการอัปโหลดไฟล์: $file_name";
-                continue; // ข้ามไฟล์นี้และไปที่ไฟล์ถัดไป
+            // ดึงชื่อไฟล์ต้นฉบับและนามสกุลไฟล์
+            $original_name = pathinfo($_FILES['finder_image']['name'][$key], PATHINFO_FILENAME);
+            $imageFileType = strtolower(pathinfo($_FILES['finder_image']['name'][$key], PATHINFO_EXTENSION));
+
+            // สร้างชื่อไฟล์ใหม่ตามรูปแบบที่ต้องการ
+            $formatted_timestamp = date("d-m-Y_H-i-s");
+            $new_image_name = $formatted_timestamp . "_" . preg_replace("/[^a-zA-Z0-9]/", "_", $original_name) . "." . $imageFileType;
+            $file_path = $upload_dir . $new_image_name;
+
+            // ตรวจสอบประเภทไฟล์ที่อนุญาต
+            $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+            if (!in_array($imageFileType, $allowed_types)) {
+                echo "ไฟล์ต้องเป็น JPG, JPEG, PNG หรือ GIF เท่านั้น: $new_image_name";
+                continue;
             }
 
-            if (move_uploaded_file($file_tmp, $file_path)) {
-                $file_names[] = $file_name;
+            // ตรวจสอบว่าการอัปโหลดสำเร็จหรือไม่
+            if ($_FILES['finder_image']['error'][$key] === UPLOAD_ERR_OK && move_uploaded_file($file_tmp, $file_path)) {
+                $file_names[] = $new_image_name;
             } else {
-                echo "ไม่สามารถย้ายไฟล์: $file_name";
+                echo "เกิดข้อผิดพลาดในการอัปโหลดไฟล์: $new_image_name";
             }
         }
 
-        $finder_image = implode(',', $file_names);
-        // เตรียมคำสั่งอัปเดตพร้อมกับภาพ, ผู้ส่งมอบ, และสถานะ
-        $query = "UPDATE lost_items SET finder_image = ?, deliverer = ?, status_id = ? WHERE item_id = ?";
-        $stmt = $mysqli->prepare($query);
-
-        // ตรวจสอบว่า prepare() สำเร็จหรือไม่
-        if ($stmt === false) {
-            die('เกิดข้อผิดพลาดในการเตรียมคำสั่ง SQL: ' . $mysqli->error);
+        // รวมชื่อไฟล์เป็นสตริงเพื่อบันทึกลงฐานข้อมูล
+        if (!empty($file_names)) {
+            $finder_image = implode(',', $file_names);
         }
-
-        $stmt->bind_param('sssi', $finder_image, $_POST['deliverer'], $_POST['status_id'], $_POST['item_id']);
-    } else {
-        // หากไม่มีการอัปโหลดไฟล์, อัปเดตแค่ผู้ส่งมอบและสถานะ
-        $query = "UPDATE lost_items SET deliverer = ?, status_id = ? WHERE item_id = ?";
-        $stmt = $mysqli->prepare($query);
-
-        // ตรวจสอบว่า prepare() สำเร็จหรือไม่
-        if ($stmt === false) {
-            die('เกิดข้อผิดพลาดในการเตรียมคำสั่ง SQL: ' . $mysqli->error);
-        }
-
-        $stmt->bind_param('ssi', $_POST['deliverer'], $_POST['status_id'], $_POST['item_id']);
     }
 
+    // ตรวจสอบและกำหนดค่าที่จะอัปเดต
+    $deliverer = $_POST['deliverer'];
+    $status_id = $_POST['status_id'];
+    $item_id = $_POST['item_id'];
+
+    if (!empty($finder_image)) {
+        // หากมีการอัปโหลดไฟล์ ให้รวมข้อมูลรูป
+        $query = "UPDATE lost_items SET finder_image = ?, deliverer = ?, status_id = ? WHERE item_id = ?";
+        $stmt = $mysqli->prepare($query);
+        $stmt->bind_param('sssi', $finder_image, $deliverer, $status_id, $item_id);
+    } else {
+        // ไม่มีรูปที่อัปโหลด อัปเดตเฉพาะ deliverer และ status_id
+        $query = "UPDATE lost_items SET deliverer = ?, status_id = ? WHERE item_id = ?";
+        $stmt = $mysqli->prepare($query);
+        $stmt->bind_param('ssi', $deliverer, $status_id, $item_id);
+    }
+
+    // ดำเนินการอัปเดต
     if ($stmt->execute()) {
-        // ส่งกลับไปยังหน้าเดิมและแสดงข้อความ
-        header("Location: lost_items_list.php?update_success=true");
+        header("Location: lost_items_list.php?success=4");
         exit();
     } else {
         echo "เกิดข้อผิดพลาดในการอัปเดตข้อมูล: " . $stmt->error;

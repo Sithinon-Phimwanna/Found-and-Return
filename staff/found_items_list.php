@@ -107,6 +107,7 @@ if (!$result) {
   <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
   <!-- summernote -->
   <link rel="stylesheet" href="../assets/plugins/summernote/summernote-bs4.min.css">
+  
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -257,32 +258,33 @@ if (!$result) {
                     <button type="submit" class="btn btn-primary" style="padding: 2px 10px;">ค้นหา</button>
                 </form>
             </section>
-                  <table table id="example1" class="table table-bordered table-hover">
+                  <table table id="example1" class="table table-bordered table-hover" style="font-size: 14px;">
                         <thead>
                             <tr>
-                                <th>รหัส</th>
-                                <th>ชื่อผู้แจ้ง</th>
-                                <th>ช่องทางการติดต่อ</th>
-                                <th>ทรัพย์สิน</th>
-                                <th>รายละเอียด</th>
-                                <th>สถานที่เก็บได้</th>
-                                <th>วันที่เก็บได้</th>
-                                <th>ภาพทรัพย์สิน</th>
-                                <th>สถานะ</th>
-                                <th>อัปเดตสถานะ</th>
+                                <th style="font-size: 14px;">รหัส</th>
+                                <th style="font-size: 14px;">ชื่อผู้แจ้ง</th>
+                                <th style="font-size: 14px;">ช่องทางติดต่อ</th>
+                                <th style="font-size: 14px;">ทรัพย์สิน</th>
+                                <th style="font-size: 14px;">รายละเอียด</th>
+                                <th style="font-size: 14px; width: 20%;">สถานที่เก็บได้</th>
+                                <th style="font-size: 14px;">วันที่เก็บได้</th>
+                                <th style="font-size: 14px;">ภาพทรัพย์สิน</th>
+                                <th style="font-size: 14px;">สถานะ</th>
+                                <th style="font-size: 14px;">อัปเดตสถานะ</th>
+                                <th style="font-size: 14px;">แก้ไข</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php while ($row = $result->fetch_assoc()): ?>
                                 <tr>
-                                    <td><?= $row['found_id'] ?></td>
-                                    <td><?= htmlspecialchars($row['finder_name']) ?></td>
-                                    <td><?= htmlspecialchars($row['finder_contact']) ?></td>
-                                    <td><?= htmlspecialchars($row['found_type']) ?></td>
-                                    <td><?= htmlspecialchars($row['found_description']) ?></td>
-                                    <td><?= htmlspecialchars($row['found_location']) ?></td>
-                                    <td><?= date('d/m/Y H:i', strtotime($row['found_date'])) ?></td>
-                                    <td>
+                                    <td style="font-size: 14px;"><?= $row['found_id'] ?></td>
+                                    <td style="font-size: 14px;"><?= htmlspecialchars($row['finder_name']) ?></td>
+                                    <td style="font-size: 14px;"><?= htmlspecialchars($row['finder_contact']) ?></td>
+                                    <td style="font-size: 14px;"><?= htmlspecialchars($row['found_type']) ?></td>
+                                    <td style="font-size: 14px;"><?= htmlspecialchars($row['found_description']) ?></td>
+                                    <td style="font-size: 14px;"><?= htmlspecialchars($row['found_location']) ?></td>
+                                    <td style="font-size: 14px;"><?= date('d/m/Y H:i', strtotime($row['found_date'])) ?></td>
+                                    <td style="font-size: 14px;">
                                         <?php
                                       if ($row['found_image']) {
                                           // แยกหลายภาพที่เก็บในฐานข้อมูล
@@ -297,8 +299,8 @@ if (!$result) {
                                     </td>
 
 
-                                    <td><?= htmlspecialchars($row['status']) ?></td>
-                                    <td>
+                                    <td style="font-size: 14px;"><?= htmlspecialchars($row['status']) ?></td>
+                                    <td style="font-size: 14px;">
                                         <form method="POST" action="update_status_found.php" class="status-form">
                                             <input type="hidden" name="found_id" value="<?= $row['found_id'] ?>">
                                             <select name="status_id" class="status-select">
@@ -314,6 +316,30 @@ if (!$result) {
                                             </select>
                                             <button type="submit" class="btn btn-primary"  style=" margin-top: 5px;">อัปเดต</button>
                                         </form>
+                                    </td>
+                                    <td style="font-size: 14px;">
+                                    <button class="btn btn-warning" onclick="window.location.href='found_edit.php?found_id=<?= $row['found_id'] ?>'">แก้ไข</button>
+                                    <?php
+                                        // ตรวจสอบค่า success ใน URL
+                                        if (isset($_GET['success']) && $_GET['success'] == 2) {
+                                            echo '
+                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                            <script>
+                                                setTimeout(function() {
+                                                    swal({
+                                                        title: "แก้ไขข้อมูลสำเร็จแล้ว!",
+                                                        text: "ข้อมูลถูกแก้ไขเรียบร้อยแล้ว",
+                                                        type: "success"
+                                                    }, function() {
+                                                        window.location = "found_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
+                                                    });
+                                                }, 1000);
+                                            </script>';
+                                            exit;
+                                        }
+                                        ?>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
@@ -377,6 +403,12 @@ if (!$result) {
             form.submit();
         }
     }
+    function redirectToRepair() {
+        setTimeout(function() {
+            window.location.href = 'found_edit.php';
+        }, 500); // หน่วงเวลา 500ms (0.5 วินาที) ก่อนเปลี่ยนหน้า
+    }
+
 </script>
 </body>
 </html>

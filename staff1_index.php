@@ -2,9 +2,9 @@
 session_start(); // เริ่มเซสชัน
 
 // ตรวจสอบการล็อกอินและบทบาทผู้ใช้
-if (!isset($_SESSION['user_id'])) {
-  header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอิน ให้เปลี่ยนเส้นทางไปหน้า login
-  exit;
+if (!isset($_SESSION['user_id']) || $_SESSION['level_id'] !== 1) {
+    header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอิน หรือไม่ใช่แอดมิน ให้เปลี่ยนเส้นทางไปหน้า login
+    exit;
 }
 
 require 'config.php';
@@ -54,9 +54,8 @@ $lost_count_today = $result_lost_today->fetch_assoc()['lost_count_today'];
 $result_found_today = $mysqli->query("SELECT COUNT(*) AS found_count_today FROM found_items WHERE found_id AND DATE(found_date) = '$current_date'");
 $found_count_today = $result_found_today->fetch_assoc()['found_count_today'];
 
-
 // ตรวจสอบว่าผู้ใช้ล็อกอินและบทบาทเป็นแอดมินหรือไม่
-if (!isset($_SESSION['user_id']) || $_SESSION['level_id'] !== 3) {
+if (!isset($_SESSION['user_id']) || $_SESSION['level_id'] !== 1) {
     header('Location: login.php'); // ถ้าไม่ได้ล็อกอินหรือไม่ใช่แอดมิน ให้เปลี่ยนเส้นทางไปหน้า login
     exit;
 }
@@ -101,7 +100,7 @@ $adminName = $_SESSION['UserAdminName'];
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="admin_index.php" class="nav-link">Home</a>
+        <a href="staff1_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -110,7 +109,7 @@ $adminName = $_SESSION['UserAdminName'];
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="admin_index.php" class="brand-link">
+    <a href="staff1_index.php" class="brand-link">
       <img src="assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
@@ -142,13 +141,13 @@ $adminName = $_SESSION['UserAdminName'];
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="admin/found_item_form.php" class="nav-link">
+                <a href="staff1/found_item_form.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>แจ้งเก็บทรัพย์สินได้</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="admin/lost_item_form.php" class="nav-link">
+                <a href="staff1/lost_item_form.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
@@ -165,13 +164,13 @@ $adminName = $_SESSION['UserAdminName'];
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="admin/found_items_list.php" class="nav-link">
+                <a href="staff1/found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>ตารางแจ้งทรัพย์สินที่เก็บได้</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="admin/lost_items_list.php" class="nav-link">
+                <a href="staff1/lost_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>ตารางแจ้งทรัพย์สินหาย</p>
                 </a>
@@ -180,21 +179,6 @@ $adminName = $_SESSION['UserAdminName'];
           </li>
           <li class="nav-header">การจัดการ</li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon far fa-user"></i>
-              <p>
-                จัดการ แอดมิน
-                <i class="fas fa-angle-left right"></i>
-              </p>
-            </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="admin/register.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมากชิก</p>
-                    </a>
-                  </li>
-            </ul>
             <li class="nav-item">
                     <a href="logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -289,7 +273,7 @@ $adminName = $_SESSION['UserAdminName'];
               <div class="icon">
                 <i class="ion ion-pie-graph"></i>
               </div>
-              <a href="admin/chart.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
+              <a href="staff1/chart.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
           <!-- ./col -->

@@ -100,7 +100,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="../admin_index.php" class="nav-link">Home</a>
+        <a href="../staff1_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -109,7 +109,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="../admin_index.php" class="brand-link">
+    <a href="../staff1_index.php" class="brand-link">
       <img src="../assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
@@ -255,8 +255,6 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                           <th style="font-size: 14px;">สถานะ</th>
                           <th style="font-size: 14px;">ผู้ส่งมอบทรัพย์สิน</th>
                           <th style="font-size: 14px;">อัปเดตข้อมูล</th>
-                          <th style="font-size: 14px;">แก้ไขข้อมูล</th>
-                          <th style="font-size: 14px;">ลบข้อมูล</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -333,8 +331,8 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                             <script>
                                                 setTimeout(function() {
                                                     swal({
-                                                        title: "อัปเดทข้อมูลสำเร็จแล้ว!",
-                                                        text: "ข้อมูลถูกอัปเดทเรียบร้อยแล้ว",
+                                                        title: "อัปเดตข้อมูลสำเร็จแล้ว!",
+                                                        text: "ข้อมูลถูกอัปเดตเรียบร้อยแล้ว",
                                                         type: "success"
                                                     }, function() {
                                                         window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
@@ -342,53 +340,6 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                                 }, 1000);
                                             </script>';
                                             exit;
-                                        }
-                                        ?>
-                              </td>
-                              <td style="font-size: 14px;">
-                                    <button class="btn btn-warning" onclick="window.location.href='lost_edit.php?item_id=<?= $row['item_id'] ?>'">แก้ไข</button>
-                                    <?php
-                                        // ตรวจสอบค่า success ใน URL
-                                        if (isset($_GET['success']) && $_GET['success'] == 3) {
-                                            echo '
-                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                            <script>
-                                                setTimeout(function() {
-                                                    swal({
-                                                        title: "แก้ไขข้อมูลสำเร็จแล้ว!",
-                                                        text: "ข้อมูลถูกแก้ไขเรียบร้อยแล้ว",
-                                                        type: "success"
-                                                    }, function() {
-                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
-                                                    });
-                                                }, 1000);
-                                            </script>';
-                                            exit;
-                                        }
-                                        ?>
-                                    </td>
-                              <td style="font-size: 14px;">
-                                  <button onclick="deleteItem(<?= $row['item_id'] ?>)" class="btn btn-danger">ลบ</button>
-                                  <?php
-                                        // ตรวจสอบค่า success ใน URL
-                                        if (isset($_GET['success']) && $_GET['success'] == 1) {
-                                            echo '
-                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                            <script>
-                                                setTimeout(function() {
-                                                    swal({
-                                                        title: "ลบข้อมูลสำเร็จ!",
-                                                        text: "ข้อมูลถูกลบออกจากระบบเรียบร้อยแล้ว",
-                                                        type: "success"
-                                                    }, function() {
-                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
-                                                    });
-                                                }, 1000);
-                                            </script>';
                                         }
                                         ?>
                               </td>

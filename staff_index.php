@@ -1,6 +1,11 @@
 <?php
 session_start(); // เริ่มเซสชัน
 
+// ตรวจสอบการล็อกอินและบทบาทผู้ใช้
+if (!isset($_SESSION['user_id'])) {
+  header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอิน ให้เปลี่ยนเส้นทางไปหน้า login
+  exit;
+}
 require 'config.php';
 
 // ดึงวันที่ปัจจุบัน
@@ -173,21 +178,6 @@ $adminName = $_SESSION['UserAdminName'];
           </li>
           <li class="nav-header">การจัดการ</li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon far fa-user"></i>
-              <p>
-                จัดการ แอดมิน
-                <i class="fas fa-angle-left right"></i>
-              </p>
-            </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="staff/register.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมากชิก</p>
-                    </a>
-                  </li>
-            </ul>
             <li class="nav-item">
                     <a href="logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
