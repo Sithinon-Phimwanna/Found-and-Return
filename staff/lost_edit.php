@@ -87,40 +87,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $old_finder_image = $row['finder_image'];
 
   // ฟังก์ชันอัปโหลดไฟล์
-  function uploadImage($file, $target_dir, $old_image) {
-      if (!empty($file['name'])) {
-          $original_name = pathinfo($file['name'], PATHINFO_FILENAME);
-          $imageFileType = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-          $formatted_timestamp = date("d-m-Y_H-i-s");
-          $new_image_name = $formatted_timestamp . "_" . preg_replace("/[^a-zA-Z0-9]/", "_", $original_name) . "." . $imageFileType;
-          $target_file = $target_dir . $new_image_name;
+  function uploadImages($files, $target_dir, $old_images) {
+      $uploaded_images = [];
+      foreach ($files['name'] as $key => $file_name) {
+          if (!empty($file_name)) {
+              $original_name = pathinfo($file_name, PATHINFO_FILENAME);
+              $imageFileType = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+              $formatted_timestamp = date("d-m-Y_H-i-s");
+              $new_image_name = $formatted_timestamp . "_" . preg_replace("/[^a-zA-Z0-9]/", "_", $original_name) . "." . $imageFileType;
+              $target_file = $target_dir . $new_image_name;
 
-          $allowed_types = ["jpg", "jpeg", "png", "gif"];
-          if (!in_array($imageFileType, $allowed_types) || $file['size'] > 1048576) {
-              echo '<script>
-                      Swal.fire({ title: "ไฟล์ต้องเป็น JPG, JPEG, PNG หรือ GIF และไม่เกิน 1MB", icon: "error" }).then(() => { window.location = "lost_edit.php"; });
-                    </script>';
-              exit;
-          }
+              $allowed_types = ["jpg", "jpeg", "png", "gif"];
+              if (!in_array($imageFileType, $allowed_types) || $files['size'][$key] > 1048576) {
+                  echo '<script>
+                          Swal.fire({ title: "ไฟล์ต้องเป็น JPG, JPEG, PNG หรือ GIF และไม่เกิน 1MB", icon: "error" }).then(() => { window.location = "lost_edit.php"; });
+                        </script>';
+                  exit;
+              }
 
-          if (!move_uploaded_file($file['tmp_name'], $target_file)) {
-              echo '<script>
-                      Swal.fire({ title: "เกิดข้อผิดพลาดในการอัปโหลดไฟล์", icon: "error" }).then(() => { window.location = "lost_edit.php"; });
-                    </script>';
-              exit;
-          }
+              if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
+                  echo '<script>
+                          Swal.fire({ title: "เกิดข้อผิดพลาดในการอัปโหลดไฟล์", icon: "error" }).then(() => { window.location = "lost_edit.php"; });
+                        </script>';
+                  exit;
+              }
 
-          if (!empty($old_image) && file_exists($target_dir . $old_image)) {
-              unlink($target_dir . $old_image);
+              // Only delete old image if a new one is uploaded
+              if (!empty($old_images) && file_exists($target_dir . $old_images)) {
+                  unlink($target_dir . $old_images);
+              }
+              $uploaded_images[] = $new_image_name;
+          } else {
+              $uploaded_images[] = $old_images; // Keep old image if no new file is uploaded
           }
-          return $new_image_name;
       }
-      return $old_image;
+      return implode(',', $uploaded_images);
   }
 
   // อัปโหลดรูปภาพ
-  $new_item_image = uploadImage($_FILES['item_image'], "../lost_images/", $old_item_image);
-  $new_finder_image = uploadImage($_FILES['finder_image'], "../return_images/", $old_finder_image);
+  $new_item_image = uploadImages($_FILES['item_image'], "../lost_images/", $old_item_image);
+  $new_finder_image = uploadImages($_FILES['finder_image'], "../return_images/", $old_finder_image);
 
   // อัปเดตข้อมูล
   $query = "UPDATE lost_items SET owner_name=?, owner_contact=?, item_type=?, item_description=?, lost_date=?, lost_location=?, item_image=?, finder_image=?, deliverer=?, status_id=? WHERE item_id=?";
@@ -138,7 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 ?>
-
 
 
 <!DOCTYPE html>
@@ -257,14 +262,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="register.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมากชิก</p>
-                    </a>
-                  </li>
-            </ul>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -346,25 +343,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <div class="form-group row">
                 <label for="item_image" class="col-sm-2">อัปโหลดรูปภาพใหม่ (ถ้ามี)</label>
-                <input type="file" name="item_image" class="form-control-sm-4">
+                <input type="file" name="item_image[]" class="form-control-sm-4" multiple>
                 <p class="form-control-sm-4">รูปภาพปัจจุบัน:</p>
-                <?php if ($item['item_image']): ?>
-                    <img src="../lost_images/<?= htmlspecialchars($item['item_image']) ?>" alt="รูปภาพทรัพย์สิน" style="max-width: 150px;">
-                <?php else: ?>
-                    ไม่มีรูปภาพ
-                <?php endif; ?>
+                <?php
+                  if ($item['item_image']) {
+                      $images = explode(',', $item['item_image']); // แยกรูปภาพหลายๆ ไฟล์
+                      foreach ($images as $image) {
+                          if (file_exists("../lost_images/" . $image)) {
+                              echo '<img src="../lost_images/' . htmlspecialchars($image) . '" alt="รูปภาพทรัพย์สิน" style="max-width: 150px; margin-right: 10px;">';
+                          }
+                      }
+                  } else {
+                      echo 'ไม่มีรูปภาพ';
+                  }
+                  ?>
+                
             </div>
 
             <!-- รูปภาพผู้รับคืน -->
             <div class="form-group row">
                 <label for="finder_image" class="col-sm-2">อัปโหลดรูปภาพผู้รับคืน (ถ้ามี)</label>
-                <input type="file" name="finder_image" class="form-control-sm-4">
+                <input type="file" name="finder_image[]" class="form-control-sm-4" multiple>
                 <p class="form-control-sm-4">รูปภาพปัจจุบัน:</p>
-                <?php if ($item['finder_image']): ?>
-                    <img src="../return_images/<?= htmlspecialchars($item['finder_image']) ?>" alt="รูปภาพผู้รับคืน" style="max-width: 150px;">
-                <?php else: ?>
-                    ไม่มีรูปภาพ
-                <?php endif; ?>
+                <?php
+                  if ($item['finder_image']) {
+                      $finder_images = explode(',', $item['finder_image']); // แยกรูปภาพผู้รับคืนหลายๆ ไฟล์
+                      foreach ($finder_images as $finder_image) {
+                          if (file_exists("../return_images/" . $finder_image)) {
+                              echo '<img src="../return_images/' . htmlspecialchars($finder_image) . '" alt="รูปภาพผู้รับคืน" style="max-width: 150px; margin-right: 10px;">';
+                          }
+                      }
+                  } else {
+                      echo 'ไม่มีรูปภาพ';
+                  }
+                  ?>
             </div>
 
             <!-- ผู้ส่งมอบทรัพย์สิน -->

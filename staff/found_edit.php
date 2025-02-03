@@ -73,11 +73,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $found_location = $_POST['found_location'];
     $status_id = $_POST['status_id'];
 
-    // ตรวจสอบค่าที่ได้รับจากฟอร์ม
-    echo "<pre>";
-    var_dump($found_id, $finder_name, $finder_contact, $found_type, $found_description, $found_date, $found_location, $status_id);
-    echo "</pre>";
-
     // ดึงชื่อไฟล์รูปเดิมจากฐานข้อมูล
     $query = "SELECT found_image FROM found_items WHERE found_id = ?";
     $stmt = $mysqli->prepare($query);
@@ -86,95 +81,97 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $stmt->get_result();
     $old_image = $result->fetch_assoc()['found_image'];
 
-    // ตรวจสอบว่ามีการอัปโหลดไฟล์หรือไม่
-    if (!empty($_FILES['found_image']['name'])) {
+    // ถ้ามีการอัปโหลดไฟล์
+    if (!empty($_FILES['found_image']['name'][0])) {
         $target_dir = "../found_images/";
 
-        // ตั้งชื่อไฟล์ใหม่เป็น timestamp_ชื่อไฟล์เดิม
-        $original_name = pathinfo($_FILES['found_image']['name'], PATHINFO_FILENAME);
-        $imageFileType = strtolower(pathinfo($_FILES['found_image']['name'], PATHINFO_EXTENSION));
+        // วนลูปเพื่ออัปโหลดหลายไฟล์
+        $uploaded_files = [];
+        foreach ($_FILES['found_image']['name'] as $key => $filename) {
+            $original_name = pathinfo($filename, PATHINFO_FILENAME);
+            $imageFileType = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-        // แยก timestamp ออกมาเป็นปี, เดือน, วัน, ชั่วโมง, นาที, วินาที
-        $timestamp = time();
-        $formatted_timestamp = date("d-m-Y_H-i-s", $timestamp);
+            // ตั้งชื่อไฟล์ใหม่เป็น timestamp_ชื่อไฟล์เดิม
+            $timestamp = time();
+            $formatted_timestamp = date("d-m-Y_H-i-s", $timestamp);
+            $new_image_name = $formatted_timestamp . "_" . preg_replace("/[^a-zA-Z0-9]/", "_", $original_name) . "." . $imageFileType;
+            $target_file = $target_dir . $new_image_name;
 
-        // ตั้งชื่อไฟล์ใหม่ โดยคั่นระหว่างวันและเวลา และใส่ชื่อไฟล์เดิม
-        $new_image_name = $formatted_timestamp . "_" . preg_replace("/[^a-zA-Z0-9]/", "_", $original_name) . "." . $imageFileType;
+            // ตรวจสอบประเภทไฟล์
+            $allowed_types = ["jpg", "jpeg", "png", "gif"];
+            if (!in_array($imageFileType, $allowed_types)) {
+                echo '
+                <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                echo '<script>
+                        setTimeout(function() {
+                            swal({
+                            title: "ไฟล์ที่อัปโหลดต้องเป็นรูปภาพเท่านั้น (JPG, JPEG, PNG, GIF)",
+                            type: "error"
+                            }, function() {
+                            window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
+                            });
+                        }, 1000);
+                      </script>';
+                exit;
+            }
 
-        $target_file = $target_dir . $new_image_name;
+            // ตรวจสอบขนาดไฟล์ (ไม่เกิน 1MB)
+            $max_file_size = 1 * 1024 * 1024; // 1MB
+            if ($_FILES['found_image']['size'][$key] > $max_file_size) {
+                echo '
+                <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                echo '<script>
+                        setTimeout(function() {
+                            swal({
+                            title: "ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
+                            type: "error"
+                            }, function() {
+                            window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
+                            });
+                        }, 1000);
+                      </script>';
+                exit;
+            }
 
+            // ย้ายไฟล์ไปยังโฟลเดอร์
+            if (!move_uploaded_file($_FILES['found_image']['tmp_name'][$key], $target_file)) {
+                echo '
+                <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                echo '<script>
+                        setTimeout(function() {
+                            swal({
+                            title: "เกิดข้อผิดพลาดในการอัปโหลดไฟล์",
+                            type: "error"
+                            }, function() {
+                            window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
+                            });
+                        }, 1000);
+                      </script>';
+                exit;
+            }
 
-        // ตรวจสอบประเภทไฟล์
-        $allowed_types = ["jpg", "jpeg", "png", "gif"];
-        if (!in_array($imageFileType, $allowed_types)) {
-            // sweet alert 
-            echo '
-            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-            echo '<script>
-                    setTimeout(function() {
-                        swal({
-                        title: "ไฟล์ที่อัปโหลดต้องเป็นรูปภาพเท่านั้น (JPG, JPEG, PNG, GIF)",
-                        type: "error"
-                        }, function() {
-                        window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
-                        });
-                    }, 1000);
-                  </script>';
-                  exit;
+            // เก็บชื่อไฟล์ที่อัปโหลด
+            $uploaded_files[] = $new_image_name;
         }
 
-        // ตรวจสอบขนาดไฟล์ (ไม่เกิน 1MB)
-        $max_file_size = 1 * 1024 * 1024; // 1MB
-        if ($_FILES['found_image']['size'] > $max_file_size) {
-            // sweet alert 
-            echo '
-            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-            echo '<script>
-                    setTimeout(function() {
-                        swal({
-                        title: "ไฟล์ $filename มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
-                        type: "error"
-                        }, function() {
-                        window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
-                        });
-                    }, 1000);
-                  </script>';
-                  exit;
-        }
-
-        // ลบรูปภาพเก่าถ้ามี
+        // ลบไฟล์เก่า (ถ้ามี)
         if (!empty($old_image) && file_exists($target_dir . $old_image)) {
-          unlink($target_dir . $old_image);
-      }
-
-        // ย้ายไฟล์ไปยังโฟลเดอร์
-        if (!move_uploaded_file($_FILES['found_image']['tmp_name'], $target_file)) {
-            // sweet alert 
-        echo '
-        <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-        echo '<script>
-                setTimeout(function() {
-                    swal({
-                    title: "เกิดข้อผิดพลาดในการอัปโหลดไฟล์",
-                    type: "error"
-                    }, function() {
-                    window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
-                    });
-                }, 1000);
-              </script>';
-              exit;
+            unlink($target_dir . $old_image);
         }
 
+        // รวมชื่อไฟล์ใหม่ทั้งหมด
+        $new_images = implode(',', $uploaded_files);
+        
         // อัปเดตข้อมูลรวมถึงรูปภาพใหม่
         $query = "UPDATE found_items SET finder_name=?, finder_contact=?, found_type=?, found_description=?, found_date=?, found_location=?, found_image=?, status_id=? WHERE found_id=?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param('sssssisii', $finder_name, $finder_contact, $found_type, $found_description, $found_date, $found_location, $new_image_name, $status_id, $found_id);
+        $stmt->bind_param('sssssisii', $finder_name, $finder_contact, $found_type, $found_description, $found_date, $found_location, $new_images, $status_id, $found_id);
     } else {
         // อัปเดตข้อมูลโดยไม่เปลี่ยนรูปภาพ
         $query = "UPDATE found_items SET finder_name=?, finder_contact=?, found_type=?, found_description=?, found_date=?, found_location=?, status_id=? WHERE found_id=?";
@@ -205,6 +202,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -322,14 +320,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="register.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมากชิก</p>
-                    </a>
-                  </li>
-            </ul>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -411,13 +401,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             <div class="form-group row">
                 <label for="finder_name" class="col-sm-2">อัปโหลดรูปภาพใหม่ (ถ้ามี)</label>
-                <input type="file" name="found_image" class="form-control-sm-4">
+                <input type="file" name="found_image[]" class="form-control-sm-4" multiple>
                 <p class="form-control-sm-4">รูปภาพปัจจุบัน:</p>
-                <?php if ($item['found_image']): ?>
-                    <img src="../found_images/<?= htmlspecialchars($item['found_image']) ?>" alt="รูปภาพทรัพย์สิน" style="max-width: 150px;">
-                <?php else: ?>
-                    ไม่มีรูปภาพ
-                <?php endif; ?>
+                <?php
+                  if ($item['found_image']) {
+                      $finder_images = explode(',', $item['found_image']); // แยกรูปภาพผู้รับคืนหลายๆ ไฟล์
+                      foreach ($finder_images as $finder_image) {
+                          if (file_exists("../found_images/" . $finder_image)) {
+                              echo '<img src="../found_images/' . htmlspecialchars($finder_image) . '" alt="รูปภาพผู้รับคืน" style="max-width: 150px; margin-right: 10px;">';
+                          }
+                      }
+                  } else {
+                      echo 'ไม่มีรูปภาพ';
+                  }
+                  ?>
             </div>
             
             <div class="form-group row">

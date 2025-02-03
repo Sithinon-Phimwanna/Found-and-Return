@@ -186,14 +186,6 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="register.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมากชิก</p>
-                    </a>
-                  </li>
-            </ul>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -256,7 +248,6 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                           <th style="font-size: 14px;">ผู้ส่งมอบทรัพย์สิน</th>
                           <th style="font-size: 14px;">อัปเดตข้อมูล</th>
                           <th style="font-size: 14px;">แก้ไขข้อมูล</th>
-                          <th style="font-size: 14px;">ลบข้อมูล</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -369,29 +360,6 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                         }
                                         ?>
                                     </td>
-                              <td style="font-size: 14px;">
-                                  <button onclick="deleteItem(<?= $row['item_id'] ?>)" class="btn btn-danger">ลบ</button>
-                                  <?php
-                                        // ตรวจสอบค่า success ใน URL
-                                        if (isset($_GET['success']) && $_GET['success'] == 1) {
-                                            echo '
-                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                            <script>
-                                                setTimeout(function() {
-                                                    swal({
-                                                        title: "ลบข้อมูลสำเร็จ!",
-                                                        text: "ข้อมูลถูกลบออกจากระบบเรียบร้อยแล้ว",
-                                                        type: "success"
-                                                    }, function() {
-                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
-                                                    });
-                                                }, 1000);
-                                            </script>';
-                                        }
-                                        ?>
-                              </td>
                           </tr>
                       <?php endwhile; ?>
                   </tbody>

@@ -186,14 +186,6 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="register.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมากชิก</p>
-                    </a>
-                  </li>
-            </ul>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>

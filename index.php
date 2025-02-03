@@ -313,6 +313,42 @@ if (!$result) {
                 return $thaiMonths[$month] ?? '';
               }
           ?>
+          <style>
+                      .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+          }
+
+          .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            padding: 10px;
+          }
+
+          .card-img-top {
+            width: 100%;
+            max-width: 250px; /* ปรับให้ขนาดไม่ใหญ่เกินไป */
+            height: auto;
+            display: block;
+            margin: 0 auto;
+          }
+
+          .card-title,
+          .card-text {
+            margin: 10px 0;
+          }
+
+          .card-footer {
+            text-align: center;
+            padding: 10px;
+          }
+          </style>
 
           <div class="container py-4">
             <div class="row justify-content-start">
@@ -320,14 +356,39 @@ if (!$result) {
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                   <div class="card shadow h-100 border-0">
                     <!-- รูปภาพ -->
-                    <img src="found_images/<?= htmlspecialchars(explode(',', $row['found_image'])[0]) ?>" 
-                        class="card-img-top img-fluid rounded-top" 
-                        alt="ไม่มีรูปภาพ" 
-                        style="max-width:150px; margin-right: 30px; margin-top: 10px;">
+                    <?php
+                      $images = explode(',', $row['found_image']); // Split images into an array
+                      if (count($images) > 1): // If there are multiple images
+                    ?>
+                      <div id="carousel-<?= $row['found_id'] ?>" class="carousel slide" data-ride="carousel" >
+                        <div class="carousel-inner">
+                          <?php foreach ($images as $index => $image): ?>
+                            <div class="carousel-item <?= $index == 0 ? 'active' : '' ?>">
+                              <img src="found_images/<?= htmlspecialchars($image) ?>" 
+                                  class="d-block w-100 img-fluid rounded-top" 
+                                  alt="ไม่มีรูปภาพ" 
+                                  style="object-fit:cover; height: auto; display: block; margin-left: auto; margin-right: auto; width:100%;">
+                            </div>
+                          <?php endforeach; ?>
+                        </div>
+                        <a class="carousel-control-prev" href="#carousel-<?= $row['found_id'] ?>" role="button" data-slide="prev">
+                          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                          <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#carousel-<?= $row['found_id'] ?>" role="button" data-slide="next">
+                          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                          <span class="sr-only">Next</span>
+                        </a>
+                      </div>
+                    <?php else: ?>
+                      <img src="found_images/<?= htmlspecialchars($images[0]) ?>" 
+                          class="card-img-top img-fluid rounded-top" 
+                          alt="ไม่มีรูปภาพ" 
+                          style="object-fit:cover; height: auto; display: block; margin-left: auto; margin-right: auto; width:100%;">
+                    <?php endif; ?>
                     <!-- เนื้อหา -->
-                    <div class="card-body">
-                      <!-- ชื่อ -->
-                      <p class="card-title  text-primary text-center">
+                    <div class="card-body"  style="display: flex;  flex-direction: column; align-items: center;  justify-content: center;">
+                      <p class="card-title text-primary text-center">
                         <strong><?= htmlspecialchars($row['found_type']) ?></strong>
                       </p>
                       <!-- สถานที่เก็บได้ -->
@@ -346,6 +407,8 @@ if (!$result) {
               <?php endwhile; ?>
             </div>
           </div>
+
+
 
         </div>
               <!-- /.card-footer-->

@@ -205,14 +205,6 @@ if (!$result) {
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="register.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมากชิก</p>
-                    </a>
-                  </li>
-            </ul>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -270,8 +262,8 @@ if (!$result) {
                                 <th style="font-size: 14px;">วันที่เก็บได้</th>
                                 <th style="font-size: 14px;">ภาพทรัพย์สิน</th>
                                 <th style="font-size: 14px;">สถานะ</th>
-                                <th style="font-size: 14px;">อัปเดตสถานะ</th>
-                                <th style="font-size: 14px;">แก้ไข</th>
+                                <th style="font-size: 14px;">อัปเดตข้อมูล</th>
+                                <th style="font-size: 14px;">แก้ไขข้อมูล</th>
                             </tr>
                         </thead>
                         <tbody>
