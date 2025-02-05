@@ -455,7 +455,5 @@ function deleteItem(itemId) {
 }
 </script>
 
-<button onclick="deleteItem(123)">ลบข้อมูล</button> <!-- ใส่ ID ที่ต้องการ -->
-
 </body>
 </html>
