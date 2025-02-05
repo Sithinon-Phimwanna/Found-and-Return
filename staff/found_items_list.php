@@ -376,31 +376,5 @@ if (!$result) {
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="../assets/dist/js/pages/dashboard.js"></script><s></s>
 <!-- ส่วน script สำหรับการลบ -->
-<script>
-    function deleteItem(foundId) {
-        if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?")) {
-            // ส่งคำขอ POST ไปยังไฟล์ลบข้อมูล
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'delete_found.php'; // เปลี่ยนเส้นทางไปที่ไฟล์ลบข้อมูล
-
-            // สร้าง hidden input สำหรับ found_id
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'found_id';
-            input.value = foundId;
-
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
-    function redirectToRepair() {
-        setTimeout(function() {
-            window.location.href = 'found_edit.php';
-        }, 500); // หน่วงเวลา 500ms (0.5 วินาที) ก่อนเปลี่ยนหน้า
-    }
-
-</script>
 </body>
 </html>
