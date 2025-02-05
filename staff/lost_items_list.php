@@ -403,27 +403,5 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="../assets/dist/js/pages/dashboard.js"></script>
 
-<!-- ส่วน script สำหรับการลบ -->
-<script>
-function deleteItem(itemId) {
-    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?")) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'delete_lost.php';
-
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'item_id';
-        input.value = itemId;
-        form.appendChild(input);
-
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-</script>
-
-<button onclick="deleteItem(123)">ลบข้อมูล</button> <!-- ใส่ ID ที่ต้องการ -->
-
 </body>
 </html>
