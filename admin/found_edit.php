@@ -438,7 +438,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="form-group row">
                                 <label class="col-sm-2"></label>
                                   <div class="col-sm-4">
-                                    <button type="submit" class="btn btn-primary">บันทึกการเปลี่ยนแปลง</button>
+                                    <button type="submit" class="btn btn-primary">บันทึก</button>
                                     <button type="submit" class="btn btn-danger"><a href="found_items_list.php" style="color:white;">ยกเลิก</a></button>
                                   </div>
                                 </div>

@@ -353,6 +353,9 @@ if (!$result) {
           <div class="container py-4">
             <div class="row justify-content-start">
               <?php while ($row = $result->fetch_assoc()): ?>
+                
+                <?php if (trim($row['status']) == 'ได้รับคืนแล้ว') continue; ?>
+
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                   <div class="card shadow h-100 border-0">
                     <!-- รูปภาพ -->
@@ -400,8 +403,18 @@ if (!$result) {
                     </div>
                     <!-- วันที่ -->
                     <div class="card-footer text-muted text-center">
-                      <?= date('d ', strtotime($row['found_date'])) . getThaiMonth(date('m', strtotime($row['found_date']))) . date(' Y, H:i', strtotime($row['found_date'])) ?>
+                      <?php 
+                        // แปลง ค.ศ. เป็น พ.ศ.
+                        $timestamp = strtotime($row['found_date']); 
+                        $yearBE = date('Y', $timestamp) + 543; // เพิ่ม 543 เพื่อแปลงเป็น พ.ศ.
+                        
+                        echo date('d ', $timestamp) . 
+                            getThaiMonth(date('m', $timestamp)) . 
+                            " " . $yearBE . 
+                            date(', H:i', $timestamp);
+                      ?>
                     </div>
+
                   </div>
                 </div>
               <?php endwhile; ?>

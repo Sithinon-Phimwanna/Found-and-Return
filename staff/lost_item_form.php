@@ -236,7 +236,7 @@ try {
             <div class="form-group row">
                 <label  class="col-sm-2"></label>
                 <div class="col-sm-4">
-                  <button type="submit" class="btn btn-primary">ส่งข้อมูล</button>
+                  <button type="submit" class="btn btn-primary">บันทึก</button>
                 </div>
             </div>
         </form>
@@ -271,6 +271,65 @@ try {
                                   $error = $_FILES['item_image']['error'][$key];
                                   $file_size = $_FILES['item_image']['size'][$key];
                                   $file_type = $_FILES['item_image']['type'][$key];
+
+                                  // ตรวจสอบข้อผิดพลาดจากการอัปโหลดไฟล์
+                                      if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
+                                        // ข้อผิดพลาดเกิดจากขนาดไฟล์เกินที่ตั้งไว้
+                                        echo '
+                                        <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                        <script>
+                                            setTimeout(function() {
+                                                swal({
+                                                title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
+                                                type: "error"
+                                                }, function() {
+                                                window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                                                });
+                                            }, 1000);
+                                        </script>';
+                                        die(); // หยุดการทำงานเมื่อเกิดข้อผิดพลาดขนาดไฟล์
+                                    }
+                                
+                                    // ตรวจสอบประเภทไฟล์
+                                    if (!in_array($file_type, ['image/jpeg', 'image/png'])) {
+                                        echo '
+                                        <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                        <script>
+                                            setTimeout(function() {
+                                                swal({
+                                                title: "ไฟล์ ' . $filename . ' ต้องเป็น JPEG หรือ PNG เท่านั้น",
+                                                type: "error"
+                                                }, function() {
+                                                window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                                                });
+                                            }, 1000);
+                                        </script>';
+                                        die(); // หยุดการทำงานเมื่อเกิดข้อผิดพลาดประเภทไฟล์
+                                    }
+                                
+                                    // ตรวจสอบขนาดไฟล์ที่เกิน 1MB
+                                    $max_file_size = 1048576; // 1MB
+                                    if ($file_size > $max_file_size) {
+                                        echo '
+                                        <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                        <script>
+                                            setTimeout(function() {
+                                                swal({
+                                                title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
+                                                type: "error"
+                                                }, function() {
+                                                window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                                                });
+                                            }, 1000);
+                                        </script>';
+                                        die(); // หยุดการทำงานเมื่อขนาดไฟล์เกินขีดจำกัด
+                                    }
 
                                   if ($error === UPLOAD_ERR_OK) {
                                       // ตรวจสอบขนาดไฟล์ (1MB)
@@ -388,7 +447,6 @@ try {
                           $mysqli->close();
                       }
                       ?>
-
 
 
       </div><!-- /.container-fluid -->

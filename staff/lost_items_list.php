@@ -237,17 +237,15 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                       <tr>
                           <th style="font-size: 14px;">รหัส</th>
                           <th style="font-size: 14px;">ชื่อผู้แจ้ง</th>
-                          <th style="font-size: 14px;">ช่องทางติดต่อ</th>
                           <th style="font-size: 14px;">ทรัพย์สิน</th>
                           <th style="font-size: 14px;">รายละเอียด</th>
-                          <th style="font-size: 14px;">วันที่และเวลาที่แจ้ง</th>
+                          <th style="font-size: 14px;">วันและเวลาที่แจ้ง</th>
                           <th style="font-size: 14px;  width: 10%;">สถานที่</th>
-                          <th style="font-size: 14px;">ภาพทรัพย์สิน</th>
-                          <th style="font-size: 14px;">ภาพผู้รับคืน</th>
                           <th style="font-size: 14px;">สถานะ</th>
                           <th style="font-size: 14px;">ผู้ส่งมอบทรัพย์สิน</th>
-                          <th style="font-size: 14px;">อัปเดตข้อมูล</th>
-                          <th style="font-size: 14px;">แก้ไขข้อมูล</th>
+                          <th style="font-size: 14px;">รายละเอียด</th>
+                          <th style="font-size: 14px;">แก้ไข</th>
+                          <th style="font-size: 14px;">ลบ</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -255,7 +253,6 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                           <tr>
                               <td style="font-size: 14px;"><?= $row['item_id'] ?></td>
                               <td style="font-size: 14px;"><?= htmlspecialchars($row['owner_name']) ?></td>
-                              <td style="font-size: 14px;"><?= htmlspecialchars($row['owner_contact']) ?></td>
                               <td style="font-size: 14px;"><?= htmlspecialchars($row['item_type']) ?></td>
                               <td style="font-size: 14px;"><?= htmlspecialchars($row['item_description']) ?></td>
                               <td style="font-size: 14px;">
@@ -263,81 +260,13 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                   <?= date('d/m/Y  H:i', strtotime($row['lost_date'])) ?>
                               </td>
                               <td style="font-size: 14px;"><?= htmlspecialchars($row['lost_location']) ?></td>
-                              <td style="font-size: 14px;">
-                                  <?php
-                                      if ($row['item_image']) {
-                                          // แยกหลายภาพที่เก็บในฐานข้อมูล
-                                          $item_images = explode(',', $row['item_image']);
-                                          foreach ($item_images as $image) {
-                                              echo '<img src="../lost_images/' . htmlspecialchars(trim($image)) . '" alt="ภาพทรัพย์สินหาย" style="max-width:100px; margin-right: 10px;">';
-                                          }
-                                      } else {
-                                          echo 'ไม่มีภาพ';
-                                      }
-                                  ?>
-
-                              </td>
-                              <td style="font-size: 14px;">
-                                  <?php 
-                                      // แสดงภาพผู้รับคืนหลายภาพ
-                                      if ($row['finder_image']) {
-                                          $finder_images = explode(',', $row['finder_image']);
-                                          foreach ($finder_images as $image) {
-                                              echo '<img src="../return_images/' . htmlspecialchars($image) . '" alt="ภาพผู้รับคืน" style="max-width:100px; margin-right: 10px;">';
-                                          }
-                                      } else {
-                                          echo 'ไม่มีภาพ';
-                                      }
-                                  ?>
-                              </td>
                               <td style="font-size: 14px;"><?= htmlspecialchars($row['status']) ?></td>
-                              <td style="font-size: 14px;"><?= htmlspecialchars($row['deliverer']) ?></td> <!-- แสดงชื่อผู้ส่งมอบ -->
+                              <td style="font-size: 14px;"><?= htmlspecialchars($row['deliverer']) ?></td> <!-- แสดงชื่อผู้ส่งมอบ -->        
                               <td style="font-size: 14px;">
-                                  <!-- ฟอร์มอัปเดตข้อมูล -->
-                                  <form method="POST" action="update_lost.php" enctype="multipart/form-data">
-                                      <input type="hidden" name="item_id" value="<?= $row['item_id'] ?>">
-                                      <label for="deliverer">ชื่อผู้ส่งมอบ: </label>
-                                      <input type="text" name="deliverer" value="<?= htmlspecialchars($current_user_name) ?>" readonly>
-                                      <br>
-                                      <select name="status_id" class="status" style=" margin-top: 5px;">
-                                          <?php
-                                              $status_query = "SELECT * FROM statuses";
-                                              $status_result = $mysqli->query($status_query);
-                                              while ($status = $status_result->fetch_assoc()):
-                                          ?>
-                                              <option value="<?= $status['status_id'] ?>" <?= $row['status'] === $status['status_name'] ? 'selected' : '' ?>>
-                                                  <?= $status['status_name'] ?>
-                                              </option>
-                                          <?php endwhile; ?>
-                                      </select>
-                                      <div><label>เลือกภาพผู้ติดต่อรับคืน </label></div>
-                                      <input type="file" name="finder_image[]" multiple> <!-- อัปโหลดไฟล์หลายๆ ไฟล์ -->
-                                      <button type="submit" class="btn btn-primary" style=" margin-top: 5px;">อัปเดต</button>
-                                  </form>
-                                  <?php
-                                        // ตรวจสอบค่า success ใน URL
-                                        if (isset($_GET['success']) && $_GET['success'] == 4) {
-                                            echo '
-                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                            <script>
-                                                setTimeout(function() {
-                                                    swal({
-                                                        title: "อัปเดตข้อมูลสำเร็จแล้ว!",
-                                                        text: "ข้อมูลถูกอัปเดตเรียบร้อยแล้ว",
-                                                        type: "success"
-                                                    }, function() {
-                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
-                                                    });
-                                                }, 1000);
-                                            </script>';
-                                            exit;
-                                        }
-                                        ?>
+                                <button class="btn btn-info" onclick="viewDetails(<?= $row['item_id'] ?>)" style="font-size: 14px;">รายละเอียด</button>
                               </td>
                               <td style="font-size: 14px;">
-                                    <button class="btn btn-warning" onclick="window.location.href='lost_edit.php?item_id=<?= $row['item_id'] ?>'">แก้ไข</button>
+                                    <button class="btn btn-warning" onclick="window.location.href='lost_edit.php?item_id=<?= $row['item_id'] ?>'" style="font-size: 14px;">แก้ไข</button>
                                     <?php
                                         // ตรวจสอบค่า success ใน URL
                                         if (isset($_GET['success']) && $_GET['success'] == 3) {
@@ -360,11 +289,47 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                         }
                                         ?>
                                     </td>
+                              <td style="font-size: 14px;">
+                                  <button onclick="deleteItem(<?= $row['item_id'] ?>)" class="btn btn-danger" style="font-size: 14px;">ลบ</button>
+                                  <?php
+                                        // ตรวจสอบค่า success ใน URL
+                                        if (isset($_GET['success']) && $_GET['success'] == 1) {
+                                            echo '
+                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                            <script>
+                                                setTimeout(function() {
+                                                    swal({
+                                                        title: "ลบข้อมูลสำเร็จ!",
+                                                        text: "ข้อมูลถูกลบออกจากระบบเรียบร้อยแล้ว",
+                                                        type: "success"
+                                                    }, function() {
+                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
+                                                    });
+                                                }, 1000);
+                                            </script>';
+                                        }
+                                        ?>
+                              </td>
                           </tr>
                       <?php endwhile; ?>
                   </tbody>
               </table>
             </div>
+            <div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+              <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title">รายละเอียดทรัพย์สิน</h5>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body" id="modalContent">
+                          <!-- ข้อมูลจะแสดงที่นี่ -->
+                      </div>
+                  </div>
+              </div>
+          </div>
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
@@ -402,6 +367,38 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
 <script src="../assets/dist/js/adminlte.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="../assets/dist/js/pages/dashboard.js"></script>
+
+<!-- ส่วน script สำหรับการลบ -->
+<script>
+function deleteItem(itemId) {
+    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?")) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'delete_lost.php';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'item_id';
+        input.value = itemId;
+        form.appendChild(input);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+function viewDetails(item_id) {
+    // ใช้ AJAX ดึงข้อมูลจากไฟล์ PHP
+    $.ajax({
+        url: "lost_details.php",
+        type: "GET",
+        data: { item_id: item_id },
+        success: function(response) {
+            $("#modalContent").html(response);
+            $("#detailModal").modal("show");
+        }
+    });
+}
+</script>
 
 </body>
 </html>

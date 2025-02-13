@@ -263,16 +263,14 @@ if (!$result) {
                             <tr>
                                 <th style="font-size: 14px;">รหัส</th>
                                 <th style="font-size: 14px;">ชื่อผู้แจ้ง</th>
-                                <th style="font-size: 14px;">ช่องทางติดต่อ</th>
                                 <th style="font-size: 14px;">ทรัพย์สิน</th>
                                 <th style="font-size: 14px;">รายละเอียด</th>
-                                <th style="font-size: 14px; width: 20%;">สถานที่เก็บได้</th>
-                                <th style="font-size: 14px;">วันที่เก็บได้</th>
-                                <th style="font-size: 14px;">ภาพทรัพย์สิน</th>
+                                <th style="font-size: 14px; width: 20%;">สถานที่</th>
+                                <th style="font-size: 14px;">วันและเวลาที่แจ้ง</th>
                                 <th style="font-size: 14px;">สถานะ</th>
-                                <th style="font-size: 14px;">อัปเดตสถานะ</th>
+                                <th style="font-size: 14px;">รายละเอียด</th>
                                 <th style="font-size: 14px;">แก้ไข</th>
-                                <th style="font-size: 14px;">ลบข้อมูล</th>
+                                <th style="font-size: 14px;">ลบ</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -280,46 +278,16 @@ if (!$result) {
                                 <tr>
                                     <td style="font-size: 14px;"><?= $row['found_id'] ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['finder_name']) ?></td>
-                                    <td style="font-size: 14px;"><?= htmlspecialchars($row['finder_contact']) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['found_type']) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['found_description']) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['found_location']) ?></td>
                                     <td style="font-size: 14px;"><?= date('d/m/Y H:i', strtotime($row['found_date'])) ?></td>
-                                    <td style="font-size: 14px;">
-                                        <?php
-                                      if ($row['found_image']) {
-                                          // แยกหลายภาพที่เก็บในฐานข้อมูล
-                                          $found_images = explode(',', $row['found_image']);
-                                          foreach ($found_images as $image) {
-                                              echo '<img src="../found_images/' . htmlspecialchars(trim($image)) . '" alt="ไม่มีรูปภาพทรัพย์สินในโฟลเดอร์" style="max-width:100px; margin-right: 10px;">';
-                                          }
-                                      } else {
-                                          echo 'ไม่มีภาพ';
-                                      }
-                                  ?>
-                                    </td>
-
-
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['status']) ?></td>
                                     <td style="font-size: 14px;">
-                                        <form method="POST" action="update_status_found.php" class="status-form">
-                                            <input type="hidden" name="found_id" value="<?= $row['found_id'] ?>">
-                                            <select name="status_id" class="status-select">
-                                                <?php
-                                                $status_query = "SELECT * FROM statuses";
-                                                $status_result = $mysqli->query($status_query);
-                                                while ($status = $status_result->fetch_assoc()):
-                                                ?>
-                                                    <option value="<?= $status['status_id'] ?>" <?= $row['status'] === $status['status_name'] ? 'selected' : '' ?>>
-                                                        <?= $status['status_name'] ?>
-                                                    </option>
-                                                <?php endwhile; ?>
-                                            </select>
-                                            <button type="submit" class="btn btn-primary"  style=" margin-top: 5px;">อัปเดต</button>
-                                        </form>
-                                    </td>
+                                      <button class="btn btn-info" onclick="viewDetails(<?= $row['found_id'] ?>) " style="font-size: 14px;">รายละเอียด</button>
+                                  </td>
                                     <td style="font-size: 14px;">
-                                    <button class="btn btn-warning" onclick="window.location.href='found_edit.php?found_id=<?= $row['found_id'] ?>'">แก้ไข</button>
+                                    <button class="btn btn-warning" onclick="window.location.href='found_edit.php?found_id=<?= $row['found_id'] ?>'" style="font-size: 14px;">แก้ไข</button>
                                     <?php
                                         // ตรวจสอบค่า success ใน URL
                                         if (isset($_GET['success']) && $_GET['success'] == 2) {
@@ -344,7 +312,7 @@ if (!$result) {
                                     </td>
                                     <td style="font-size: 14px;">
                                         <!-- ปุ่มลบข้อมูล -->
-                                        <button onclick="deleteItem(<?= $row['found_id'] ?>)" class="btn btn-danger">ลบ</button>
+                                        <button onclick="deleteItem(<?= $row['found_id'] ?>)" class="btn btn-danger" style="font-size: 14px;">ลบ</button>
                                         <?php
                                         // ตรวจสอบค่า success ใน URL
                                         if (isset($_GET['success']) && $_GET['success'] == 1) {
@@ -372,6 +340,20 @@ if (!$result) {
                         </tbody>
                     </table>
           </div>
+          <div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+              <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title">รายละเอียดทรัพย์สิน</h5>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body" id="modalContent">
+                          <!-- ข้อมูลจะแสดงที่นี่ -->
+                      </div>
+                  </div>
+              </div>
+          </div>
+
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
@@ -429,11 +411,18 @@ if (!$result) {
             form.submit();
         }
     }
-    function redirectToRepair() {
-        setTimeout(function() {
-            window.location.href = 'found_edit.php';
-        }, 500); // หน่วงเวลา 500ms (0.5 วินาที) ก่อนเปลี่ยนหน้า
-    }
+    function viewDetails(found_id) {
+    // ใช้ AJAX ดึงข้อมูลจากไฟล์ PHP
+    $.ajax({
+        url: "found_details.php",
+        type: "GET",
+        data: { found_id: found_id },
+        success: function(response) {
+            $("#modalContent").html(response);
+            $("#detailModal").modal("show");
+        }
+    });
+}
 
 </script>
 </body>

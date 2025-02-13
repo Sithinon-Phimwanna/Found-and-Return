@@ -237,165 +237,183 @@ try {
                                 <div class="form-group row">
                                 <label class="col-sm-2"></label>
                                   <div class="col-sm-4">
-                                    <button type="submit" class="btn btn-primary">ส่งข้อมูล</button>
+                                    <button type="submit" class="btn btn-primary">บันทึก</button>
                                   </div>
                                 </div>
                             </form>
                         </div>
                     <!--php submit -->
                     <?php
-                    require 'config.php';
+                      require 'config.php';
 
-                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                        // รับค่าจากฟอร์ม
-                        $finder_name = $_POST['finder_name'];
-                        $finder_contact = $_POST['finder_contact'];
-                        $found_type = $_POST['found_type'];
-                        $found_description = $_POST['found_description'];
-                        $found_location = $_POST['found_location'];
+                      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                          // รับค่าจากฟอร์ม
+                          $finder_name = $_POST['finder_name'];
+                          $finder_contact = $_POST['finder_contact'];
+                          $found_type = $_POST['found_type'];
+                          $found_description = $_POST['found_description'];
+                          $found_location = $_POST['found_location'];
 
-                        // ใช้เวลาปัจจุบัน
-                        $found_date = date('Y-m-d H:i:s');
+                          // ใช้เวลาปัจจุบัน
+                          $found_date = date('Y-m-d H:i:s');
 
-                        // ตรวจสอบและจัดการอัปโหลดภาพหลายไฟล์ (ทำให้ไม่บังคับ)
-                        $images = [];
-                        if (isset($_FILES['found_image']) && !empty($_FILES['found_image']['name'][0])) {
-                            $upload_dir = '../found_images/';
+                          // ตรวจสอบและจัดการอัปโหลดภาพหลายไฟล์ (ทำให้ไม่บังคับ)
+                          $images = [];
+                          if (isset($_FILES['found_image']) && !empty($_FILES['found_image']['name'][0])) {
+                              $upload_dir = '../found_images/';
 
-                            if (!is_dir($upload_dir)) {
-                                mkdir($upload_dir, 0777, true); // สร้างโฟลเดอร์ถ้ายังไม่มี
-                            }
+                              if (!is_dir($upload_dir)) {
+                                  mkdir($upload_dir, 0777, true); // สร้างโฟลเดอร์ถ้ายังไม่มี
+                              }
 
-                            foreach ($_FILES['found_image']['name'] as $key => $filename) {
+                              foreach ($_FILES['found_image']['name'] as $key => $filename) {
                                 $tmp_name = $_FILES['found_image']['tmp_name'][$key];
                                 $error = $_FILES['found_image']['error'][$key];
                                 $file_size = $_FILES['found_image']['size'][$key];
                                 $file_type = $_FILES['found_image']['type'][$key];
-
-                                if ($error === UPLOAD_ERR_OK) {
-                                    // ตรวจสอบขนาดไฟล์ (1MB)
-                                    if ($file_size > 1048576) {
-                                      // sweet alert 
-                                      echo '
-                                      <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                      <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-                                      echo '<script>
-                                              setTimeout(function() {
-                                                  swal({
-                                                  title: "ไฟล์ $filename มีขนาดใหญ่เกินไป (สูงสุด 1MB",
-                                                  type: "error"
-                                                  }, function() {
-                                                  window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                                  });
-                                              }, 1000);
-                                            </script>';
-                                        exit;
-                                    }
-
-                                    // ตรวจสอบประเภทไฟล์
-                                    if (!in_array($file_type, ['image/jpeg', 'image/png'])) {
-                                      // sweet alert 
-                                      echo '
-                                      <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                      <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-                                      echo '<script>
-                                              setTimeout(function() {
-                                                  swal({
-                                                  title: "ไฟล์ $filename ต้องเป็น JPEG หรือ PNG เท่านั้น",
-                                                  type: "error"
-                                                  }, function() {
-                                                  window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                                  });
-                                              }, 1000);
-                                            </script>';
-                                        exit;
-                                    }
-
-                                    // ตั้งชื่อไฟล์ใหม่ด้วยวันที่และเวลาตามด้วยชื่อไฟล์เดิม
-                                    $timestamp = date('Y-m-d_H-i-s');
-                                    $extension = pathinfo($filename, PATHINFO_EXTENSION); // ดึงนามสกุลไฟล์
-                                    $new_filename = $timestamp . '_' . pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
-                                    $target_file = $upload_dir . $new_filename;
-
-                                    // ย้ายไฟล์ไปยังโฟลเดอร์ที่กำหนด
-                                    if (move_uploaded_file($tmp_name, $target_file)) {
-                                        $images[] = basename($target_file); // เก็บชื่อไฟล์ที่อัปโหลดสำเร็จ
-                                    } else {
-                                        // sweet alert 
-                                        echo '
-                                        <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-                                        echo '<script>
-                                                setTimeout(function() {
-                                                    swal({
-                                                    title: "ขออภัย, เกิดข้อผิดพลาดในการอัปโหลดไฟล์",
-                                                    type: "error"
-                                                    }, function() {
-                                                    window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                                    });
-                                                }, 1000);
-                                              </script>';
-                                        exit;
-                                    }
+                            
+                                // ตรวจสอบข้อผิดพลาดจากการอัปโหลดไฟล์
+                                if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
+                                    // ข้อผิดพลาดเกิดจากขนาดไฟล์เกินที่ตั้งไว้
+                                    echo '
+                                    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                    <script>
+                                        setTimeout(function() {
+                                            swal({
+                                            title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
+                                            type: "error"
+                                            }, function() {
+                                            window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                                            });
+                                        }, 1000);
+                                    </script>';
+                                    die(); // หยุดการทำงานเมื่อเกิดข้อผิดพลาดขนาดไฟล์
+                                }
+                            
+                                // ตรวจสอบประเภทไฟล์
+                                if (!in_array($file_type, ['image/jpeg', 'image/png'])) {
+                                    echo '
+                                    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                    <script>
+                                        setTimeout(function() {
+                                            swal({
+                                            title: "ไฟล์ ' . $filename . ' ต้องเป็น JPEG หรือ PNG เท่านั้น",
+                                            type: "error"
+                                            }, function() {
+                                            window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                                            });
+                                        }, 1000);
+                                    </script>';
+                                    die(); // หยุดการทำงานเมื่อเกิดข้อผิดพลาดประเภทไฟล์
+                                }
+                            
+                                // ตรวจสอบขนาดไฟล์ที่เกิน 1MB
+                                $max_file_size = 1048576; // 1MB
+                                if ($file_size > $max_file_size) {
+                                    echo '
+                                    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                    <script>
+                                        setTimeout(function() {
+                                            swal({
+                                            title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
+                                            type: "error"
+                                            }, function() {
+                                            window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                                            });
+                                        }, 1000);
+                                    </script>';
+                                    die(); // หยุดการทำงานเมื่อขนาดไฟล์เกินขีดจำกัด
+                                }
+                            
+                                // ตั้งชื่อไฟล์ใหม่และอัปโหลดไฟล์
+                                $timestamp = date('Y-m-d_H-i-s');
+                                $extension = pathinfo($filename, PATHINFO_EXTENSION);
+                                $new_filename = $timestamp . '_' . pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
+                                $target_file = $upload_dir . $new_filename;
+                            
+                                if (move_uploaded_file($tmp_name, $target_file)) {
+                                    $images[] = basename($target_file);
+                                } else {
+                                    echo '
+                                    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                    <script>
+                                        setTimeout(function() {
+                                            swal({
+                                            title: "ขออภัย, เกิดข้อผิดพลาดในการอัปโหลดไฟล์",
+                                            type: "error"
+                                            }, function() {
+                                            window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                                            });
+                                        }, 1000);
+                                    </script>';
+                                    exit; // หยุดการทำงานเมื่อเกิดข้อผิดพลาดในการอัปโหลดไฟล์
                                 }
                             }
-                        }
+                            
+                            
+                            
+                          }      
 
-                        // แปลงอาร์เรย์ชื่อไฟล์เป็นสตริง (ใช้ , แยก) หรือใช้ NULL ถ้าไม่อัปโหลดไฟล์
-                        $images_str = !empty($images) ? implode(',', $images) : NULL;
+                          // แปลงอาร์เรย์ชื่อไฟล์เป็นสตริง (ใช้ , แยก) หรือใช้ NULL ถ้าไม่อัปโหลดไฟล์
+                          $images_str = !empty($images) ? implode(',', $images) : NULL;
 
-                        $status_id = 2; // 'พบ' ในตาราง statuses
+                          $status_id = 2; // 'พบ' ในตาราง statuses
 
-                        // เตรียมคำสั่ง SQL เพื่อบันทึกข้อมูล
-                        $stmt = $mysqli->prepare("INSERT INTO found_items (finder_name, finder_contact, found_type, found_description, found_date, found_location, found_image, status_id) 
-                                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                          // เตรียมคำสั่ง SQL เพื่อบันทึกข้อมูล
+                          $stmt = $mysqli->prepare("INSERT INTO found_items (finder_name, finder_contact, found_type, found_description, found_date, found_location, found_image, status_id) 
+                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
-                        if ($stmt === false) {
-                            die('เกิดข้อผิดพลาดในการเตรียมคำสั่ง SQL: ' . $mysqli->error);
-                        }
+                          if ($stmt === false) {
+                              die('เกิดข้อผิดพลาดในการเตรียมคำสั่ง SQL: ' . $mysqli->error);
+                          }
 
-                        // ผูกค่าตัวแปรกับคำสั่ง SQL
-                        $stmt->bind_param("sssssssi", $finder_name, $finder_contact, $found_type, $found_description, $found_date, $found_location, $images_str, $status_id);
+                          // ผูกค่าตัวแปรกับคำสั่ง SQL
+                          $stmt->bind_param("sssssssi", $finder_name, $finder_contact, $found_type, $found_description, $found_date, $found_location, $images_str, $status_id);
 
-                        // บันทึกข้อมูลลงฐานข้อมูล
-                        if ($stmt->execute()) {
-                            // sweet alert 
-                            echo '
-                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                          // บันทึกข้อมูลลงฐานข้อมูล
+                          if ($stmt->execute()) {
+                              // Sweet alert แจ้งเตือน
+                              echo '
+                              <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                              <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                              <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                              echo '<script>
+                                  setTimeout(function() {
+                                      swal({
+                                          title: "เพิ่มข้อมูลสำเร็จ",
+                                          type: "success"
+                                      }, function() {
+                                          window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                                      });
+                                  }, 1000);
+                              </script>';
+                          } else {
+                              // Sweet alert แจ้งเตือน
+                              echo '<script>
+                                  setTimeout(function() {
+                                      swal({
+                                          title: "เกิดข้อผิดพลาด",
+                                          type: "error"
+                                      }, function() {
+                                          window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
+                                      });
+                                  }, 1000);
+                              </script>';
+                          }
 
-                            echo '<script>
-                                setTimeout(function() {
-                                    swal({
-                                        title: "เพิ่มข้อมูลสำเร็จ",
-                                        type: "success"
-                                    }, function() {
-                                        window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                    });
-                                }, 1000);
-                            </script>';
-                        } else {
-                            echo '<script>
-                                setTimeout(function() {
-                                    swal({
-                                        title: "เกิดข้อผิดพลาด",
-                                        type: "error"
-                                    }, function() {
-                                        window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                    });
-                                }, 1000);
-                            </script>';
-                        }
-
-                        // ปิดการเชื่อมต่อฐานข้อมูล
-                        $stmt->close();
-                        $mysqli->close();
-                    }
-                    ?>
+                          // ปิดการเชื่อมต่อฐานข้อมูล
+                          $stmt->close();
+                          $mysqli->close();
+                      }
+                      ?> 
 
                       
             </div>

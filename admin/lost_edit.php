@@ -2,6 +2,7 @@
 session_start();
 require 'config.php';
 
+
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -11,6 +12,10 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
+
+// ตรวจสอบว่าในเซสชันมีการตั้งค่า UserAdminName หรือไม่
+$current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminName'] : 'ไม่ทราบชื่อ';
+
 
 // ตรวจสอบว่ามีการส่งค่า item_id มาหรือไม่
 if (!isset($_GET['item_id'])) {
@@ -389,9 +394,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- ผู้ส่งมอบทรัพย์สิน -->
             <div class="form-group row">
-                <label for="deliverer" class="col-sm-2">ผู้ส่งมอบทรัพย์สิน</label>
-                <input type="text" name="deliverer" class="form-control-sm-4" value="<?= htmlspecialchars($item['deliverer']) ?>">
-            </div>
+    <label for="deliverer" class="col-sm-2">ผู้ส่งมอบทรัพย์สิน</label>
+    <?php if (!empty($item['deliverer'])): ?>
+        <!-- แสดงชื่อผู้ส่งมอบทรัพย์สินหากมีค่า -->
+        <input type="text" name="deliverer" class="form-control-sm-4" value="<?= htmlspecialchars($item['deliverer']) ?>">
+    <?php else: ?>
+        <!-- ถ้าไม่มีผู้ส่งมอบทรัพย์สิน แสดงชื่อผู้ใช้ที่ล็อกอิน -->
+        <input type="text" name="deliverer" class="form-control-sm-4" value="<?= htmlspecialchars($current_user_name) ?>" readonly>
+    <?php endif; ?>
+</div>
+
+
 
             
             <div class="form-group row">
