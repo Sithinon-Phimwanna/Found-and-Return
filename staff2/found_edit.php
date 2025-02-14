@@ -234,7 +234,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="../staff_index.php" class="nav-link">Home</a>
+        <a href="../staff2_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -243,7 +243,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="../staff_index.php" class="brand-link">
+    <a href="../staff2_index.php" class="brand-link">
       <img src="../assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
@@ -286,6 +286,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="resize.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ลดขนาดไฟล์รูปภาพ</p>
+                </a>
+              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -320,6 +326,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="register.php" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>สมัครสมากชิก</p>
+                    </a>
+                  </li>
+            </ul>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -430,7 +444,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="form-group row">
                                 <label class="col-sm-2"></label>
                                   <div class="col-sm-4">
-                                    <button type="submit" class="btn btn-primary">บันทึกการเปลี่ยนแปลง</button>
+                                    <button type="submit" class="btn btn-primary">บันทึก</button>
                                     <button type="submit" class="btn btn-danger"><a href="found_items_list.php" style="color:white;">ยกเลิก</a></button>
                                   </div>
                                 </div>

@@ -171,6 +171,12 @@ if (!$result) {
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="resize.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ลดขนาดไฟล์รูปภาพ</p>
+                </a>
+              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -249,43 +255,45 @@ if (!$result) {
 
     <!-- Main content -->
     <section class="content">
-      <div class="container-fluid">
-      <div class="card-body">
-            <!-- ฟอร์มค้นหา -->
-            <section class="search-section" style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-                <form method="GET" class="search-form" style="text-align: right;">
-                    <input type="text" name="search" placeholder="ค้นหา..." class="search-input" style="padding: 2px; width: 150px;">
-                    <button type="submit" class="btn btn-primary" style="padding: 2px 10px;">ค้นหา</button>
-                </form>
-            </section>
-                  <table table id="example1" class="table table-bordered table-hover" style="font-size: 14px;">
-                        <thead>
-                            <tr>
-                                <th style="font-size: 14px;">รหัส</th>
-                                <th style="font-size: 14px;">ชื่อผู้แจ้ง</th>
-                                <th style="font-size: 14px;">ทรัพย์สิน</th>
-                                <th style="font-size: 14px;">รายละเอียด</th>
-                                <th style="font-size: 14px; width: 20%;">สถานที่</th>
-                                <th style="font-size: 14px;">วันและเวลาที่แจ้ง</th>
-                                <th style="font-size: 14px;">สถานะ</th>
-                                <th style="font-size: 14px;">รายละเอียด</th>
-                                <th style="font-size: 14px;">แก้ไข</th>
-                                <th style="font-size: 14px;">ลบ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = $result->fetch_assoc()): ?>
-                                <tr>
-                                    <td style="font-size: 14px;"><?= $row['found_id'] ?></td>
+    <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <!-- <div class="card-header">
+                <h3 class="card-title">DataTable with default features</h3>
+              </div> -->
+              <!-- /.card-header -->
+              <div class="card-body">
+                <table id="example1" class="table table-bordered table-striped">
+                  <thead>
+                  <tr>
+                    <th style="font-size: 14px;">รหัส</th>
+                    <th style="font-size: 14px;">ชื่อผู้แจ้ง</th>
+                    <th style="font-size: 14px;">ทรัพย์สิน</th>
+                    <th style="font-size: 14px;">รายละเอียด</th>
+                    <th style="font-size: 14px;">สถานที่</th>
+                    <th style="font-size: 14px;">วันที่แจ้ง</th>
+                    <th style="font-size: 14px;">สถานะ</th>
+                    <th style="font-size: 14px;">เพิ่มเติม</th>
+                    <th style="font-size: 14px;">แก้ไข</th>
+                    <th style="font-size: 14px;">ลบ</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <?php while ($row = $result->fetch_assoc()): ?>
+                  <tr>
+                  <td style="font-size: 14px;"><?= $row['found_id'] ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['finder_name']) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['found_type']) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['found_description']) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['found_location']) ?></td>
                                     <td style="font-size: 14px;"><?= date('d/m/Y H:i', strtotime($row['found_date'])) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['status']) ?></td>
+                                    <!-- รายละเอียดเพิ่มเติม -->
                                     <td style="font-size: 14px;">
-                                      <button class="btn btn-info" onclick="viewDetails(<?= $row['found_id'] ?>) " style="font-size: 14px;">รายละเอียด</button>
+                                      <button class="btn btn-info" onclick="viewDetails(<?= $row['found_id'] ?>) " style="font-size: 14px;">ดูรายละเอียดเพิ่มเติม</button>
                                   </td>
+                                  <!-- แก้ไข -->
                                     <td style="font-size: 14px;">
                                     <button class="btn btn-warning" onclick="window.location.href='found_edit.php?found_id=<?= $row['found_id'] ?>'" style="font-size: 14px;">แก้ไข</button>
                                     <?php
@@ -335,26 +343,48 @@ if (!$result) {
                                         }
                                         ?>
                                     </td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
-          </div>
-          <div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
-              <div class="modal-dialog" role="document">
-                  <div class="modal-content">
+                  </tr>
+                  <?php endwhile; ?>
+                  </tbody>
+                  <!-- <tfoot>
+                  <tr>
+                    <th>Rendering engine</th>
+                    <th>Browser</th>
+                    <th>Platform(s)</th>
+                    <th>Engine version</th>
+                    <th>CSS grade</th>
+                  </tr>
+                  </tfoot> -->
+                </table>
+                <!-- Modal สำหรับแสดงรายละเอียด -->
+                <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
                       <div class="modal-header">
-                          <h5 class="modal-title">รายละเอียดทรัพย์สิน</h5>
-                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h5 class="modal-title" id="detailModalLabel">รายละเอียดทรัพย์สิน</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
                       </div>
                       <div class="modal-body" id="modalContent">
-                          <!-- ข้อมูลจะแสดงที่นี่ -->
+                        <!-- ข้อมูลจะแสดงที่นี่ -->
                       </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>
+                      </div>
+                    </div>
                   </div>
-              </div>
-          </div>
+                </div>
 
-      </div><!-- /.container-fluid -->
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
     </section>
     <!-- /.content -->
   </div>
@@ -424,6 +454,21 @@ if (!$result) {
     });
 }
 
+  $(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": true, "autoWidth": false,
+      // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  });
 </script>
 </body>
 </html>

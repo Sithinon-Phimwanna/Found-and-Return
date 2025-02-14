@@ -126,6 +126,12 @@ try {
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="resize.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ลดขนาดไฟล์รูปภาพ</p>
+                </a>
+              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -447,7 +453,6 @@ try {
                           $mysqli->close();
                       }
                       ?>
-
 
 
       </div><!-- /.container-fluid -->

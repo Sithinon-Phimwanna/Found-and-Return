@@ -59,7 +59,7 @@ $item = $result->fetch_assoc();
 
 // ดึงข้อมูลสถานที่และสถานะจากฐานข้อมูล
 $locations = $mysqli->query("SELECT * FROM location");
-$statuses = $mysqli->query("SELECT * FROM statuses");
+$status_lost = $mysqli->query("SELECT * FROM status_lost");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // รับค่าจากฟอร์ม
@@ -233,6 +233,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="resize.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ลดขนาดไฟล์รูปภาพ</p>
+                </a>
+              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -400,7 +406,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="text" name="deliverer" class="form-control-sm-4" value="<?= htmlspecialchars($item['deliverer']) ?>">
     <?php else: ?>
         <!-- ถ้าไม่มีผู้ส่งมอบทรัพย์สิน แสดงชื่อผู้ใช้ที่ล็อกอิน -->
-        <input type="text" name="deliverer" class="form-control-sm-4" value="<?= htmlspecialchars($current_user_name) ?>" readonly>
+        <input type="text" name="deliverer" class="form-control-sm-4" value="<?= htmlspecialchars($current_user_name) ?>">
     <?php endif; ?>
 </div>
 
@@ -410,7 +416,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group row">
                 <label for="status_id" class="col-sm-2">สถานะ</label>
                 <select name="status_id" class="form-control-sm-4" required>
-                    <?php while ($status = $statuses->fetch_assoc()): ?>
+                    <?php while ($status = $status_lost->fetch_assoc()): ?>
                         <option value="<?= $status['status_id'] ?>" <?= ($item['status_id'] == $status['status_id']) ? 'selected' : '' ?>>
                             <?= $status['status_name'] ?>
                         </option>

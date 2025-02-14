@@ -2,11 +2,10 @@
 session_start(); // เริ่มเซสชัน
 
 // ตรวจสอบการล็อกอินและบทบาทผู้ใช้
-if (!isset($_SESSION['user_id']) || $_SESSION['level_id'] !== 1) {
-    header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอิน หรือไม่ใช่แอดมิน ให้เปลี่ยนเส้นทางไปหน้า login
-    exit;
+if (!isset($_SESSION['user_id'])) {
+  header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอิน ให้เปลี่ยนเส้นทางไปหน้า login
+  exit;
 }
-
 require 'config.php';
 
 // ดึงวันที่ปัจจุบัน

@@ -152,6 +152,12 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="resize.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ลดขนาดไฟล์รูปภาพ</p>
+                </a>
+              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -222,115 +228,86 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
 
    <!-- Main content -->
    <section class="content">
-      <div class="container-fluid">
-      <div class="card-body">
-        <!-- ฟอร์มค้นหา -->
-        <section class="search-section" style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-                <form method="GET" class="search-form" style="text-align: right;">
-                    <input type="text" name="search" placeholder="ค้นหา..." class="search-input" style="padding: 2px; width: 150px;">
-                    <button type="submit" class="btn btn-primary" style="padding: 2px 5px;">ค้นหา</button>
-                </form>
-            </section>
-              <!-- แสดงข้อมูลในตาราง -->
-              <table id="example1" class="table table-bordered table-hover" style="font-size: 14px;">
+    <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <!-- <div class="card-header">
+                <h3 class="card-title">DataTable with default features</h3>
+              </div> -->
+              <!-- /.card-header -->
+              <div class="card-body">
+                <table id="example1" class="table table-bordered table-striped">
                   <thead>
-                      <tr>
-                          <th style="font-size: 14px;">รหัส</th>
-                          <th style="font-size: 14px;">ชื่อผู้แจ้ง</th>
-                          <th style="font-size: 14px;">ทรัพย์สิน</th>
-                          <th style="font-size: 14px;">รายละเอียด</th>
-                          <th style="font-size: 14px;">วันและเวลาที่แจ้ง</th>
-                          <th style="font-size: 14px;  width: 10%;">สถานที่</th>
-                          <th style="font-size: 14px;">สถานะ</th>
-                          <th style="font-size: 14px;">ผู้ส่งมอบทรัพย์สิน</th>
-                          <th style="font-size: 14px;">รายละเอียด</th>
-                          <th style="font-size: 14px;">แก้ไข</th>
-                          <th style="font-size: 14px;">ลบ</th>
-                      </tr>
+                  <tr>
+                    <th style="font-size: 14px;">รหัส</th>
+                    <th style="font-size: 14px;">ชื่อผู้แจ้ง</th>
+                    <th style="font-size: 14px;">ทรัพย์สิน</th>
+                    <th style="font-size: 14px;">รายละเอียด</th>
+                    <th style="font-size: 14px;">สถานที่</th>
+                    <th style="font-size: 14px;">วันที่แจ้ง</th>
+                    <th style="font-size: 14px;">สถานะ</th>
+                    <th style="font-size: 14px;">เพิ่มเติม</th>
+                  </tr>
                   </thead>
                   <tbody>
-                      <?php while ($row = $result->fetch_assoc()): ?>
-                          <tr>
-                              <td style="font-size: 14px;"><?= $row['item_id'] ?></td>
+                  <?php while ($row = $result->fetch_assoc()): ?>
+                  <tr>
+                  <td style="font-size: 14px;"><?= $row['item_id'] ?></td>
                               <td style="font-size: 14px;"><?= htmlspecialchars($row['owner_name']) ?></td>
                               <td style="font-size: 14px;"><?= htmlspecialchars($row['item_type']) ?></td>
                               <td style="font-size: 14px;"><?= htmlspecialchars($row['item_description']) ?></td>
+                              <td style="font-size: 14px;"><?= htmlspecialchars($row['lost_location']) ?></td>
                               <td style="font-size: 14px;">
                                   <!-- เปลี่ยนรูปแบบวันที่เป็น วัน/เดือน/ปี -->
                                   <?= date('d/m/Y  H:i', strtotime($row['lost_date'])) ?>
-                              </td>
-                              <td style="font-size: 14px;"><?= htmlspecialchars($row['lost_location']) ?></td>
-                              <td style="font-size: 14px;"><?= htmlspecialchars($row['status']) ?></td>
-                              <td style="font-size: 14px;"><?= htmlspecialchars($row['deliverer']) ?></td> <!-- แสดงชื่อผู้ส่งมอบ -->        
+                              </td>                 
+                              <td style="font-size: 14px;"><?= htmlspecialchars($row['status']) ?></td>       
                               <td style="font-size: 14px;">
-                                <button class="btn btn-info" onclick="viewDetails(<?= $row['item_id'] ?>)" style="font-size: 14px;">รายละเอียด</button>
+                                <button class="btn btn-info" onclick="viewDetails(<?= $row['item_id'] ?>)" style="font-size: 14px;">ดูรายละเอียดเพิ่มเติม</button>
                               </td>
-                              <td style="font-size: 14px;">
-                                    <button class="btn btn-warning" onclick="window.location.href='lost_edit.php?item_id=<?= $row['item_id'] ?>'" style="font-size: 14px;">แก้ไข</button>
-                                    <?php
-                                        // ตรวจสอบค่า success ใน URL
-                                        if (isset($_GET['success']) && $_GET['success'] == 3) {
-                                            echo '
-                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                            <script>
-                                                setTimeout(function() {
-                                                    swal({
-                                                        title: "แก้ไขข้อมูลสำเร็จแล้ว!",
-                                                        text: "ข้อมูลถูกแก้ไขเรียบร้อยแล้ว",
-                                                        type: "success"
-                                                    }, function() {
-                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
-                                                    });
-                                                }, 1000);
-                                            </script>';
-                                            exit;
-                                        }
-                                        ?>
-                                    </td>
-                              <td style="font-size: 14px;">
-                                  <button onclick="deleteItem(<?= $row['item_id'] ?>)" class="btn btn-danger" style="font-size: 14px;">ลบ</button>
-                                  <?php
-                                        // ตรวจสอบค่า success ใน URL
-                                        if (isset($_GET['success']) && $_GET['success'] == 1) {
-                                            echo '
-                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                            <script>
-                                                setTimeout(function() {
-                                                    swal({
-                                                        title: "ลบข้อมูลสำเร็จ!",
-                                                        text: "ข้อมูลถูกลบออกจากระบบเรียบร้อยแล้ว",
-                                                        type: "success"
-                                                    }, function() {
-                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
-                                                    });
-                                                }, 1000);
-                                            </script>';
-                                        }
-                                        ?>
-                              </td>
-                          </tr>
-                      <?php endwhile; ?>
+                  </tr>
+                  <?php endwhile; ?>
                   </tbody>
-              </table>
-            </div>
-            <div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
-              <div class="modal-dialog" role="document">
-                  <div class="modal-content">
+                  <!-- <tfoot>
+                  <tr>
+                    <th>Rendering engine</th>
+                    <th>Browser</th>
+                    <th>Platform(s)</th>
+                    <th>Engine version</th>
+                    <th>CSS grade</th>
+                  </tr>
+                  </tfoot> -->
+                </table>
+                <!-- Modal สำหรับแสดงรายละเอียด -->
+                <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
                       <div class="modal-header">
-                          <h5 class="modal-title">รายละเอียดทรัพย์สิน</h5>
-                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h5 class="modal-title" id="detailModalLabel">รายละเอียดทรัพย์สิน</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
                       </div>
                       <div class="modal-body" id="modalContent">
-                          <!-- ข้อมูลจะแสดงที่นี่ -->
+                        <!-- ข้อมูลจะแสดงที่นี่ -->
                       </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>
+                      </div>
+                    </div>
                   </div>
+                </div>
+
               </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
           </div>
-      </div><!-- /.container-fluid -->
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
     </section>
     <!-- /.content -->
   </div>
@@ -370,22 +347,6 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
 
 <!-- ส่วน script สำหรับการลบ -->
 <script>
-function deleteItem(itemId) {
-    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?")) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'delete_lost.php';
-
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'item_id';
-        input.value = itemId;
-        form.appendChild(input);
-
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
 function viewDetails(item_id) {
     // ใช้ AJAX ดึงข้อมูลจากไฟล์ PHP
     $.ajax({
@@ -398,6 +359,21 @@ function viewDetails(item_id) {
         }
     });
 }
+$(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": true, "autoWidth": false,
+      // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    $('#example2').DataTable({
+      "paging": false,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  });
 </script>
 
 </body>

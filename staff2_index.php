@@ -2,10 +2,11 @@
 session_start(); // เริ่มเซสชัน
 
 // ตรวจสอบการล็อกอินและบทบาทผู้ใช้
-if (!isset($_SESSION['user_id'])) {
-  header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอิน ให้เปลี่ยนเส้นทางไปหน้า login
-  exit;
+if (!isset($_SESSION['user_id']) || $_SESSION['level_id'] !== 2) {
+    header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอิน หรือไม่ใช่แอดมิน ให้เปลี่ยนเส้นทางไปหน้า login
+    exit;
 }
+
 require 'config.php';
 
 // ดึงวันที่ปัจจุบัน
@@ -99,7 +100,7 @@ $adminName = $_SESSION['UserAdminName'];
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="staff_index.php" class="nav-link">Home</a>
+        <a href="staff2_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -108,7 +109,7 @@ $adminName = $_SESSION['UserAdminName'];
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="staff_index.php" class="brand-link">
+    <a href="staff2_index.php" class="brand-link">
       <img src="assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
@@ -140,13 +141,13 @@ $adminName = $_SESSION['UserAdminName'];
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="staff/found_item_form.php" class="nav-link">
+                <a href="staff2/found_item_form.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>แจ้งเก็บทรัพย์สินได้</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="staff/lost_item_form.php" class="nav-link">
+                <a href="staff2/lost_item_form.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
@@ -163,13 +164,13 @@ $adminName = $_SESSION['UserAdminName'];
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="staff/found_items_list.php" class="nav-link">
+                <a href="staff2/found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>ตารางแจ้งทรัพย์สินที่เก็บได้</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="staff/lost_items_list.php" class="nav-link">
+                <a href="staff2/lost_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>ตารางแจ้งทรัพย์สินหาย</p>
                 </a>
@@ -279,7 +280,7 @@ $adminName = $_SESSION['UserAdminName'];
               <div class="icon">
                 <i class="ion ion-pie-graph"></i>
               </div>
-              <a href="staff/chart.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
+              <a href="staff2/chart.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
           <!-- ./col -->

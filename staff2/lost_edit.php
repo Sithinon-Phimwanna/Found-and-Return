@@ -2,6 +2,7 @@
 session_start();
 require 'config.php';
 
+
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -11,6 +12,10 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
+
+// ตรวจสอบว่าในเซสชันมีการตั้งค่า UserAdminName หรือไม่
+$current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminName'] : 'ไม่ทราบชื่อ';
+
 
 // ตรวจสอบว่ามีการส่งค่า item_id มาหรือไม่
 if (!isset($_GET['item_id'])) {
@@ -54,7 +59,7 @@ $item = $result->fetch_assoc();
 
 // ดึงข้อมูลสถานที่และสถานะจากฐานข้อมูล
 $locations = $mysqli->query("SELECT * FROM location");
-$statuses = $mysqli->query("SELECT * FROM statuses");
+$status_lost = $mysqli->query("SELECT * FROM status_lost");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // รับค่าจากฟอร์ม
@@ -176,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="../staff_index.php" class="nav-link">Home</a>
+        <a href="../staff2_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -185,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="../staff_index.php" class="brand-link">
+    <a href="../staff2_index.php" class="brand-link">
       <img src="../assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">lost & Return</span>
     </a>
@@ -228,6 +233,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="resize.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ลดขนาดไฟล์รูปภาพ</p>
+                </a>
+              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -262,6 +273,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="register.php" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>สมัครสมากชิก</p>
+                    </a>
+                  </li>
+            </ul>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -381,15 +400,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- ผู้ส่งมอบทรัพย์สิน -->
             <div class="form-group row">
-                <label for="deliverer" class="col-sm-2">ผู้ส่งมอบทรัพย์สิน</label>
-                <input type="text" name="deliverer" class="form-control-sm-4" value="<?= htmlspecialchars($item['deliverer']) ?>">
-            </div>
+    <label for="deliverer" class="col-sm-2">ผู้ส่งมอบทรัพย์สิน</label>
+    <?php if (!empty($item['deliverer'])): ?>
+        <!-- แสดงชื่อผู้ส่งมอบทรัพย์สินหากมีค่า -->
+        <input type="text" name="deliverer" class="form-control-sm-4" value="<?= htmlspecialchars($item['deliverer']) ?>">
+    <?php else: ?>
+        <!-- ถ้าไม่มีผู้ส่งมอบทรัพย์สิน แสดงชื่อผู้ใช้ที่ล็อกอิน -->
+        <input type="text" name="deliverer" class="form-control-sm-4" value="<?= htmlspecialchars($current_user_name) ?>">
+    <?php endif; ?>
+</div>
+
+
 
             
             <div class="form-group row">
                 <label for="status_id" class="col-sm-2">สถานะ</label>
                 <select name="status_id" class="form-control-sm-4" required>
-                    <?php while ($status = $statuses->fetch_assoc()): ?>
+                    <?php while ($status = $status_lost->fetch_assoc()): ?>
                         <option value="<?= $status['status_id'] ?>" <?= ($item['status_id'] == $status['status_id']) ? 'selected' : '' ?>>
                             <?= $status['status_name'] ?>
                         </option>

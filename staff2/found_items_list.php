@@ -119,7 +119,7 @@ if (!$result) {
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="../staff_index.php" class="nav-link">Home</a>
+        <a href="../staff2_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -128,7 +128,7 @@ if (!$result) {
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="../staff_index.php" class="brand-link">
+    <a href="../staff2_index.php" class="brand-link">
       <img src="../assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
@@ -169,6 +169,12 @@ if (!$result) {
                 <a href="lost_item_form.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>แจ้งทรัพย์สินหาย</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="resize.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ลดขนาดไฟล์รูปภาพ</p>
                 </a>
               </li>
             </ul>
@@ -239,45 +245,46 @@ if (!$result) {
     </div>
     <!-- /.content-header -->
 
-     <!-- Main content -->
-     <section class="content">
-      <div class="container-fluid">
-      <div class="card-body">
-            <!-- ฟอร์มค้นหา -->
-            <section class="search-section" style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-                <form method="GET" class="search-form" style="text-align: right;">
-                    <input type="text" name="search" placeholder="ค้นหา..." class="search-input" style="padding: 2px; width: 150px;">
-                    <button type="submit" class="btn btn-primary" style="padding: 2px 10px;">ค้นหา</button>
-                </form>
-            </section>
-                  <table table id="example1" class="table table-bordered table-hover" style="font-size: 14px;">
-                        <thead>
-                            <tr>
-                                <th style="font-size: 14px;">รหัส</th>
-                                <th style="font-size: 14px;">ชื่อผู้แจ้ง</th>
-                                <th style="font-size: 14px;">ทรัพย์สิน</th>
-                                <th style="font-size: 14px;">รายละเอียด</th>
-                                <th style="font-size: 14px; width: 20%;">สถานที่</th>
-                                <th style="font-size: 14px;">วันและเวลาที่แจ้ง</th>
-                                <th style="font-size: 14px;">สถานะ</th>
-                                <th style="font-size: 14px;">รายละเอียด</th>
-                                <th style="font-size: 14px;">แก้ไข</th>
-                                <th style="font-size: 14px;">ลบ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = $result->fetch_assoc()): ?>
-                                <tr>
-                                    <td style="font-size: 14px;"><?= $row['found_id'] ?></td>
+    <!-- Main content -->
+    <section class="content">
+    <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <!-- <div class="card-header">
+                <h3 class="card-title">DataTable with default features</h3>
+              </div> -->
+              <!-- /.card-header -->
+              <div class="card-body">
+                <table id="example1" class="table table-bordered table-striped">
+                  <thead>
+                  <tr>
+                    <th style="font-size: 14px;">รหัส</th>
+                    <th style="font-size: 14px;">ชื่อผู้แจ้ง</th>
+                    <th style="font-size: 14px;">ทรัพย์สิน</th>
+                    <th style="font-size: 14px;">รายละเอียด</th>
+                    <th style="font-size: 14px;">สถานที่</th>
+                    <th style="font-size: 14px;">วันที่แจ้ง</th>
+                    <th style="font-size: 14px;">สถานะ</th>
+                    <th style="font-size: 14px;">เพิ่มเติม</th>
+                    <th style="font-size: 14px;">แก้ไข</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <?php while ($row = $result->fetch_assoc()): ?>
+                  <tr>
+                  <td style="font-size: 14px;"><?= $row['found_id'] ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['finder_name']) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['found_type']) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['found_description']) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['found_location']) ?></td>
                                     <td style="font-size: 14px;"><?= date('d/m/Y H:i', strtotime($row['found_date'])) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['status']) ?></td>
+                                    <!-- รายละเอียดเพิ่มเติม -->
                                     <td style="font-size: 14px;">
-                                      <button class="btn btn-info" onclick="viewDetails(<?= $row['found_id'] ?>) " style="font-size: 14px;">รายละเอียด</button>
+                                      <button class="btn btn-info" onclick="viewDetails(<?= $row['found_id'] ?>) " style="font-size: 14px;">ดูรายละเอียดเพิ่มเติม</button>
                                   </td>
+                                  <!-- แก้ไข -->
                                     <td style="font-size: 14px;">
                                     <button class="btn btn-warning" onclick="window.location.href='found_edit.php?found_id=<?= $row['found_id'] ?>'" style="font-size: 14px;">แก้ไข</button>
                                     <?php
@@ -302,51 +309,48 @@ if (!$result) {
                                         }
                                         ?>
                                     </td>
-                                    <td style="font-size: 14px;">
-                                        <!-- ปุ่มลบข้อมูล -->
-                                        <button onclick="deleteItem(<?= $row['found_id'] ?>)" class="btn btn-danger" style="font-size: 14px;">ลบ</button>
-                                        <?php
-                                        // ตรวจสอบค่า success ใน URL
-                                        if (isset($_GET['success']) && $_GET['success'] == 1) {
-                                            echo '
-                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                            <script>
-                                                setTimeout(function() {
-                                                    swal({
-                                                        title: "ลบข้อมูลสำเร็จ!",
-                                                        text: "ข้อมูลถูกลบออกจากระบบเรียบร้อยแล้ว",
-                                                        type: "success"
-                                                    }, function() {
-                                                        window.location = "found_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
-                                                    });
-                                                }, 1000);
-                                            </script>';
-                                            exit;
-                                        }
-                                        ?>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
-          </div>
-          <div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
-              <div class="modal-dialog" role="document">
-                  <div class="modal-content">
+                  </tr>
+                  <?php endwhile; ?>
+                  </tbody>
+                  <!-- <tfoot>
+                  <tr>
+                    <th>Rendering engine</th>
+                    <th>Browser</th>
+                    <th>Platform(s)</th>
+                    <th>Engine version</th>
+                    <th>CSS grade</th>
+                  </tr>
+                  </tfoot> -->
+                </table>
+                <!-- Modal สำหรับแสดงรายละเอียด -->
+                <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
                       <div class="modal-header">
-                          <h5 class="modal-title">รายละเอียดทรัพย์สิน</h5>
-                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h5 class="modal-title" id="detailModalLabel">รายละเอียดทรัพย์สิน</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
                       </div>
                       <div class="modal-body" id="modalContent">
-                          <!-- ข้อมูลจะแสดงที่นี่ -->
+                        <!-- ข้อมูลจะแสดงที่นี่ -->
                       </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>
+                      </div>
+                    </div>
                   </div>
-              </div>
-          </div>
+                </div>
 
-      </div><!-- /.container-fluid -->
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
     </section>
     <!-- /.content -->
   </div>
@@ -385,24 +389,6 @@ if (!$result) {
 <script src="../assets/dist/js/pages/dashboard.js"></script><s></s>
 <!-- ส่วน script สำหรับการลบ -->
 <script>
-    function deleteItem(foundId) {
-        if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?")) {
-            // ส่งคำขอ POST ไปยังไฟล์ลบข้อมูล
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'delete_found.php'; // เปลี่ยนเส้นทางไปที่ไฟล์ลบข้อมูล
-
-            // สร้าง hidden input สำหรับ found_id
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'found_id';
-            input.value = foundId;
-
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
     function viewDetails(found_id) {
     // ใช้ AJAX ดึงข้อมูลจากไฟล์ PHP
     $.ajax({
@@ -416,6 +402,21 @@ if (!$result) {
     });
 }
 
+  $(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": true, "autoWidth": false,
+      // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  });
 </script>
 </body>
 </html>

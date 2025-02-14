@@ -6,7 +6,7 @@ $item_id = $_GET['item_id'];
 // ใช้ JOIN เพื่อดึงชื่อสถานะจากตาราง statuses
 $query = "SELECT li.item_id, li.owner_name, li.owner_contact, li.item_type, 
                  li.item_description, li.lost_location, li.lost_date, li.item_image, 
-                 li.finder_image,li.status_id, s.status_name 
+                 li.deliverer,li.finder_image,li.status_id, s.status_name 
           FROM lost_items li 
           LEFT JOIN statuses s ON li.status_id = s.status_id 
           WHERE li.item_id = ?";
@@ -58,5 +58,6 @@ if ($row['finder_image']) {
     echo "<p>ไม่มีภาพ</p>";
 }
 
-
+// ผู้ส่งมอบทรัพย์สิน
+echo "<p><strong>ผู้ส่งมอบทรัพย์สิน:</strong> " . htmlspecialchars($row['deliverer']) . "</p>";
 ?>

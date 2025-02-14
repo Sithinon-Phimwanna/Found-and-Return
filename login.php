@@ -13,7 +13,7 @@ if (isset($_SESSION['user_id'])) {
             header('Location: staff1_index.php');
             exit;
         case 2:
-            header('Location: staff_index.php');
+            header('Location: staff2_index.php');
             exit;
         case 3:
             header('Location: admin_index.php');
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header('Location: staff1_index.php');
                     exit;
                 case 2:
-                    header('Location: staff_index.php');
+                    header('Location: staff2_index.php');
                     exit;
                 case 3:
                     header('Location: admin_index.php');

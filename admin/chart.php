@@ -1,4 +1,163 @@
 <?php
+// เริ่มการเชื่อมต่อกับฐานข้อมูล
+
+require 'config.php';
+
+// เช็คการเชื่อมต่อฐานข้อมูล
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+$search_query = $_GET['search_query'] ?? '';  // รับค่าจากการค้นหา
+
+// ตรวจสอบว่า มีการค้นหาหรือไม่
+if (!empty($search_query)) {
+    $query = "
+        SELECT 
+            found_items.found_id,
+            found_items.finder_name,
+            found_items.finder_contact,
+            found_items.found_type,
+            found_items.found_description,
+            found_items.found_date,
+            found_items.found_location,
+            found_items.found_image,
+            statuses.status_name AS status
+        FROM 
+            found_items
+        JOIN 
+            statuses ON found_items.status_id = statuses.status_id
+        WHERE 
+            (found_items.finder_name LIKE ? 
+            OR found_items.found_type LIKE ? 
+            OR found_items.found_location LIKE ? 
+            OR found_items.found_date LIKE ?)
+            AND statuses.status_name = ?
+    ";
+} else {
+    $query = "
+        SELECT 
+            found_items.found_id,
+            found_items.finder_name,
+            found_items.finder_contact,
+            found_items.found_type,
+            found_items.found_description,
+            found_items.found_date,
+            location.location_name AS found_location,
+            found_items.found_image,
+            statuses.status_name AS status
+        FROM 
+            found_items
+        JOIN 
+            location ON found_items.found_location = location.location_id
+        JOIN 
+            statuses ON found_items.status_id = statuses.status_id
+    ";
+}
+
+// เตรียมการ query
+$stmt = $mysqli->prepare($query);
+if (!$stmt) {
+    die('Error preparing statement: ' . $mysqli->error);
+}
+
+// ทำการ bind parameter สำหรับการค้นหาและสถานะ
+$search_term = '%' . $search_query . '%';
+$status_term = '%';  // กรองข้อมูลทั้งหมดในกรณีไม่มีสถานะที่เลือก
+if (!empty($search_query)) {
+    $stmt->bind_param('sssss', $search_term, $search_term, $search_term, $search_term, $status_term);
+}
+
+if (!$stmt->execute()) {
+    die('Error executing statement: ' . $stmt->error);
+}
+
+$result = $stmt->get_result();
+if (!$result) {
+    die('Error fetching result: ' . $mysqli->error);
+}
+
+// เตรียมข้อมูลเพื่อแสดงกราฟ
+$locations = [];
+$item_counts = [];
+$statuses = [];
+
+// ดึงข้อมูลและจัดกลุ่มตามสถานะ
+while ($row = $result->fetch_assoc()) {
+    echo "<div class='found-item'>";
+    echo "<h4>ชื่อผู้พบ: " . htmlspecialchars($row['finder_name']) . "</h4>";
+    echo "<p>ประเภททรัพย์สิน: " . htmlspecialchars($row['found_type']) . "</p>";
+    echo "<p>สถานะ: " . htmlspecialchars($row['status']) . "</p>"; // แสดงสถานะ
+    echo "<p>สถานที่พบ: " . htmlspecialchars($row['found_location']) . "</p>";
+    echo "<p>วันที่พบ: " . htmlspecialchars($row['found_date']) . "</p>";
+    echo "</div>";
+
+    // เก็บข้อมูลเพื่อแสดงกราฟ
+    if (!in_array($row['found_location'], $locations)) {
+        $locations[] = $row['found_location'];
+    }
+
+    if (!array_key_exists($row['status'], $statuses)) {
+        $statuses[$row['status']] = 0;
+    }
+    $statuses[$row['status']]++;
+}
+
+// เตรียมข้อมูลกราฟ
+foreach ($statuses as $status => $count) {
+    $item_counts[] = $count;
+}
+?>
+
+<!-- HTML สำหรับการแสดงกราฟ -->
+<script>
+    var locations = <?php echo json_encode($locations); ?>;
+    var itemCounts = <?php echo json_encode($item_counts); ?>;
+    var statuses = <?php echo json_encode(array_keys($statuses)); ?>;
+
+    var ctx = document.getElementById('revenue-chart-canvas').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: statuses,  // แสดงสถานะในกราฟ
+            datasets: [{
+                label: 'จำนวนทรัพย์สินตามสถานะ',
+                data: itemCounts,
+                backgroundColor: ['#FF5733', '#33FF57', '#3357FF'], // สามารถเพิ่มสีอื่นๆ ตามต้องการ
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 20,
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<!-- HTML สำหรับการแสดงผลข้อมูล -->
+<div id="found-items">
+    <!-- ข้อมูลรายการทรัพย์สินจะถูกแสดงที่นี่ -->
+</div>
+
+<!-- ปิดการเชื่อมต่อฐานข้อมูล -->
+<?php
+$stmt->close();
+$mysqli->close();
+?>
+
+<?php
 session_start();
 
 require 'config.php';
