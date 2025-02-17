@@ -233,12 +233,12 @@ if (!$result) {
               <div class="inner">
                 <h3><?= $lost_count ?></h3>
 
-                <p>จำนวนทรัพย์สินหาย</p>
+                <p>แจ้งทรัพย์สินหายทั้งหมด</p>
               </div>
               <div class="icon">
                 <i class="ion ion-stats-bars"></i>
               </div>
-              <a href="#" class="small-box-footer">แจ้งทรัพย์สินหาย (วันนี้): <?= $lost_count_today ?></a>
+              <a href="#" class="small-box-footer">แจ้งทรัพย์สินหาย(วันนี้): <?= $lost_count_today ?></a>
             </div>
           </div>
           <!-- ./col -->
@@ -248,12 +248,12 @@ if (!$result) {
               <div class="inner">
                 <h3><?= $found_count ?></h3>
 
-                <p>จำนวนทรัพย์สินที่เก็บได้</p>
+                <p>จำนวนพบทรัพย์ทั้งหมด</p>
               </div>
               <div class="icon">
                 <i class="ion ion-stats-bars"></i>
               </div>
-              <a href="#" class="small-box-footer">แจ้งทรัพย์สินที่เก็บได้(วันนี้): <?= $found_count_today ?></a>
+              <a href="#" class="small-box-footer">แจ้งพบทรัพย์สิน(วันนี้): <?= $found_count_today ?></a>
             </div>
           </div>
           <!-- ./col -->

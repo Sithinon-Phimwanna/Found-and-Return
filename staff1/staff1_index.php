@@ -1,52 +1,75 @@
 <?php
-session_start();
+session_start(); // เริ่มเซสชัน
 
-// เปิดการแสดงข้อผิดพลาด
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// ป้องกันการเข้าถึงโดยไม่ได้ล็อกอิน
+// ตรวจสอบการล็อกอินและบทบาทผู้ใช้
 if (!isset($_SESSION['user_id'])) {
-  header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอินให้ไปหน้า login
+  header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอิน ให้เปลี่ยนเส้นทางไปหน้า login
   exit;
 }
-// นำเข้าไฟล์ config.php
 require 'config.php';
 
-// ตรวจสอบว่าได้ล็อกอินหรือยัง
+// ดึงวันที่ปัจจุบัน
+$current_date = date('Y-m-d');
 
+// ตรวจสอบว่ามี Cookie "visited_today" หรือไม่
+if (!isset($_COOKIE['visited_today'])) {
+    // ถ้ายังไม่มี Cookie ให้เพิ่มการนับในฐานข้อมูล
+    $result = $mysqli->query("SELECT visit_count FROM visitor_counter WHERE visit_date = '$current_date'");
 
-// ดึงข้อมูลผู้ใช้จากฐานข้อมูล
-try {
-    $user_id = $_SESSION['user_id'];
-    $query = "SELECT UserAdminName, email FROM users WHERE id = ?";
-    $stmt = $mysqli->prepare($query); // ใช้ $mysqli
-    $stmt->bind_param("d", $user_id); // ใช้ integer สำหรับ user_id
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-
-    if (!$user) {
-        throw new Exception("ไม่พบข้อมูลผู้ใช้ในระบบ");
+    if ($result->num_rows > 0) {
+        // อัปเดตจำนวนผู้เข้าชมสำหรับวันนี้
+        $mysqli->query("UPDATE visitor_counter SET visit_count = visit_count + 1 WHERE visit_date = '$current_date'");
+    } else {
+        // เพิ่มแถวใหม่สำหรับวันที่ปัจจุบัน
+        $mysqli->query("INSERT INTO visitor_counter (visit_date, visit_count) VALUES ('$current_date', 1)");
     }
 
-    $name = $user['UserAdminName'] ?? '';
-    $contact = $user['email'] ?? '';
-} catch (Exception $e) {
-    die("ข้อผิดพลาด: " . $e->getMessage());
+    // ตั้ง Cookie "visited_today" หมดอายุในเวลา 23:59:59
+    $expiry_time = strtotime('tomorrow') - 1; // เวลาเที่ยงคืนวันนี้
+    setcookie('visited_today', '1', $expiry_time);
 }
-// ดึงข้อมูลสถานที่จากฐานข้อมูล
-try {
-    $query_locations = "SELECT location_id, location_name FROM location";
-    $stmt_locations = $mysqli->prepare($query_locations);
-    $stmt_locations->execute();
-    $locations = $stmt_locations->get_result();
-} catch (Exception $e) {
-    die("ข้อผิดพลาดในการดึงข้อมูลสถานที่: " . $e->getMessage());
-}
-?>
 
+// ดึงจำนวนผู้เข้าชมทั้งหมด
+$result_total = $mysqli->query("SELECT SUM(visit_count) AS total_visits FROM visitor_counter");
+$total_visits = $result_total->fetch_assoc()['total_visits'];
+
+// ดึงจำนวนผู้เข้าชมวันนี้
+$result_today = $mysqli->query("SELECT visit_count FROM visitor_counter WHERE visit_date = '$current_date'");
+$visits_today = $result_today->fetch_assoc()['visit_count'];
+
+// นับจำนวนแจ้งทรัพย์สินหาย
+$result_lost = $mysqli->query("SELECT COUNT(*) AS lost_count FROM lost_items WHERE item_id");
+$lost_count = $result_lost->fetch_assoc()['lost_count'];
+
+// นับจำนวนแจ้งทรัพย์สินที่เก็บได้
+$result_found = $mysqli->query("SELECT COUNT(*) AS found_count FROM found_items WHERE found_id");
+$found_count = $result_found->fetch_assoc()['found_count'];
+
+// นับจำนวนแจ้งทรัพย์สินหาย (เฉพาะวันปัจจุบัน)
+$result_lost_today = $mysqli->query("SELECT COUNT(*) AS lost_count_today FROM lost_items WHERE item_id AND DATE(lost_date) = '$current_date'");
+$lost_count_today = $result_lost_today->fetch_assoc()['lost_count_today'];
+
+// นับจำนวนแจ้งทรัพย์สินที่เก็บได้ (เฉพาะวันปัจจุบัน)
+$result_found_today = $mysqli->query("SELECT COUNT(*) AS found_count_today FROM found_items WHERE found_id AND DATE(found_date) = '$current_date'");
+$found_count_today = $result_found_today->fetch_assoc()['found_count_today'];
+
+// ตรวจสอบว่าผู้ใช้ล็อกอินและบทบาทเป็นแอดมินหรือไม่
+if (!isset($_SESSION['user_id']) || $_SESSION['level_id'] !== 1) {
+    header('Location: login.php'); // ถ้าไม่ได้ล็อกอินหรือไม่ใช่แอดมิน ให้เปลี่ยนเส้นทางไปหน้า login
+    exit;
+}
+
+// ป้องกันการแคชของเบราว์เซอร์
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+// ป้องกันการใช้งานเซสชันซ้ำ
+session_regenerate_id(true);
+
+// ดึงข้อมูลชื่อแอดมิน
+$adminName = $_SESSION['UserAdminName'];
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -76,7 +99,7 @@ try {
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="admin_index.php" class="nav-link">Home</a>
+        <a href="staff1_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -85,7 +108,7 @@ try {
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="admin_index.php" class="brand-link">
+    <a href="staff1_index.php" class="brand-link">
       <img src="../assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
@@ -160,28 +183,20 @@ try {
             </ul>
           </li>
           <li class="nav-header">การจัดการ</li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
+          <a href="#" class="nav-link">
               <i class="nav-icon far fa-user"></i>
               <p>
                 จัดการ แอดมิน
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="register.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมาชิก</p>
-                    </a>
-                  </li>
-            </ul>
+          <li class="nav-item">
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
                       <p>ลงชื่อออก</p>
                     </a>
-            </li>  
+            </li>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
@@ -196,12 +211,12 @@ try {
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">แจ้งเก็บทรัพย์สินได้</h1>
+            <h1 class="m-0">หน้าหลัก</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">แจ้งเก็บทรัพย์สินได้</li>
+              <li class="breadcrumb-item active">หน้าหลัก</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -212,30 +227,68 @@ try {
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
-        <div class="card shadow">
-                    <div class="card-body">
-                        <div class="container mt-5">
-                            <div class="row justify-content-center">
-                                <div class="col-lg-6">
-                                    <form action="resize_upload.php" method="POST" enctype="multipart/form-data">
-                                        <div class="form-group row">
-                                            <label for="file" class="col-sm-3 col-form-label">อัปโหลดรูปภาพ</label>
-                                            <div class="col-sm-9">
-                                                <input type="file" class="form-control" id="file" name="file" onchange="readURL(this)" required>
-                                            </div>    
-                                        </div>
-                                        <div id="imgControl" class="d-none">
-                                            <img id="imgUpload" class="img-fluid my-3">
-                                            <div class="d-grid">
-                                                <button class="btn btn-primary" name="submit">อัปโหลด</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+        <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3><?= $lost_count ?></h3>
+
+                <p>จำนวนทรัพย์สินหายทั้งหมด</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+              </div>
+              <a href="#" class="small-box-footer">แจ้งทรัพย์สินหาย(วันนี้): <?= $lost_count_today ?></a>
             </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3><?= $found_count ?></h3>
+
+                <p>จำนวนพบทรัพย์สินทั้งหมด</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+              </div>
+              <a href="#" class="small-box-footer">แจ้งพบทรัพย์สิน(วันนี้): <?= $found_count_today ?></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3><?= $total_visits ?></h3>
+
+                <p>จำนวนผู้เข้าชม</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-person-add"></i>
+              </div>
+              <a href="#" class="small-box-footer">จำนวนผู้เข้าชมวันนี้: <?= $visits_today ?></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-danger">
+              <div class="inner">
+                <h3>แผนภูมิ</h3>
+
+                <p>แสดงจำนวนทรัพย์สิน</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-pie-graph"></i>
+              </div>
+              <a href="chart_staff1.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
         </div>
         <!-- /.row -->
       </div><!-- /.container-fluid -->
@@ -267,20 +320,5 @@ try {
 <script src="../assets/dist/js/adminlte.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="../assets/dist/js/pages/dashboard.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function readURL(input){
-            if(input.files[0]){
-                let reader = new FileReader();
-                document.querySelector('#imgControl').classList.replace("d-none", "d-block");
-                reader.onload = function (e) {
-                    let element = document.querySelector('#imgUpload');
-                    element.setAttribute("src", e.target.result);
-                }  
-                reader.readAsDataURL(input.files[0]);
-            }         
-        }
-    </script>
 </body>
 </html>

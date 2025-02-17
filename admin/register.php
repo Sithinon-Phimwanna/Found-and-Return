@@ -45,7 +45,7 @@ header("Expires: 0");
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="../admin_index.php" class="nav-link">Home</a>
+        <a href="admin_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -54,7 +54,7 @@ header("Expires: 0");
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="../admin_index.php" class="brand-link">
+    <a href="admin_index.php" class="brand-link">
       <img src="../assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
@@ -141,7 +141,7 @@ header("Expires: 0");
                   <li class="nav-item">
                     <a href="register.php" class="nav-link">
                       <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมากชิก</p>
+                      <p>สมัครสมาชิก</p>
                     </a>
                   </li>
             </ul>
@@ -170,7 +170,7 @@ header("Expires: 0");
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">สมัครสมากชิก</li>
+              <li class="breadcrumb-item active">สมัครสมาชิก</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -183,7 +183,7 @@ header("Expires: 0");
 <div class="register-box1">
   <div class="card">
     <div class="card-body register-card-body">
-      <p class="login-box">สมัครสมากชิกใหม่</p>
+      <p class="login-box">สมัครสมาชิกใหม่</p>
 
       <form action="" method="POST">
         <div class="input-group mb-3 col-sm-4">

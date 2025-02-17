@@ -2,135 +2,109 @@
 session_start();
 require 'config.php';
 
-// เปิดการแสดงผลข้อผิดพลาดเพื่อช่วยในการดีบัก
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// ตรวจสอบว่าเชื่อมต่อฐานข้อมูลสำเร็จหรือไม่
 if ($mysqli->connect_error) {
     die("เชื่อมต่อฐานข้อมูลล้มเหลว: " . $mysqli->connect_error);
 }
 
-// รับค่าปี, เดือน และสถานะจาก GET (ถ้ามี)
 $year = isset($_GET['year']) ? $_GET['year'] : '';
 $month = isset($_GET['month']) ? $_GET['month'] : '';
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 
-// คำสั่ง SQL เพื่อดึงข้อมูลนับตามปี, เดือน
 $query = "
     SELECT 
-        YEAR(found_date) AS year,
-        MONTH(found_date) AS month,
-        COUNT(found_id) AS count
+        YEAR(lost_date) AS year,
+        MONTH(lost_date) AS month,
+        status_id,
+        COUNT(item_id) AS count
     FROM 
-        found_items
+        lost_items
     WHERE 
         1=1
 ";
 
-// กรองข้อมูลตามปี, เดือน และสถานะ (ถ้ามี)
 if (!empty($year)) {
-    $query .= " AND YEAR(found_date) = ?";
+    $query .= " AND YEAR(lost_date) = ?";
 }
 if (!empty($month)) {
-    $query .= " AND MONTH(found_date) = ?";
-}
-if (!empty($status)) {
-    $query .= " AND status_id = ?";
+    $query .= " AND MONTH(lost_date) = ?";
 }
 
 $query .= "
     GROUP BY 
-        YEAR(found_date), MONTH(found_date)
+        YEAR(lost_date), MONTH(lost_date), status_id
     ORDER BY 
-        YEAR(found_date) DESC, MONTH(found_date) DESC
+        YEAR(lost_date) DESC, MONTH(lost_date) DESC
 ";
 
-// เตรียมคำสั่ง SQL
 $stmt = $mysqli->prepare($query);
 if ($stmt === false) {
     die('ข้อผิดพลาดในคำสั่ง SQL: ' . $mysqli->error);
 }
 
-// เตรียมค่าตัวกรอง
 $params = [];
+if (!empty($year)) $params[] = $year;
+if (!empty($month)) $params[] = $month;
 
-// เพิ่มค่าปี, เดือน และสถานะ (ถ้ามี)
-if (!empty($year)) {
-    $params[] = $year;
-}
-if (!empty($month)) {
-    $params[] = $month;
-}
-if (!empty($status)) {
-    $params[] = $status;
-}
-
-// ผูกค่าพารามิเตอร์กับคำสั่ง SQL
 if (count($params) > 0) {
     $stmt->bind_param(str_repeat('s', count($params)), ...$params);
 }
 
-// รันคำสั่ง SQL
 $stmt->execute();
-
-// ดึงผลลัพธ์จากฐานข้อมูล
 $result = $stmt->get_result();
 
-// จัดการข้อมูลผลลัพธ์
-$months = [];
-$counts = [];
+$data = [];
 while ($row = $result->fetch_assoc()) {
-    $months[] = $row['year'] . '-' . str_pad($row['month'], 2, '0', STR_PAD_LEFT);
-    $counts[] = $row['count'];  // จำนวนทั้งหมดในเดือนนั้น ๆ
+    $monthKey = $row['year'] . '-' . str_pad($row['month'], 2, '0', STR_PAD_LEFT);
+    $data[$monthKey][$row['status_id']] = $row['count'];
 }
 
-// ตรวจสอบว่าไม่มีข้อมูลแสดงผล
-if (empty($months)) {
-    // กรณีที่ไม่มีการกรองข้อมูล (แสดงผลทั้งหมด)
-    $query_all = "
-        SELECT 
-            YEAR(found_date) AS year,
-            MONTH(found_date) AS month,
-            COUNT(found_id) AS count
-        FROM 
-            found_items
-        GROUP BY 
-            YEAR(found_date), MONTH(found_date)
-        ORDER BY 
-            YEAR(found_date) DESC, MONTH(found_date) DESC
-    ";
-    $result_all = $mysqli->query($query_all);
+// แปลงข้อมูลสำหรับ Chart.js
+$months = array_keys($data);
+$statusLabels = [
+    1 => "แจ้งหาย",
+    2 => "คืนแล้ว",
+    3 => "ค้างในระบบเกิน 1 สัปดาห์"
+];
+
+$datasets = [];
+foreach ($statusLabels as $statusId => $label) {
+    $dataset = [
+        'label' => $label,
+        'data' => [],
+        'backgroundColor' => ($statusId == 2 ? 'rgba(4, 162, 235, 0.5)' : 
+                              ($statusId == 3 ? 'rgba(255, 206, 86, 0.55)' : 
+                              'rgba(255, 99, 132, 0.5)')),
+        'borderColor' => ($statusId == 2 ? 'rgba(54, 162, 235, 1)' : 
+                          ($statusId == 3 ? 'rgba(255, 206, 86, 1)' : 
+                          'rgba(255, 99, 132, 1)')),
+        'borderWidth' => 1
+    ];
     
-    // รีเซ็ตค่าหากไม่มีข้อมูล
-    $months = [];
-    $counts = [];
-    
-    while ($row = $result_all->fetch_assoc()) {
-        $months[] = $row['year'] . '-' . str_pad($row['month'], 2, '0', STR_PAD_LEFT);
-        $counts[] = $row['count'];  // จำนวนทั้งหมดในเดือนนั้น ๆ
+    foreach ($months as $month) {
+        $dataset['data'][] = $data[$month][$statusId] ?? 0;
     }
+    
+    $datasets[] = $dataset;
 }
 
-// กรณีไม่มีข้อมูลในบางเดือน
-if (empty($counts)) {
-    $counts = array_fill(0, count($months), 0);
-}
-
-$monthsFormatted = [];
+// แปลงชื่อเดือนเป็นภาษาไทย
 $thaiMonths = [
     'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
     'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
 ];
 
+$monthsFormatted = [];
 foreach ($months as $month) {
-    // แยกปีและเดือน
-    $timestamp = strtotime($month . '-01');  // ใช้วันที่ 1 เพื่อให้ได้เดือนและปี
-    $monthNum = date("n", $timestamp) - 1; // รับเดือนเป็นตัวเลขแล้วลด 1 เพื่อหาตำแหน่งใน array
-    $formattedMonth = $thaiMonths[$monthNum] . ' ' . date("Y", $timestamp);  // แสดงเดือนและปี
-    $monthsFormatted[] = $formattedMonth;
+    $timestamp = strtotime($month . '-01');
+    $monthNum = date("n", $timestamp) - 1;
+    $monthsFormatted[] = $thaiMonths[$monthNum] . ' ' . date("Y", $timestamp);
 }
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -223,12 +197,12 @@ foreach ($months as $month) {
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">รายงานข้อมูล</h1>
+            <h1 class="m-0">แผนภูมิข้อมูลแจ้งหาย</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">รายงานข้อมูล</li>
+              <li class="breadcrumb-item active">แผนภูมิข้อมูลแจ้งหาย</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -236,48 +210,81 @@ foreach ($months as $month) {
     </div>
     <!-- /.content-header -->
 
-    <div class="container-fluid">
-        <!-- Small boxes (Stat box) -->
+    <!-- Main content -->
+    <section class="content">
+      <div class="container">
+      <form method="GET" action="">
+      <div class="container mt-5">
+      <div class="card-body">
+        <div class="form-group">
+            <label for="year">เลือกปี : </label>
+            <select id="year" class="form-control-sm-4"></select>
+            </div>
+
+          <div class="form-group">
+            <label for="month">เลือกเดือน : </label>
+            <select name="month" id="month" class="form-control-sm-4">
+              <option value="">ทุกเดือน</option>
+              <option value="1">มกราคม</option>
+              <option value="2">กุมภาพันธ์</option>
+              <option value="3">มีนาคม</option>
+              <option value="4">เมษายน</option>
+              <option value="5">พฤษภาคม</option>
+              <option value="6">มิถุนายน</option>
+              <option value="7">กรกฎาคม</option>
+              <option value="8">สิงหาคม</option>
+              <option value="9">กันยายน</option>
+              <option value="10">ตุลาคม</option>
+              <option value="11">พฤศจิกายน</option>
+              <option value="12">ธันวาคม</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary">ค้นหาข้อมูล</button>
+        </form>
+
         <div class="row">
-          <!-- ./col -->
-          <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-success">
-              <div class="inner">
-                <h3>แผนภูมิ</h3>
+          <div class="col-sm-12">
+            <canvas id="myChart" width="400" height="200"></canvas>
+            <canvas id="myChart" width="400" height="200"></canvas>
+<script>
+  var ctx = document.getElementById("myChart").getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: <?php echo json_encode($monthsFormatted); ?>,
+      datasets: <?php echo json_encode($datasets); ?>
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          stacked: false, // ให้ Bar แต่ละอันแยกกัน (ถ้า stacked: true จะเป็นแถบรวม)
+          title: {
+            display: true,
+            text: 'เดือนและปี'
+          }
+        },
+        y: {
+          ticks: {
+            beginAtZero: true,
+            stepSize: 5  // กำหนดขั้นของแกน Y เป็นจำนวนเต็มที่เป็นขั้น
+          },
+          title: {
+            display: true,
+            text: 'จำนวน'
+          }
+        }
+      }
+    }
+  });
+</script>
 
-                <p>แสดงรายงานแจ้งพบ</p>
-              </div>
-              <div class="icon">
-                <i class="ion ion-stats-bars"></i>
-              </div>
-              <a href="show_result_found.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
-          <!-- ./col -->
-          <!-- ./col -->
-          <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-danger">
-              <div class="inner">
-                <h3>แผนภูมิ</h3>
-
-                <p>แสดงรายงานแจ้งหาย</p>
-              </div>
-              <div class="icon">
-                <i class="ion ion-pie-graph"></i>
-              </div>
-              <a href="show_result_lost.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-          </div>
-          <!-- ./col -->
         </div>
-        <!-- /.row -->
-      </div><!-- /.container-fluid -->
-       <!-- Main content -->
-        <section class="content"></section>
-
-        </section>
+      </div>
+    </section>
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->

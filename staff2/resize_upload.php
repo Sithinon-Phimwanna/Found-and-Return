@@ -71,7 +71,7 @@
     }
 
     function imgSize($img) {
-        $targetWidth = $img[0] < 1280 ? $img[0] : 1280 ;
+        $targetWidth = $img[0] < 1024 ? $img[0] : 1024 ;
         $targetHeight = ($img[1] / $img[0]) * $targetWidth;
         return [round($targetWidth, 2), round($targetHeight, 2)];
     }
