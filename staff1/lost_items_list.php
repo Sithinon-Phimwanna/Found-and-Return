@@ -429,7 +429,7 @@ function updateStatusColors() {
             statusCell.style.color = "red";  // สีแดงสำหรับสถานะหาย
         } else if (status === "ได้รับคืนแล้ว") {
             statusCell.style.color = "green";  // สีเขียวสำหรับสถานะได้รับคืนแล้ว
-        } else if (status === "ไม่พบทรัพย์สิน") {
+        } else if (status === "ยังไม่พบทรัพย์สิน") {
             statusCell.style.color = "rgba(255, 206, 86, 1)";  // สีส้มสำหรับสถานะไม่พบ
         } else if (timeDifference > oneWeekInMilliseconds) {
             statusCell.style.color = "orenge";  // สีเหลืองสำหรับกรณีเกิน 1 สัปดาห์

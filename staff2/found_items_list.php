@@ -456,7 +456,7 @@ function updateStatusColors() {
             statusCell.style.color = "blue";  // สีแดงสำหรับสถานะหาย
         } else if (status === "ได้รับคืนแล้ว") {
             statusCell.style.color = "green";  // สีเขียวสำหรับสถานะได้รับคืนแล้ว
-        } else if (status === "ค้างในระบบเกิน 1 สัปดาห์") {
+        } else if (status === "แจ้งพบเกิน 1 สัปดาห์") {
             statusCell.style.color = "rgba(255, 206, 86, 1)";  // สีส้มสำหรับสถานะไม่พบ
         } else if (timeDifference > oneWeekInMilliseconds) {
             statusCell.style.color = "orenge";  // สีเหลืองสำหรับกรณีเกิน 1 สัปดาห์

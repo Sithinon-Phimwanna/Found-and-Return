@@ -51,9 +51,6 @@ $found_count_today = $result_found_today->fetch_assoc()['found_count_today'];
 
 
 
-// ดึงค่าค้นหาจาก GET (ถ้ามี)
-$search_query = isset($_GET['search']) ? $_GET['search'] : '';
-
 // ตรวจสอบว่า $search_query ไม่ว่าง
 if (!empty($search_query)) {
     $query = "
@@ -399,7 +396,7 @@ if (!$result) {
                       <!-- รายละเอียด -->
                       <p class="card-text"><strong>รายละเอียด:</strong> <?= htmlspecialchars($row['found_description']) ?></p>
                       <!-- สถานะ -->
-                      <p class="card-text"><strong>สถานะ:</strong> <?= htmlspecialchars($row['status']) ?></p>
+                      <p class="status-text"><strong>สถานะ:</strong> <?= htmlspecialchars($row['status']) ?></p>
                     </div>
                     <!-- วันที่ -->
                     <div class="card-footer text-muted text-center">
@@ -453,5 +450,28 @@ if (!$result) {
 <script src="assets/dist/js/adminlte.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="assets/dist/js/pages/dashboard.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+ document.addEventListener("DOMContentLoaded", function() {
+  var statusElements = document.querySelectorAll('.status-text');
+
+  statusElements.forEach(function(element) {
+    // ดึงข้อความจาก .status-text
+    var status = element.textContent.trim();
+
+    // ตรวจสอบว่าเป็นสถานะที่เราต้องการหรือไม่
+    if (status === 'สถานะ: แจ้งพบ') {
+      element.style.color = "blue"; // สีน้ำเงิน
+    } else if (status === 'สถานะ: แจ้งพบเกิน 1 สัปดาห์') {
+      element.style.color = "rgba(255, 206, 86, 1)"; // สีเหลือง
+    } else {
+      element.style.color = '#6c757d'; // สีเทา
+    }
+  });
+});
+
+</script>
+
 </body>
 </html>

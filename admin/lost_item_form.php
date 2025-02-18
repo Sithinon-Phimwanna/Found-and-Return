@@ -433,7 +433,7 @@ try {
                               echo '<script>
                                   setTimeout(function() {
                                       swal({
-                                          title: "เพิ่มข้อมูลสำเร็จ",
+                                          title: "บันทึกข้อมูลสำเร็จ",
                                           type: "success"
                                       }, function() {
                                           window.location = "lost_item_form.php";
