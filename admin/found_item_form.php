@@ -224,8 +224,8 @@ try {
                                     <input type="text" class="form-control-sm-4" id="finder_contact" name="finder_contact" value="<?php echo htmlspecialchars($contact); ?>" required>
                                 </div>
                                 <div class="form-group row">
-                                    <label for="found_type" class="col-sm-2">ทรัพย์สิน:</label>
-                                    <input type="text" class="form-control-sm-4" id="found_type" name="found_type" required>
+                                    <label for="found_name" class="col-sm-2">ทรัพย์สิน:</label>
+                                    <input type="text" class="form-control-sm-4" id="found_name" name="found_name" required>
                                 </div>
                                 <div class="form-group row">
                                     <label for="found_description" class="col-sm-2">รายละเอียด:</label>
@@ -264,7 +264,7 @@ try {
                           // รับค่าจากฟอร์ม
                           $finder_name = $_POST['finder_name'];
                           $finder_contact = $_POST['finder_contact'];
-                          $found_type = $_POST['found_type'];
+                          $found_name = $_POST['found_name'];
                           $found_description = $_POST['found_description'];
                           $found_location = $_POST['found_location'];
 
@@ -379,10 +379,10 @@ try {
                           // แปลงอาร์เรย์ชื่อไฟล์เป็นสตริง (ใช้ , แยก) หรือใช้ NULL ถ้าไม่อัปโหลดไฟล์
                           $images_str = !empty($images) ? implode(',', $images) : NULL;
 
-                          $status_id = 2; // 'พบ' ในตาราง statuses
+                          $status_id = 1; // 'พบ' ในตาราง statuses
 
                           // เตรียมคำสั่ง SQL เพื่อบันทึกข้อมูล
-                          $stmt = $mysqli->prepare("INSERT INTO found_items (finder_name, finder_contact, found_type, found_description, found_date, found_location, found_image, status_id) 
+                          $stmt = $mysqli->prepare("INSERT INTO found_items (finder_name, finder_contact, found_name, found_description, found_date, found_location, found_image, status_id) 
                                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
                           if ($stmt === false) {
@@ -390,7 +390,7 @@ try {
                           }
 
                           // ผูกค่าตัวแปรกับคำสั่ง SQL
-                          $stmt->bind_param("sssssssi", $finder_name, $finder_contact, $found_type, $found_description, $found_date, $found_location, $images_str, $status_id);
+                          $stmt->bind_param("sssssssi", $finder_name, $finder_contact, $found_name, $found_description, $found_date, $found_location, $images_str, $status_id);
 
                           // บันทึกข้อมูลลงฐานข้อมูล
                           if ($stmt->execute()) {

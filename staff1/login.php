@@ -10,7 +10,7 @@ if (isset($_SESSION['user_id'])) {
     // ตรวจสอบ level_id และเปลี่ยนเส้นทางไปตามบทบาท
     switch ($_SESSION['level_id']) {
         case 1:
-            header('Location: staff1/staff1_index.php');
+            header('Location: staff1_index.php');
             exit;
         case 2:
             header('Location: staff2/staff2_index.php');
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // เปลี่ยนเส้นทางไปยังหน้าแดชบอร์ดตาม level_id
             switch ($user['level_id']) {
                 case 1:
-                    header('Location: staff1/staff1_index.php');
+                    header('Location: staff1_index.php');
                     exit;
                 case 2:
                     header('Location: staff2/staff2_index.php');
@@ -87,11 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="assets/plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="../assets/plugins/fontawesome-free/css/all.min.css">
   <!-- icheck bootstrap -->
-  <link rel="stylesheet" href="assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
   <!-- Theme style -->
-  <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="../assets/dist/css/adminlte.min.css">
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
@@ -136,10 +136,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <!-- jQuery -->
-<script src="assets/plugins/jquery/jquery.min.js"></script>
+<script src="../assets/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
-<script src="assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
-<script src="assets/dist/js/adminlte.min.js"></script>
+<script src="../assets/dist/js/adminlte.min.js"></script>
 </body>
 </html>

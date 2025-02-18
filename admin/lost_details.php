@@ -4,11 +4,11 @@ include 'config.php';
 $item_id = $_GET['item_id'];
 
 // ใช้ JOIN เพื่อดึงชื่อสถานะจากตาราง statuses
-$query = "SELECT li.item_id, li.owner_name, li.owner_contact, li.item_type, 
+$query = "SELECT li.item_id, li.owner_name, li.owner_contact, li.item_name, 
                  li.item_description, li.lost_location, li.lost_date, li.item_image, 
                  li.deliverer,li.finder_image,li.status_id, s.status_name 
           FROM lost_items li 
-          LEFT JOIN statuses s ON li.status_id = s.status_id 
+          LEFT JOIN status_lost s ON li.status_id = s.status_id 
           WHERE li.item_id = ?";
 
 $stmt = $mysqli->prepare($query);
@@ -21,7 +21,7 @@ $row = $result->fetch_assoc();
 echo "<p><strong>รหัส:</strong> " . $row['item_id'] . "</p>";
 echo "<p><strong>ชื่อผู้แจ้ง:</strong> " . htmlspecialchars($row['owner_name']) . "</p>";
 echo "<p><strong>ช่องทางติดต่อ:</strong> " . htmlspecialchars($row['owner_contact']) . "</p>";
-echo "<p><strong>ประเภททรัพย์สิน:</strong> " . htmlspecialchars($row['item_type']) . "</p>";
+echo "<p><strong>ประเภททรัพย์สิน:</strong> " . htmlspecialchars($row['item_name']) . "</p>";
 echo "<p><strong>รายละเอียด:</strong> " . htmlspecialchars($row['item_description']) . "</p>";
 echo "<p><strong>สถานที่:</strong> " . htmlspecialchars($row['lost_location']) . "</p>";
 echo "<p><strong>วันที่แจ้ง:</strong> " . date('d/m/Y H:i', strtotime($row['lost_date'])) . "</p>";

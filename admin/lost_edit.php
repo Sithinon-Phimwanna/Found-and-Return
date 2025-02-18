@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // รับค่าจากฟอร์ม
   $owner_name = $_POST['owner_name'];
   $owner_contact = $_POST['owner_contact'];
-  $item_type = $_POST['item_type'];
+  $item_name = $_POST['item_name'];
   $item_description = $_POST['item_description'];
   $lost_date = $_POST['lost_date'];
   $lost_location = $_POST['lost_location'];
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $item_id = $_POST['item_id'];
 
   // ตรวจสอบค่าที่ได้รับจากฟอร์ม
-  if (empty($owner_name) || empty($item_type) || empty($item_description) || empty($lost_date) || empty($lost_location) || empty($status_id)) {
+  if (empty($owner_name) || empty($item_name) || empty($item_description) || empty($lost_date) || empty($lost_location) || empty($status_id)) {
       echo '<script>
               Swal.fire({ title: "กรุณากรอกข้อมูลให้ครบถ้วน", icon: "error" }).then(() => { window.location = "lost_edit.php"; });
             </script>';
@@ -134,9 +134,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $new_finder_image = uploadImages($_FILES['finder_image'], "../return_images/", $old_finder_image);
 
   // อัปเดตข้อมูล
-  $query = "UPDATE lost_items SET owner_name=?, owner_contact=?, item_type=?, item_description=?, lost_date=?, lost_location=?, item_image=?, finder_image=?, deliverer=?, status_id=? WHERE item_id=?";
+  $query = "UPDATE lost_items SET owner_name=?, owner_contact=?, item_name=?, item_description=?, lost_date=?, lost_location=?, item_image=?, finder_image=?, deliverer=?, status_id=? WHERE item_id=?";
   $stmt = $mysqli->prepare($query);
-  $stmt->bind_param('sssssissssi', $owner_name, $owner_contact, $item_type, $item_description, $lost_date, $lost_location, $new_item_image, $new_finder_image, $deliverer, $status_id, $item_id);
+  $stmt->bind_param('sssssissssi', $owner_name, $owner_contact, $item_name, $item_description, $lost_date, $lost_location, $new_item_image, $new_finder_image, $deliverer, $status_id, $item_id);
 
   if ($stmt->execute()) {
       header("Location: lost_items_list.php?success=3");
@@ -335,8 +335,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             
             <div class="form-group row">
-                <label for="item_type" class="col-sm-2">ทรัพย์สิน</label>
-                <input type="text" name="item_type" class="form-control-sm-4" value="<?= htmlspecialchars($item['item_type']) ?>" required>
+                <label for="item_name" class="col-sm-2">ทรัพย์สิน</label>
+                <input type="text" name="item_name" class="form-control-sm-4" value="<?= htmlspecialchars($item['item_name']) ?>" required>
             </div>
             
             <div class="form-group row">

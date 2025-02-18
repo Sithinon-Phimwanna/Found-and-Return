@@ -64,9 +64,9 @@ while ($row = $result->fetch_assoc()) {
 // แปลงข้อมูลสำหรับ Chart.js
 $months = array_keys($data);
 $statusLabels = [
-    2 => "แจ้งพบ",
-    3 => "คืนแล้ว",
-    4 => "ค้างในระบบเกิน 1 สัปดาห์"
+    1 => "แจ้งพบ",
+    2 => "คืนแล้ว",
+    3 => "ค้างในระบบเกิน 1 สัปดาห์"
 ];
 
 $datasets = [];
@@ -74,11 +74,11 @@ foreach ($statusLabels as $statusId => $label) {
     $dataset = [
         'label' => $label,
         'data' => [],
-        'backgroundColor' => ($statusId == 2 ? 'rgba(28, 245, 136, 0.5)' : 
-                              ($statusId == 3 ? 'rgba(54, 162, 235, 0.5)' : 
+        'backgroundColor' => ($statusId == 1 ? 'rgba(54, 162, 235, 0.5)' : 
+                              ($statusId == 2 ? 'rgba(28, 245, 136, 0.5)' : 
                               'rgba(255, 206, 86, 0.5)')),
-        'borderColor' => ($statusId == 2 ? 'rgba(52, 250, 151, 1)' : 
-                          ($statusId == 3 ? 'rgba(54, 162, 235, 1)' : 
+        'borderColor' => ($statusId == 1 ? 'rgba(54, 162, 235, 1)' : 
+                          ($statusId == 2 ? 'rgba(52, 250, 151, 1)' : 
                           'rgba(255, 206, 86, 1)')),
         'borderWidth' => 1
     ];
@@ -135,7 +135,7 @@ foreach ($months as $month) {
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="index.php" class="nav-link">Home</a>
+        <a href="admin_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -144,22 +144,10 @@ foreach ($months as $month) {
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="index3.php" class="brand-link">
-      <img src="assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+    <a href="admin_index.php" class="brand-link">
+      <img src="../assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="../assets/dist/img/avatar5.png" class="img-circle elevation-2" alt="User Image">
-        </div>
-        <div class="info">
-        <P class="mr-2 user-none" style="color: white;">ผู้ใช้งานทั่วไป</P>
-        </div>
-      </div>
 
       <!-- Sidebar -->
     <div class="sidebar">
@@ -266,95 +254,95 @@ foreach ($months as $month) {
     <!-- /.sidebar -->
   </aside>
 
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">แผนภูมิข้อมูลแจ้งพบ</h1>
-          </div><!-- /.col -->
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">แผนภูมิข้อมูลแจ้งพบ</li>
-            </ol>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content-header -->
-
-    <!-- Main content -->
-    <section class="content">
-      <div class="container">
-      <form method="GET" action="">
-      <div class="container mt-5">
-      <div class="card-body">
-        <div class="form-group">
-            <label for="year">เลือกปี : </label>
-            <select id="year" class="form-control-sm-4"></select>
+          <!-- Content Wrapper. Contains page content -->
+          <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+              <div class="container-fluid">
+                <div class="row mb-2">
+                  <div class="col-sm-6">
+                    <h1 class="m-0">แผนภูมิข้อมูลแจ้งพบ</h1>
+                  </div><!-- /.col -->
+                  <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                      <li class="breadcrumb-item"><a href="#">Home</a></li>
+                      <li class="breadcrumb-item active">แผนภูมิข้อมูลแจ้งพบ</li>
+                    </ol>
+                  </div><!-- /.col -->
+                </div><!-- /.row -->
+              </div><!-- /.container-fluid -->
             </div>
+            <!-- /.content-header -->
 
-          <div class="form-group">
-            <label for="month">เลือกเดือน : </label>
-            <select name="month" id="month" class="form-control-sm-4">
-              <option value="">ทุกเดือน</option>
-              <option value="1">มกราคม</option>
-              <option value="2">กุมภาพันธ์</option>
-              <option value="3">มีนาคม</option>
-              <option value="4">เมษายน</option>
-              <option value="5">พฤษภาคม</option>
-              <option value="6">มิถุนายน</option>
-              <option value="7">กรกฎาคม</option>
-              <option value="8">สิงหาคม</option>
-              <option value="9">กันยายน</option>
-              <option value="10">ตุลาคม</option>
-              <option value="11">พฤศจิกายน</option>
-              <option value="12">ธันวาคม</option>
-            </select>
-          </div>
+            <!-- Main content -->
+            <section class="content">
+              <div class="container">
+              <form method="GET" action="">
+              <div class="container mt-5">
+              <div class="card-body">
+                <div class="form-group">
+                    <label for="year">เลือกปี : </label>
+                    <select id="year" class="form-control-sm-4"></select>
+                    </div>
 
-          <button type="submit" class="btn btn-primary">ค้นหาข้อมูล</button>
-        </form>
+                  <div class="form-group">
+                    <label for="month">เลือกเดือน : </label>
+                    <select name="month" id="month" class="form-control-sm-4">
+                      <option value="">ทุกเดือน</option>
+                      <option value="1">มกราคม</option>
+                      <option value="2">กุมภาพันธ์</option>
+                      <option value="3">มีนาคม</option>
+                      <option value="4">เมษายน</option>
+                      <option value="5">พฤษภาคม</option>
+                      <option value="6">มิถุนายน</option>
+                      <option value="7">กรกฎาคม</option>
+                      <option value="8">สิงหาคม</option>
+                      <option value="9">กันยายน</option>
+                      <option value="10">ตุลาคม</option>
+                      <option value="11">พฤศจิกายน</option>
+                      <option value="12">ธันวาคม</option>
+                    </select>
+                  </div>
 
-        <div class="row">
-          <div class="col-sm-12">
-            <canvas id="myChart" width="400" height="200"></canvas>
-            <canvas id="myChart" width="400" height="200"></canvas>
-<script>
-  var ctx = document.getElementById("myChart").getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: <?php echo json_encode($monthsFormatted); ?>,
-      datasets: <?php echo json_encode($datasets); ?>
-    },
-    options: {
-      responsive: true,
-      scales: {
-        x: {
-          stacked: false, // ให้ Bar แต่ละอันแยกกัน (ถ้า stacked: true จะเป็นแถบรวม)
-          title: {
-            display: true,
-            text: 'เดือนและปี'
-          }
-        },
-        y: {
-          ticks: {
-            beginAtZero: true,
-            stepSize: 5  // กำหนดขั้นของแกน Y เป็นจำนวนเต็มที่เป็นขั้น
-          },
-          title: {
-            display: true,
-            text: 'จำนวน'
-          }
-        }
-      }
-    }
-  });
-</script>
+                  <button type="submit" class="btn btn-primary">ค้นหาข้อมูล</button>
+                </form>
+
+                <div class="row">
+                  <div class="col-sm-12">
+                    <canvas id="myChart" width="400" height="200"></canvas>
+                    <canvas id="myChart" width="400" height="200"></canvas>
+        <script>
+          var ctx = document.getElementById("myChart").getContext('2d');
+          var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: <?php echo json_encode($monthsFormatted); ?>,
+              datasets: <?php echo json_encode($datasets); ?>
+            },
+            options: {
+              responsive: true,
+              scales: {
+                x: {
+                  stacked: false, // ให้ Bar แต่ละอันแยกกัน (ถ้า stacked: true จะเป็นแถบรวม)
+                  title: {
+                    display: true,
+                    text: 'เดือนและปี'
+                  }
+                },
+                y: {
+                  ticks: {
+                    beginAtZero: true,
+                    stepSize: 5  // กำหนดขั้นของแกน Y เป็นจำนวนเต็มที่เป็นขั้น
+                  },
+                  title: {
+                    display: true,
+                    text: 'จำนวน'
+                  }
+                }
+              }
+            }
+          });
+        </script>
 
             </div>
           </div>

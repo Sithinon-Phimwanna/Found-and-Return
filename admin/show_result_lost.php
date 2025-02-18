@@ -66,7 +66,7 @@ $months = array_keys($data);
 $statusLabels = [
     1 => "แจ้งหาย",
     2 => "คืนแล้ว",
-    3 => "ค้างในระบบเกิน 1 สัปดาห์"
+    3 => "ไม่พบทรัพย์สิน"
 ];
 
 $datasets = [];
@@ -74,10 +74,10 @@ foreach ($statusLabels as $statusId => $label) {
     $dataset = [
         'label' => $label,
         'data' => [],
-        'backgroundColor' => ($statusId == 2 ? 'rgba(4, 162, 235, 0.5)' : 
+        'backgroundColor' => ($statusId == 2 ? 'rgba(28, 245, 136, 0.5)' : 
                               ($statusId == 3 ? 'rgba(255, 206, 86, 0.55)' : 
                               'rgba(255, 99, 132, 0.5)')),
-        'borderColor' => ($statusId == 2 ? 'rgba(54, 162, 235, 1)' : 
+        'borderColor' => ($statusId == 2 ? 'rgba(52, 250, 151, 1)' : 
                           ($statusId == 3 ? 'rgba(255, 206, 86, 1)' : 
                           'rgba(255, 99, 132, 1)')),
         'borderWidth' => 1
@@ -135,7 +135,7 @@ foreach ($months as $month) {
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="index.php" class="nav-link">Home</a>
+        <a href="admin_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -144,7 +144,7 @@ foreach ($months as $month) {
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="index3.php" class="brand-link">
+    <a href="admin_index.php" class="brand-link">
       <img src="../assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>

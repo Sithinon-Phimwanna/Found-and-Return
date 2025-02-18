@@ -163,9 +163,9 @@ try {
               <i class="nav-icon far fa-user"></i>
               <p>
                 จัดการ แอดมิน
-                <i class="fas fa-angle-left right"></i>
               </p>
             </a>
+          </li>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -215,8 +215,8 @@ try {
                 <input type="text" class="form-control-sm-4" id="owner_contact" name="owner_contact" value="<?php echo htmlspecialchars($contact); ?>" required>
             </div>
             <div class="form-group row">
-                <label for="item_type" class="col-sm-2">ทรัพย์สินที่หาย:</label>
-                <input type="text" class="form-control-sm-4" id="item_type" name="item_type" required>
+                <label for="item_name" class="col-sm-2">ทรัพย์สินที่หาย:</label>
+                <input type="text" class="form-control-sm-4" id="item_name" name="item_name" required>
             </div>
             <div class="form-group row">
                 <label for="item_description" class="col-sm-2">รายละเอียด:</label>
@@ -256,7 +256,7 @@ try {
                           // รับค่าจากฟอร์ม
                           $owner_name = $_POST['owner_name'];
                           $owner_contact = $_POST['owner_contact'];
-                          $item_type = $_POST['item_type'];
+                          $item_name = $_POST['item_name'];
                           $item_description = $_POST['item_description'];
                           $lost_location = $_POST['lost_location'];
 
@@ -408,14 +408,14 @@ try {
                           $images_str = !empty($images) ? implode(',', $images) : NULL;
                           $status_id = 1; // สถานะ "หาย"
 
-                          $stmt = $mysqli->prepare("INSERT INTO lost_items (owner_name, owner_contact, item_type, item_description, lost_date, lost_location, item_image, finder_image, deliverer, status_id) 
+                          $stmt = $mysqli->prepare("INSERT INTO lost_items (owner_name, owner_contact, item_name, item_description, lost_date, lost_location, item_image, finder_image, deliverer, status_id) 
                                                     VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?)");
 
                           if ($stmt === false) {
                               die('เกิดข้อผิดพลาดในการเตรียมคำสั่ง SQL: ' . $mysqli->error);
                           }
 
-                          $stmt->bind_param("sssssssi", $owner_name, $owner_contact, $item_type, $item_description, $lost_date, $lost_location, $images_str, $status_id);
+                          $stmt->bind_param("sssssssi", $owner_name, $owner_contact, $item_name, $item_description, $lost_date, $lost_location, $images_str, $status_id);
 
                           if ($stmt->execute()) {
                               echo '

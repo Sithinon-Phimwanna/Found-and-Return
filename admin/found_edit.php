@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $found_id = $_POST['found_id'];
     $finder_name = $_POST['finder_name'];
     $finder_contact = $_POST['finder_contact'];
-    $found_type = $_POST['found_type'];
+    $found_name = $_POST['found_name'];
     $found_description = $_POST['found_description'];
     $found_date = $_POST['found_date'];
     $found_location = $_POST['found_location'];
@@ -169,14 +169,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $new_images = implode(',', $uploaded_files);
         
         // อัปเดตข้อมูลรวมถึงรูปภาพใหม่
-        $query = "UPDATE found_items SET finder_name=?, finder_contact=?, found_type=?, found_description=?, found_date=?, found_location=?, found_image=?, status_id=? WHERE found_id=?";
+        $query = "UPDATE found_items SET finder_name=?, finder_contact=?, found_name=?, found_description=?, found_date=?, found_location=?, found_image=?, status_id=? WHERE found_id=?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param('sssssisii', $finder_name, $finder_contact, $found_type, $found_description, $found_date, $found_location, $new_images, $status_id, $found_id);
+        $stmt->bind_param('sssssisii', $finder_name, $finder_contact, $found_name, $found_description, $found_date, $found_location, $new_images, $status_id, $found_id);
     } else {
         // อัปเดตข้อมูลโดยไม่เปลี่ยนรูปภาพ
-        $query = "UPDATE found_items SET finder_name=?, finder_contact=?, found_type=?, found_description=?, found_date=?, found_location=?, status_id=? WHERE found_id=?";
+        $query = "UPDATE found_items SET finder_name=?, finder_contact=?, found_name=?, found_description=?, found_date=?, found_location=?, status_id=? WHERE found_id=?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param('sssssiis', $finder_name, $finder_contact, $found_type, $found_description, $found_date, $found_location, $status_id, $found_id);
+        $stmt->bind_param('sssssiis', $finder_name, $finder_contact, $found_name, $found_description, $found_date, $found_location, $status_id, $found_id);
     }
 
     if ($stmt->execute()) {
@@ -389,7 +389,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             <div class="form-group row">
                 <label for="finder_name" class="col-sm-2">ทรัพย์สิน</label>
-                <input type="text" name="found_type" class="form-control-sm-4" value="<?= htmlspecialchars($item['found_type']) ?>" required>
+                <input type="text" name="found_name" class="form-control-sm-4" value="<?= htmlspecialchars($item['found_name']) ?>" required>
             </div>
             
             <div class="form-group row">

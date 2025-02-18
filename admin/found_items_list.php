@@ -14,42 +14,13 @@ if (!isset($_SESSION['user_id'])) {
 
 require 'config.php';
 
-// ดึงค่าค้นหาจาก GET (ถ้ามี)
-$search_query = isset($_GET['search']) ? $_GET['search'] : '';
-
-// ตรวจสอบว่า $search_query ไม่ว่าง
-if (!empty($search_query)) {
-    $query = "
-        SELECT 
-            found_items.found_id,
-            found_items.finder_name,
-            found_items.finder_contact,
-            found_items.found_type,
-            found_items.found_description,
-            found_items.found_date,
-            location.location_name AS found_location, -- ใช้ location_name แทน location_id
-            found_items.found_image,
-            statuses.status_name AS status
-        FROM 
-            found_items
-        JOIN 
-            location ON found_items.found_location = location.location_id -- เชื่อมกับตาราง locations
-        JOIN 
-            statuses ON found_items.status_id = statuses.status_id
-        WHERE 
-            found_items.finder_name LIKE ? 
-            OR found_items.found_type LIKE ? 
-            OR location.location_name LIKE ? -- ค้นหาจากชื่อสถานที่
-            OR found_items.found_date LIKE ?
-    ";
-} else {
     // ถ้าไม่มีการค้นหาให้ดึงข้อมูลทั้งหมด
     $query = "
         SELECT 
             found_items.found_id,
             found_items.finder_name,
             found_items.finder_contact,
-            found_items.found_type,
+            found_items.found_name,
             found_items.found_description,
             found_items.found_date,
             location.location_name AS found_location, -- ใช้ location_name แทน location_id
@@ -61,8 +32,11 @@ if (!empty($search_query)) {
             location ON found_items.found_location = location.location_id -- เชื่อมกับตาราง location
         JOIN 
             statuses ON found_items.status_id = statuses.status_id
+        ORDER BY 
+            found_items.found_date DESC;
     ";
-}
+    
+
 
 // เตรียมการ query
 $stmt = $mysqli->prepare($query);
@@ -284,7 +258,7 @@ if (!$result) {
                   <tr>
                   <td style="font-size: 14px;"><?= $row['found_id'] ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['finder_name']) ?></td>
-                                    <td style="font-size: 14px;"><?= htmlspecialchars($row['found_type']) ?></td>
+                                    <td style="font-size: 14px;"><?= htmlspecialchars($row['found_name']) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['found_description']) ?></td>
                                     <td style="font-size: 14px;"><?= htmlspecialchars($row['found_location']) ?></td>
                                     <td style="font-size: 14px;"><?= date('d/m/Y H:i', strtotime($row['found_date'])) ?></td>
@@ -356,25 +330,50 @@ if (!$result) {
                   </tr>
                   </tfoot> -->
                 </table>
-                <!-- Modal สำหรับแสดงรายละเอียด -->
+                <style>
+                .zoomed-in {
+                      transform: scale(3);  /* ขยายภาพ 3 เท่า */
+                      cursor: zoom-out;
+                      transition: transform 0.2s ease;
+                      
+                      /* ทำให้ภาพแสดงกลางหน้าจอ */
+                      position: fixed;  /* ใช้ position fixed เพื่อให้ภาพแสดงอยู่บนหน้าจอ */
+                      top: 50%;         /* วางภาพให้ตรงกลางแนวตั้ง */
+                      left: 50%;        /* วางภาพให้ตรงกลางแนวนอน */
+                      transform: translate(-50%, -50%) scale(3);  /* ใช้ translate เพื่อย้ายภาพกลับมาที่กลาง */
+                  }
+
+                  .enlargeable-img {
+                      max-width: 100%;
+                      width: 100%;
+                      height: auto;
+                      transition: transform 0.2s ease;
+                  }
+
+
+              </style>
+
+                  <!-- Modal สำหรับแสดงรายละเอียด -->
                 <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="detailModalLabel">รายละเอียดทรัพย์สิน</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body" id="modalContent">
-                        <!-- ข้อมูลจะแสดงที่นี่ -->
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>
-                      </div>
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="detailModalLabel">รายละเอียดทรัพย์สิน</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body" id="modalContent">
+                                <!-- ข้อมูลจะแสดงที่นี่ -->
+                                <img id="modal-img" src="image_url.jpg" class="enlargeable-img" alt="คำอธิบายรูปภาพ">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </div>
+
 
               </div>
               <!-- /.card-body -->
@@ -421,6 +420,15 @@ if (!$result) {
 <script src="../assets/dist/js/adminlte.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="../assets/dist/js/pages/dashboard.js"></script><s></s>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+<!-- Bootstrap CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
 <!-- ส่วน script สำหรับการลบ -->
 <script>
     function deleteItem(foundId) {
@@ -442,21 +450,26 @@ if (!$result) {
         }
     }
     function viewDetails(found_id) {
-    // ใช้ AJAX ดึงข้อมูลจากไฟล์ PHP
     $.ajax({
         url: "found_details.php",
         type: "GET",
         data: { found_id: found_id },
         success: function(response) {
             $("#modalContent").html(response);
-            $("#detailModal").modal("show");
+            $('#detailModal').modal('show'); // เปิด Modal เมื่อโหลดข้อมูลเสร็จ
+
+            // ฟังก์ชันการขยายภาพ
+            $('#modalContent img').click(function() {
+                $(this).toggleClass('zoomed-in'); // เพิ่ม/ลบคลาส zoomed-in เพื่อขยายหรือย่อ
+            });
         }
     });
 }
 
+
   $(function () {
     $("#example1").DataTable({
-      "responsive": true, "lengthChange": true, "autoWidth": false,
+      "responsive": true, "lengthChange": true, "autoWidth": false,"order": [[1, 'desc']],
       // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     $('#example2').DataTable({
@@ -464,11 +477,47 @@ if (!$result) {
       "lengthChange": false,
       "searching": false,
       "ordering": true,
+      "order": [[1, 'desc']],
       "info": true,
       "autoWidth": false,
       "responsive": true,
     });
   });
+// ฟังก์ชันที่จะถูกเรียกเมื่อหน้าโหลดหรือเมื่อมีการเปลี่ยนแปลงข้อมูลในตาราง
+function updateStatusColors() {
+    // เลือกทุกแถวในตาราง
+    const rows = document.querySelectorAll("#example1 tbody tr");
+
+    // ลูปผ่านแต่ละแถว
+    rows.forEach(row => {
+        // ดึงค่าจากคอลัมน์สถานะ
+        const statusCell = row.cells[6];  // คอลัมน์สถานะ (หมายเลขคอลัมน์ 6)
+        const status = statusCell.textContent.trim();
+
+        // ดึงค่าวันที่จากคอลัมน์วันที่แจ้ง
+        const lostDateCell = row.cells[5];  // คอลัมน์วันที่ (หมายเลขคอลัมน์ 5)
+        const lostDate = new Date(lostDateCell.textContent);
+
+        // คำนวณความแตกต่างระหว่างวันที่ปัจจุบันกับวันที่แจ้ง
+        const currentDate = new Date();
+        const timeDifference = currentDate - lostDate;
+        const oneWeekInMilliseconds = 7 * 24 * 60 * 60 * 1000; // 1 สัปดาห์เป็นมิลลิวินาที
+
+        // กำหนดสีตามสถานะ
+        if (status === "แจ้งพบ") {
+            statusCell.style.color = "blue";  // สีแดงสำหรับสถานะหาย
+        } else if (status === "ได้รับคืนแล้ว") {
+            statusCell.style.color = "green";  // สีเขียวสำหรับสถานะได้รับคืนแล้ว
+        } else if (status === "ค้างในระบบเกิน 1 สัปดาห์") {
+            statusCell.style.color = "rgba(255, 206, 86, 1)";  // สีส้มสำหรับสถานะไม่พบ
+        } else if (timeDifference > oneWeekInMilliseconds) {
+            statusCell.style.color = "orenge";  // สีเหลืองสำหรับกรณีเกิน 1 สัปดาห์
+        }
+    });
+}
+
+// เรียกใช้ฟังก์ชันเมื่อโหลดหน้าหรือเมื่อข้อมูลมีการเปลี่ยนแปลง
+document.addEventListener("DOMContentLoaded", updateStatusColors);
 </script>
 </body>
 </html>

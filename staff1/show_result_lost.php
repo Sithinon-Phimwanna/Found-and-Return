@@ -66,7 +66,7 @@ $months = array_keys($data);
 $statusLabels = [
     1 => "แจ้งหาย",
     2 => "คืนแล้ว",
-    3 => "ค้างในระบบเกิน 1 สัปดาห์"
+    3 => "ไม่พบทรัพย์สิน"
 ];
 
 $datasets = [];
@@ -74,10 +74,10 @@ foreach ($statusLabels as $statusId => $label) {
     $dataset = [
         'label' => $label,
         'data' => [],
-        'backgroundColor' => ($statusId == 2 ? 'rgba(4, 162, 235, 0.5)' : 
+        'backgroundColor' => ($statusId == 2 ? 'rgba(28, 245, 136, 0.5)' : 
                               ($statusId == 3 ? 'rgba(255, 206, 86, 0.55)' : 
                               'rgba(255, 99, 132, 0.5)')),
-        'borderColor' => ($statusId == 2 ? 'rgba(54, 162, 235, 1)' : 
+        'borderColor' => ($statusId == 2 ? 'rgba(52, 250, 151, 1)' : 
                           ($statusId == 3 ? 'rgba(255, 206, 86, 1)' : 
                           'rgba(255, 99, 132, 1)')),
         'borderWidth' => 1
@@ -216,6 +216,12 @@ foreach ($months as $month) {
                   <p>ตารางแจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="resize.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ลดขนาดไฟล์รูปภาพ</p>
+                </a>
+              </li>
             </ul>
           </li>
           <li class="nav-header">การจัดการ</li>
@@ -224,17 +230,9 @@ foreach ($months as $month) {
               <i class="nav-icon far fa-user"></i>
               <p>
                 จัดการ แอดมิน
-                <i class="fas fa-angle-left right"></i>
               </p>
             </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="register.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมากชิก</p>
-                    </a>
-                  </li>
-            </ul>
+          </li>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>

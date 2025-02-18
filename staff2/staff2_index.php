@@ -170,13 +170,13 @@ $adminName = $_SESSION['UserAdminName'];
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="staff2/found_items_list.php" class="nav-link">
+                <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>ตารางแจ้งทรัพย์สินที่เก็บได้</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="staff2/lost_items_list.php" class="nav-link">
+                <a href="lost_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>ตารางแจ้งทรัพย์สินหาย</p>
                 </a>

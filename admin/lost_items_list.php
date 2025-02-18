@@ -26,26 +26,28 @@ $query = "
         lost_items.item_id,
         lost_items.owner_name,
         lost_items.owner_contact,
-        lost_items.item_type,
+        lost_items.item_name,
         lost_items.item_description,
         lost_items.lost_date,
         location.location_name AS lost_location,
         lost_items.item_image,
         lost_items.finder_image,
-        lost_items.deliverer,  -- เพิ่มคอลัมน์นี้
-        statuses.status_name AS status
+        lost_items.deliverer,  
+        status_lost.status_name AS status
     FROM 
         lost_items
     JOIN 
         location ON lost_items.lost_location = location.location_id
     JOIN 
-        statuses ON lost_items.status_id = statuses.status_id
+        status_lost ON lost_items.status_id = status_lost.status_id
     WHERE 
         lost_items.owner_name LIKE ? 
-        OR lost_items.item_type LIKE ? 
+        OR lost_items.item_name LIKE ? 
         OR location.location_name LIKE ? 
         OR lost_items.lost_date LIKE ?
+    ORDER BY lost_items.lost_date DESC
 ";
+
 
 $stmt = $mysqli->prepare($query);
 if (!$stmt) {
@@ -264,7 +266,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                   <tr>
                   <td style="font-size: 14px;"><?= $row['item_id'] ?></td>
                               <td style="font-size: 14px;"><?= htmlspecialchars($row['owner_name']) ?></td>
-                              <td style="font-size: 14px;"><?= htmlspecialchars($row['item_type']) ?></td>
+                              <td style="font-size: 14px;"><?= htmlspecialchars($row['item_name']) ?></td>
                               <td style="font-size: 14px;"><?= htmlspecialchars($row['item_description']) ?></td>
                               <td style="font-size: 14px;"><?= htmlspecialchars($row['lost_location']) ?></td>
                               <td style="font-size: 14px;">
@@ -335,24 +337,48 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                   </tr>
                   </tfoot> -->
                 </table>
-                <!-- Modal สำหรับแสดงรายละเอียด -->
+                <style>
+                .zoomed-in {
+                      transform: scale(3);  /* ขยายภาพ 3 เท่า */
+                      cursor: zoom-out;
+                      transition: transform 0.2s ease;
+                      
+                      /* ทำให้ภาพแสดงกลางหน้าจอ */
+                      position: fixed;  /* ใช้ position fixed เพื่อให้ภาพแสดงอยู่บนหน้าจอ */
+                      top: 50%;         /* วางภาพให้ตรงกลางแนวตั้ง */
+                      left: 50%;        /* วางภาพให้ตรงกลางแนวนอน */
+                      transform: translate(-50%, -50%) scale(3);  /* ใช้ translate เพื่อย้ายภาพกลับมาที่กลาง */
+                  }
+
+                  .enlargeable-img {
+                      max-width: 100%;
+                      width: 100%;
+                      height: auto;
+                      transition: transform 0.2s ease;
+                  }
+
+
+              </style>
+
+                  <!-- Modal สำหรับแสดงรายละเอียด -->
                 <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="detailModalLabel">รายละเอียดทรัพย์สิน</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body" id="modalContent">
-                        <!-- ข้อมูลจะแสดงที่นี่ -->
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>
-                      </div>
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="detailModalLabel">รายละเอียดทรัพย์สิน</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body" id="modalContent">
+                                <!-- ข้อมูลจะแสดงที่นี่ -->
+                                <img id="modal-img" src="image_url.jpg" class="enlargeable-img" alt="คำอธิบายรูปภาพ">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">ปิด</button>
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </div>
 
               </div>
@@ -420,32 +446,72 @@ function deleteItem(itemId) {
     }
 }
 function viewDetails(item_id) {
-    // ใช้ AJAX ดึงข้อมูลจากไฟล์ PHP
     $.ajax({
         url: "lost_details.php",
         type: "GET",
         data: { item_id: item_id },
         success: function(response) {
             $("#modalContent").html(response);
-            $("#detailModal").modal("show");
+            $('#detailModal').modal('show'); // เปิด Modal เมื่อโหลดข้อมูลเสร็จ
+
+            // ฟังก์ชันการขยายภาพ
+            $('#modalContent img').click(function() {
+                $(this).toggleClass('zoomed-in'); // เพิ่ม/ลบคลาส zoomed-in เพื่อขยายหรือย่อ
+            });
         }
     });
 }
 $(function () {
     $("#example1").DataTable({
-      "responsive": true, "lengthChange": true, "autoWidth": false,
+      "responsive": true, "lengthChange": true, "autoWidth": false,"order": [[1, 'desc']],
       // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     $('#example2').DataTable({
-      "paging": false,
+      "paging": true,
       "lengthChange": false,
       "searching": false,
       "ordering": true,
+      "order": [[1, 'desc']],
       "info": true,
       "autoWidth": false,
       "responsive": true,
     });
   });
+// ฟังก์ชันที่จะถูกเรียกเมื่อหน้าโหลดหรือเมื่อมีการเปลี่ยนแปลงข้อมูลในตาราง
+function updateStatusColors() {
+    // เลือกทุกแถวในตาราง
+    const rows = document.querySelectorAll("#example1 tbody tr");
+
+    // ลูปผ่านแต่ละแถว
+    rows.forEach(row => {
+        // ดึงค่าจากคอลัมน์สถานะ
+        const statusCell = row.cells[6];  // คอลัมน์สถานะ (หมายเลขคอลัมน์ 6)
+        const status = statusCell.textContent.trim();
+
+        // ดึงค่าวันที่จากคอลัมน์วันที่แจ้ง
+        const lostDateCell = row.cells[5];  // คอลัมน์วันที่ (หมายเลขคอลัมน์ 5)
+        const lostDate = new Date(lostDateCell.textContent);
+
+        // คำนวณความแตกต่างระหว่างวันที่ปัจจุบันกับวันที่แจ้ง
+        const currentDate = new Date();
+        const timeDifference = currentDate - lostDate;
+        const oneWeekInMilliseconds = 7 * 24 * 60 * 60 * 1000; // 1 สัปดาห์เป็นมิลลิวินาที
+
+        // กำหนดสีตามสถานะ
+        if (status === "แจ้งหาย") {
+            statusCell.style.color = "red";  // สีแดงสำหรับสถานะหาย
+        } else if (status === "ได้รับคืนแล้ว") {
+            statusCell.style.color = "green";  // สีเขียวสำหรับสถานะได้รับคืนแล้ว
+        } else if (status === "ไม่พบทรัพย์สิน") {
+            statusCell.style.color = "rgba(255, 206, 86, 1)";  // สีส้มสำหรับสถานะไม่พบ
+        } else if (timeDifference > oneWeekInMilliseconds) {
+            statusCell.style.color = "orenge";  // สีเหลืองสำหรับกรณีเกิน 1 สัปดาห์
+        }
+    });
+}
+
+// เรียกใช้ฟังก์ชันเมื่อโหลดหน้าหรือเมื่อข้อมูลมีการเปลี่ยนแปลง
+document.addEventListener("DOMContentLoaded", updateStatusColors);
 </script>
 
 </body>
