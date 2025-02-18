@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             foreach ($finder_images as $image) {
-                $file_path = 'return_images/' . trim($image);
+                $file_path = '../return_images/' . trim($image);
                 if (file_exists($file_path)) {
                     unlink($file_path); // ลบไฟล์ภาพ
                 }

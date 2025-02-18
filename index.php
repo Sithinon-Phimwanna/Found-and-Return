@@ -61,7 +61,7 @@ if (!empty($search_query)) {
             found_items.found_id,
             found_items.finder_name,
             found_items.finder_contact,
-            found_items.found_type,
+            found_items.found_name,
             found_items.found_description,
             found_items.found_date,
             found_items.found_location,
@@ -73,7 +73,7 @@ if (!empty($search_query)) {
             statuses ON found_items.status_id = statuses.status_id
         WHERE 
             found_items.finder_name LIKE ? 
-            OR found_items.found_type LIKE ? 
+            OR found_items.found_name LIKE ? 
             OR found_items.found_location LIKE ? 
             OR found_items.found_date LIKE ?
     ";
@@ -84,7 +84,7 @@ if (!empty($search_query)) {
             found_items.found_id,
             found_items.finder_name,
             found_items.finder_contact,
-            found_items.found_type,
+            found_items.found_name,
             found_items.found_description,
             found_items.found_date,
             location.location_name AS found_location, -- ใช้ location_name แทน location_id
@@ -392,7 +392,7 @@ if (!$result) {
                     <!-- เนื้อหา -->
                     <div class="card-body"  style="display: flex;  flex-direction: column; align-items: center;  justify-content: center;">
                       <p class="card-title text-primary text-center">
-                        <strong><?= htmlspecialchars($row['found_type']) ?></strong>
+                        <strong><?= htmlspecialchars($row['found_name']) ?></strong>
                       </p>
                       <!-- สถานที่เก็บได้ -->
                       <p class="card-text"><strong>สถานที่เก็บได้:</strong> <?= htmlspecialchars($row['found_location']) ?></p>
