@@ -178,13 +178,6 @@ if (!$result) {
           </li>
           <li class="nav-header">การจัดการ</li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon far fa-user"></i>
-              <p>
-                จัดการ แอดมิน
-              </p>
-            </a>
-          </li>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -241,6 +234,8 @@ if (!$result) {
                     <th style="font-size: 14px;">วันที่แจ้ง</th>
                     <th style="font-size: 14px;">สถานะ</th>
                     <th style="font-size: 14px;">เพิ่มเติม</th>
+                    <th style="font-size: 14px;">แก้ไข</th>
+                    <th style="font-size: 14px;">ลบ</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -344,8 +339,6 @@ if (!$result) {
 <script src="../assets/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="../assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- Summernote -->
-<script src="../assets/plugins/summernote/summernote-bs4.min.js"></script>
 <!-- DataTables  & Plugins -->
 <script src="../assets/plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="../assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
@@ -356,18 +349,12 @@ if (!$result) {
 <script src="../assets/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
 <script src="../assets/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="../assets/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<!-- Summernote -->
+<script src="../assets/plugins/summernote/summernote-bs4.min.js"></script>
 <!-- AdminLTE App -->
 <script src="../assets/dist/js/adminlte.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="../assets/dist/js/pages/dashboard.js"></script><s></s>
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Bootstrap JS -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-
-<!-- Bootstrap CSS -->
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<script src="../assets/dist/js/pages/dashboard.js"></script>
 
 <!-- ส่วน script สำหรับการลบ -->
 <script>
@@ -391,15 +378,15 @@ if (!$result) {
 
   $(function () {
     $("#example1").DataTable({
-      "responsive": true, "lengthChange": true, "autoWidth": false,"order": [[1, 'desc']],
-      // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+      "responsive": true, "lengthChange": true, "autoWidth": false,"order": [[0, 'desc']],
+      //  "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     $('#example2').DataTable({
       "paging": true,
       "lengthChange": false,
       "searching": false,
       "ordering": true,
-      "order": [[1, 'desc']],
+      "order": [[0, 'desc']],
       "info": true,
       "autoWidth": false,
       "responsive": true,

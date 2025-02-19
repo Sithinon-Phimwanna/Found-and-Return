@@ -10,10 +10,10 @@ if (isset($_SESSION['user_id'])) {
     // ตรวจสอบ level_id และเปลี่ยนเส้นทางไปตามบทบาท
     switch ($_SESSION['level_id']) {
         case 1:
-            header('Location: staff1/staff1_index.php');
+            header('Location: ../staff1/staff1_index.php');
             exit;
         case 2:
-            header('Location: staff2_index.php');
+            header('Location: ../staff2_index.php');
             exit;
         case 3:
             header('Location: admin/admin_index.php');
@@ -57,10 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // เปลี่ยนเส้นทางไปยังหน้าแดชบอร์ดตาม level_id
             switch ($user['level_id']) {
                 case 1:
-                    header('Location: staff1/staff1_index.php');
+                    header('Location: ../staff1/staff1_index.php');
                     exit;
                 case 2:
-                    header('Location: staff2_index.php');
+                    header('Location: ../staff2_index.php');
                     exit;
                 case 3:
                     header('Location: admin/admin_index.php');

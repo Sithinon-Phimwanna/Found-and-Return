@@ -45,6 +45,12 @@ try {
 } catch (Exception $e) {
     die("ข้อผิดพลาดในการดึงข้อมูลสถานที่: " . $e->getMessage());
 }
+$apiUrl = "https://dummyjson.com/users";
+$response = file_get_contents($apiUrl);
+$data = json_decode($response, true);
+
+// ตรวจสอบว่ามีข้อมูล users หรือไม่
+$users = isset($data['users']) ? $data['users'] : [];
 ?>
 
 
@@ -160,22 +166,6 @@ try {
             </ul>
           </li>
           <li class="nav-header">การจัดการ</li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon far fa-user"></i>
-              <p>
-                จัดการ แอดมิน
-                <i class="fas fa-angle-left right"></i>
-              </p>
-            </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="register.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมาชิก</p>
-                    </a>
-                  </li>
-            </ul>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -213,49 +203,60 @@ try {
     <section class="content">
       <div class="container-fluid">
         <div class="card shadow">
-                        <div class="card-body">
-                            <form action="" method="POST" enctype="multipart/form-data">
-                                <div class="form-group row">
-                                    <label for="finder_name" class="col-sm-2">ชื่อผู้แจ้ง:</label>
-                                    <input type="text" class="form-control-sm-4" id="finder_name" name="finder_name" value="<?php echo htmlspecialchars($name); ?>" required>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="finder_contact" class="col-sm-2">ช่องทางการติดต่อ:</label>
-                                    <input type="text" class="form-control-sm-4" id="finder_contact" name="finder_contact" value="<?php echo htmlspecialchars($contact); ?>" required>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="found_name" class="col-sm-2">ทรัพย์สิน:</label>
-                                    <input type="text" class="form-control-sm-4" id="found_name" name="found_name" required>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="found_description" class="col-sm-2">รายละเอียด:</label>
-                                    <textarea class="form-control-sm-4" id="found_description" name="found_description" rows="3" required></textarea>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="found_date" class="col-sm-2">วันที่เก็บได้:</label>
-                                    <input type="date" class="form-control-sm-4" id="found_date" name="found_date" required>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="found_location" class="col-sm-2">สถานที่เก็บได้:</label>
-                                    <select class="form-control-sm-4" id="found_location" name="found_location" required>
-                                        <option value="">เลือกสถานที่</option>
-                                        <?php while ($location = $locations->fetch_assoc()): ?>
-                                            <option value="<?php echo $location['location_id']; ?>"><?php echo htmlspecialchars($location['location_name']); ?></option>
-                                        <?php endwhile; ?>
-                                    </select>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="found_image" class="col-sm-2">อัพโหลดภาพทรัพย์สินที่เก็บได้:</label>
-                                    <input class="form-control-sm-4" type="file" id="found_image" name="found_image[]" multiple>
-                                </div>
-                                <div class="form-group row">
-                                <label class="col-sm-2"></label>
-                                  <div class="col-sm-4">
-                                    <button type="submit" class="btn btn-primary">บันทึก</button>
-                                  </div>
-                                </div>
-                            </form>
-                        </div>
+        <div class="card-body">
+    <form action="" method="POST" enctype="multipart/form-data">
+        <!-- ช่องให้ผู้ใช้กรอก ID หรือชื่อ -->
+        <div class="form-group row">
+            <label for="user_id" class="col-sm-2">ค้นหา (ID หรือ ชื่อ):</label>
+            <input type="text" class="form-control-sm-4" id="user_id" placeholder="กรอกเลข ID หรือ ชื่อ" oninput="fetchUserData()">
+        </div>
+        
+        <div class="form-group row">
+            <label for="finder_name" class="col-sm-2">ชื่อผู้แจ้ง:</label>
+            <input type="text" class="form-control-sm-4" id="finder_name" name="finder_name" required>
+        </div>
+        <div class="form-group row">
+            <label for="finder_contact" class="col-sm-2">ช่องทางการติดต่อ:</label>
+            <input type="text" class="form-control-sm-4" id="finder_contact" name="finder_contact" required>
+        </div>
+        <div class="form-group row">
+            <label for="found_name" class="col-sm-2">ทรัพย์สิน:</label>
+            <input type="text" class="form-control-sm-4" id="found_name" name="found_name" required>
+        </div>
+        <div class="form-group row">
+            <label for="found_description" class="col-sm-2">รายละเอียด:</label>
+            <textarea class="form-control-sm-4" id="found_description" name="found_description" rows="3" required></textarea>
+        </div>
+        <div class="form-group row">
+            <label for="found_date" class="col-sm-2">วันที่เก็บได้:</label>
+            <input type="date" class="form-control-sm-4" id="found_date" name="found_date" required>
+        </div>
+        <div class="form-group row">
+            <label for="found_location" class="col-sm-2">สถานที่เก็บได้:</label>
+            <select class="form-control-sm-4" id="found_location" name="found_location" required>
+                <option value="">เลือกสถานที่</option>
+                <!-- PHP for populating locations dynamically -->
+                <?php while ($location = $locations->fetch_assoc()): ?>
+                    <option value="<?php echo $location['location_id']; ?>"><?php echo htmlspecialchars($location['location_name']); ?></option>
+                <?php endwhile; ?>
+            </select>
+        </div>
+        <div class="form-group row">
+           <label for="consignee" class="col-sm-2">ผู้รับแจ้ง:</label> 
+           <input type="text" class="form-control-sm-4" id="consignee" name="consignee" value="<?php echo htmlspecialchars($name); ?>" required>
+        </div>
+        <div class="form-group row">
+            <label for="found_image" class="col-sm-2">อัพโหลดภาพทรัพย์สินที่เก็บได้:</label>
+            <input class="form-control-sm-4" type="file" id="found_image" name="found_image[]" multiple>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2"></label>
+            <div class="col-sm-4">
+                <button type="submit" class="btn btn-primary">บันทึก</button>
+            </div>
+        </div>
+    </form>
+</div>
                     <!--php submit -->
                     <?php
                       require 'config.php';
@@ -267,6 +268,7 @@ try {
                           $found_name = $_POST['found_name'];
                           $found_description = $_POST['found_description'];
                           $found_location = $_POST['found_location'];
+                          $consignee =$_POST['consignee'];
 
                           // ใช้เวลาปัจจุบัน
                           $found_date = date('Y-m-d H:i:s');
@@ -382,15 +384,15 @@ try {
                           $status_id = 1; // 'พบ' ในตาราง statuses
 
                           // เตรียมคำสั่ง SQL เพื่อบันทึกข้อมูล
-                          $stmt = $mysqli->prepare("INSERT INTO found_items (finder_name, finder_contact, found_name, found_description, found_date, found_location, found_image, status_id) 
-                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                          $stmt = $mysqli->prepare("INSERT INTO found_items (finder_name, finder_contact, found_name, found_description, found_date, found_location, consignee, found_image, status_id) 
+                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
                           if ($stmt === false) {
                               die('เกิดข้อผิดพลาดในการเตรียมคำสั่ง SQL: ' . $mysqli->error);
                           }
 
                           // ผูกค่าตัวแปรกับคำสั่ง SQL
-                          $stmt->bind_param("sssssssi", $finder_name, $finder_contact, $found_name, $found_description, $found_date, $found_location, $images_str, $status_id);
+                          $stmt->bind_param("ssssssssi", $finder_name, $finder_contact, $found_name, $found_description, $found_date, $found_location, $consignee, $images_str, $status_id);
 
                           // บันทึกข้อมูลลงฐานข้อมูล
                           if ($stmt->execute()) {
@@ -460,5 +462,29 @@ try {
 <script src="../assets/dist/js/adminlte.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="../assets/dist/js/pages/dashboard.js"></script>
+<script>
+        function fetchUserData() {
+    const userInput = document.getElementById("user_id").value;
+    
+    if (userInput.length === 0) return; // ถ้าไม่มีข้อมูลให้หยุดทำงาน
+
+    fetch("https://dummyjson.com/users")
+        .then(response => response.json())
+        .then(data => {
+            const users = data.users;
+            let foundUser = null;
+
+            // ค้นหาผู้ใช้จาก ID หรือ ชื่อ
+            foundUser = users.find(user => user.id.toString() === userInput || user.firstName.toLowerCase().includes(userInput.toLowerCase()));
+
+            if (foundUser) {
+                document.getElementById("finder_name").value = `${foundUser.firstName} ${foundUser.lastName}`;
+                document.getElementById("finder_contact").value = foundUser.phone;
+            }
+        })
+        .catch(error => console.error("Error fetching user data:", error));
+}
+
+    </script>
 </body>
 </html>

@@ -186,14 +186,6 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
             </ul>
           </li>
           <li class="nav-header">การจัดการ</li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon far fa-user"></i>
-              <p>
-                จัดการ แอดมิน
-              </p>
-            </a>
-          </li>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -390,7 +382,7 @@ function viewDetails(item_id) {
 }
 $(function () {
     $("#example1").DataTable({
-      "responsive": true, "lengthChange": true, "autoWidth": false,"order": [[1, 'desc']],
+      "responsive": true, "lengthChange": true, "autoWidth": false,"order": [[0, 'desc']],
       // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     $('#example2').DataTable({
@@ -398,7 +390,7 @@ $(function () {
       "lengthChange": false,
       "searching": false,
       "ordering": true,
-      "order": [[1, 'desc']],
+      "order": [[0, 'desc']],
       "info": true,
       "autoWidth": false,
       "responsive": true,

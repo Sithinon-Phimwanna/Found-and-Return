@@ -69,6 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $finder_contact = $_POST['finder_contact'];
     $found_name = $_POST['found_name'];
     $found_description = $_POST['found_description'];
+    $consignee = $_POST['consignee'];
     $found_date = $_POST['found_date'];
     $found_location = $_POST['found_location'];
     $status_id = $_POST['status_id'];
@@ -169,14 +170,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $new_images = implode(',', $uploaded_files);
         
         // อัปเดตข้อมูลรวมถึงรูปภาพใหม่
-        $query = "UPDATE found_items SET finder_name=?, finder_contact=?, found_name=?, found_description=?, found_date=?, found_location=?, found_image=?, status_id=? WHERE found_id=?";
+        $query = "UPDATE found_items SET finder_name=?, finder_contact=?, found_name=?, found_description=?, found_date=?, found_location=?, consignee=?, found_image=?, status_id=? WHERE found_id=?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param('sssssisii', $finder_name, $finder_contact, $found_name, $found_description, $found_date, $found_location, $new_images, $status_id, $found_id);
+        $stmt->bind_param('sssssissii', $finder_name, $finder_contact, $found_name, $found_description, $found_date, $found_location, $consignee, $new_images, $status_id, $found_id);
     } else {
         // อัปเดตข้อมูลโดยไม่เปลี่ยนรูปภาพ
-        $query = "UPDATE found_items SET finder_name=?, finder_contact=?, found_name=?, found_description=?, found_date=?, found_location=?, status_id=? WHERE found_id=?";
+        $query = "UPDATE found_items SET finder_name=?, finder_contact=?, found_name=?, found_description=?, found_date=?, found_location=?, consignee=?, status_id=? WHERE found_id=?";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param('sssssiis', $finder_name, $finder_contact, $found_name, $found_description, $found_date, $found_location, $status_id, $found_id);
+        $stmt->bind_param('sssssisis', $finder_name, $finder_contact, $found_name, $found_description, $found_date, $found_location, $consignee, $status_id, $found_id);
     }
 
     if ($stmt->execute()) {
@@ -318,22 +319,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </ul>
           </li>
           <li class="nav-header">การจัดการ</li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon far fa-user"></i>
-              <p>
-                จัดการ แอดมิน
-                <i class="fas fa-angle-left right"></i>
-              </p>
-            </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="register.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>สมัครสมาชิก</p>
-                    </a>
-                  </li>
-            </ul>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -411,6 +396,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </option>
                     <?php endwhile; ?>
                 </select>
+            </div>
+            <div class="form-group row">
+                <label for="consignee" class="col-sm-2">ผู้รับแจ้ง</label>
+                <input type="text" name="consignee" class="form-control-sm-4" value="<?= htmlspecialchars($item['consignee']) ?>" required>
             </div>
             
             <div class="form-group row">

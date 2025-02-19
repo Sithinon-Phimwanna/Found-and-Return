@@ -225,14 +225,6 @@ foreach ($months as $month) {
             </ul>
           </li>
           <li class="nav-header">การจัดการ</li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon far fa-user"></i>
-              <p>
-                จัดการ แอดมิน
-              </p>
-            </a>
-            </li>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
