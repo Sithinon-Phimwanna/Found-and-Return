@@ -3,7 +3,7 @@ include 'config.php';
 
 $found_id = $_GET['found_id'];
 
-// ใช้ JOIN เพื่อดึงชื่อสถานะจากตาราง statuses ตั้งแต่แรก
+// ใช้ JOIN เพื่อดึงชื่อสถานะจากข้อมูล statuses ตั้งแต่แรก
 $query = "SELECT fi.found_id, fi.finder_name, fi.finder_contact, fi.found_name, 
                  fi.found_description, fi.found_location, fi.found_date, fi.found_image, 
                  fi.consignee, s.status_name 

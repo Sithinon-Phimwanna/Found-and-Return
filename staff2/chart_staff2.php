@@ -225,7 +225,7 @@ foreach ($months as $month) {
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-table"></i>
               <p>
-                ตารางทรัพย์สิน
+                ข้อมูลทรัพย์สิน
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
@@ -233,13 +233,13 @@ foreach ($months as $month) {
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ตารางแจ้งทรัพย์สินที่เก็บได้</p>
+                  <p>ข้อมูลแจ้งทรัพย์สินที่เก็บได้</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="lost_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ตารางแจ้งทรัพย์สินหาย</p>
+                  <p>ข้อมูลแจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
             </ul>

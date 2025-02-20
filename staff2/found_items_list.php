@@ -29,7 +29,7 @@ require 'config.php';
         FROM 
             found_items
         JOIN 
-            location ON found_items.found_location = location.location_id -- เชื่อมกับตาราง location
+            location ON found_items.found_location = location.location_id -- เชื่อมกับข้อมูล location
         JOIN 
             statuses ON found_items.status_id = statuses.status_id
         ORDER BY 
@@ -157,7 +157,7 @@ if (!$result) {
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-table"></i>
               <p>
-                ตารางทรัพย์สิน
+                ข้อมูลทรัพย์สิน
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
@@ -165,13 +165,13 @@ if (!$result) {
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ตารางแจ้งทรัพย์สินที่เก็บได้</p>
+                  <p>ข้อมูลแจ้งทรัพย์สินที่เก็บได้</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="lost_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ตารางแจ้งทรัพย์สินหาย</p>
+                  <p>ข้อมูลแจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
             </ul>
@@ -199,12 +199,12 @@ if (!$result) {
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">ตารางแจ้งทรัพย์สินที่เก็บได้</h1>
+            <h1 class="m-0">ข้อมูลแจ้งทรัพย์สินที่เก็บได้</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">ตารางแจ้งทรัพย์สินที่เก็บได้</li>
+              <li class="breadcrumb-item active">ข้อมูลแจ้งทรัพย์สินที่เก็บได้</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -416,9 +416,9 @@ if (!$result) {
       "responsive": true,
     });
   });
-// ฟังก์ชันที่จะถูกเรียกเมื่อหน้าโหลดหรือเมื่อมีการเปลี่ยนแปลงข้อมูลในตาราง
+// ฟังก์ชันที่จะถูกเรียกเมื่อหน้าโหลดหรือเมื่อมีการเปลี่ยนแปลงข้อมูลในข้อมูล
 function updateStatusColors() {
-    // เลือกทุกแถวในตาราง
+    // เลือกทุกแถวในข้อมูล
     const rows = document.querySelectorAll("#example1 tbody tr");
 
     // ลูปผ่านแต่ละแถว

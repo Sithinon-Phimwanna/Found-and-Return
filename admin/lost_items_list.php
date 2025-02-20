@@ -20,7 +20,7 @@ require 'config.php';
 // ดึงค่าค้นหาจาก GET (ถ้ามี)
 $search_query = isset($_GET['search']) ? $_GET['search'] : '';
 
-// สร้างคำสั่ง SQL โดยใช้ JOIN ดึงข้อมูลจากตาราง lost_items และ statuses
+// สร้างคำสั่ง SQL โดยใช้ JOIN ดึงข้อมูลจากข้อมูล lost_items และ statuses
 $query = "
     SELECT 
         lost_items.item_id,
@@ -166,7 +166,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-table"></i>
               <p>
-                ตารางทรัพย์สิน
+                ข้อมูลทรัพย์สิน
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
@@ -174,13 +174,13 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ตารางแจ้งทรัพย์สินที่เก็บได้</p>
+                  <p>ข้อมูลแจ้งทรัพย์สินที่เก็บได้</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="lost_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ตารางแจ้งทรัพย์สินหาย</p>
+                  <p>ข้อมูลแจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
             </ul>
@@ -207,12 +207,12 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">ตารางแจ้งทรัพย์สินหาย</h1>
+            <h1 class="m-0">ข้อมูลแจ้งทรัพย์สินหาย</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">ตารางแจ้งทรัพย์สินหาย</li>
+              <li class="breadcrumb-item active">ข้อมูลแจ้งทรัพย์สินหาย</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -461,9 +461,9 @@ $(function () {
       "responsive": true,
     });
   });
-// ฟังก์ชันที่จะถูกเรียกเมื่อหน้าโหลดหรือเมื่อมีการเปลี่ยนแปลงข้อมูลในตาราง
+// ฟังก์ชันที่จะถูกเรียกเมื่อหน้าโหลดหรือเมื่อมีการเปลี่ยนแปลงข้อมูลในข้อมูล
 function updateStatusColors() {
-    // เลือกทุกแถวในตาราง
+    // เลือกทุกแถวในข้อมูล
     const rows = document.querySelectorAll("#example1 tbody tr");
 
     // ลูปผ่านแต่ละแถว

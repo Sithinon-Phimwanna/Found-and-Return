@@ -3,7 +3,7 @@ include 'config.php';
 
 $item_id = $_GET['item_id'];
 
-// ใช้ JOIN เพื่อดึงชื่อสถานะจากตาราง statuses
+// ใช้ JOIN เพื่อดึงชื่อสถานะจากข้อมูล statuses
 $query = "SELECT li.item_id, li.owner_name, li.owner_contact, li.item_name, 
                  li.item_description, li.lost_location, li.lost_date, li.item_image, 
                  li.deliverer,li.finder_image,li.status_id, s.status_name 
