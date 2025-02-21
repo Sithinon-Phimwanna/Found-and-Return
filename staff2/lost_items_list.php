@@ -174,7 +174,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งทรัพย์สินที่เก็บได้</p>
+                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -284,7 +284,89 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                             exit;
                                         }
                                         ?>
+                                        <?php
+                                        // ตรวจสอบค่า success ใน URL
+                                        if (isset($_GET['success']) && $_GET['success'] == 2) {
+                                            echo '
+                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                            <script>
+                                                setTimeout(function() {
+                                                    swal({
+                                                        title: "ไฟล์ ' . $filename . ' ต้องเป็น JPEG หรือ PNG เท่านั้น",
+                                                        type: "error"
+                                                    }, function() {
+                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
+                                                    });
+                                                }, 1000);
+                                            </script>';
+                                            exit;
+                                        }
+                                        ?>
+                                        <?php
+                                        // ตรวจสอบค่า success ใน URL
+                                        if (isset($_GET['success']) && $_GET['success'] == 4) {
+                                            echo '
+                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                            <script>
+                                                setTimeout(function() {
+                                                    swal({
+                                                        title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
+                                                        type: "error"
+                                                    }, function() {
+                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
+                                                    });
+                                                }, 1000);
+                                            </script>';
+                                            exit;
+                                        }
+                                        ?>
+                                        <?php
+                                        // ตรวจสอบค่า success ใน URL
+                                        if (isset($_GET['success']) && $_GET['success'] == 5) {
+                                            echo '
+                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                            <script>
+                                                setTimeout(function() {
+                                                    swal({
+                                                        title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
+                                                        type: "error"
+                                                    }, function() {
+                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
+                                                    });
+                                                }, 1000);
+                                            </script>';
+                                            exit;
+                                        }
+                                        ?>
                                     </td>
+                              <td style="font-size: 14px;">
+                                  <button onclick="deleteItem(<?= $row['item_id'] ?>)" class="btn btn-danger" style="font-size: 14px;">ลบ</button>
+                                  <?php
+                                        // ตรวจสอบค่า success ใน URL
+                                        if (isset($_GET['success']) && $_GET['success'] == 1) {
+                                            echo '
+                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                            <script>
+                                                setTimeout(function() {
+                                                    swal({
+                                                        title: "ลบข้อมูลสำเร็จ!",
+                                                        text: "ข้อมูลถูกลบออกจากระบบเรียบร้อยแล้ว",
+                                                        type: "success"
+                                                    }, function() {
+                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
+                                                    });
+                                                }, 1000);
+                                            </script>';
+                                        }
+                                        ?>
                               </td>
                   </tr>
                   <?php endwhile; ?>
@@ -391,6 +473,22 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
 
 <!-- ส่วน script สำหรับการลบ -->
 <script>
+function deleteItem(itemId) {
+    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?")) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'delete_lost.php';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'item_id';
+        input.value = itemId;
+        form.appendChild(input);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
 function viewDetails(item_id) {
     $.ajax({
         url: "lost_details.php",

@@ -37,7 +37,7 @@ $visits_today = $result_today->fetch_assoc()['visit_count'];
 $result_lost = $mysqli->query("SELECT COUNT(*) AS lost_count FROM lost_items WHERE item_id");
 $lost_count = $result_lost->fetch_assoc()['lost_count'];
 
-// นับจำนวนแจ้งทรัพย์สินที่เก็บได้
+// นับจำนวนแจ้งพบทรัพสิน
 $result_found = $mysqli->query("SELECT COUNT(*) AS found_count FROM found_items WHERE found_id");
 $found_count = $result_found->fetch_assoc()['found_count'];
 
@@ -45,7 +45,7 @@ $found_count = $result_found->fetch_assoc()['found_count'];
 $result_lost_today = $mysqli->query("SELECT COUNT(*) AS lost_count_today FROM lost_items WHERE item_id AND DATE(lost_date) = '$current_date'");
 $lost_count_today = $result_lost_today->fetch_assoc()['lost_count_today'];
 
-// นับจำนวนแจ้งทรัพย์สินที่เก็บได้ (เฉพาะวันปัจจุบัน)
+// นับจำนวนแจ้งพบทรัพสิน (เฉพาะวันปัจจุบัน)
 $result_found_today = $mysqli->query("SELECT COUNT(*) AS found_count_today FROM found_items WHERE found_id AND DATE(found_date) = '$current_date'");
 $found_count_today = $result_found_today->fetch_assoc()['found_count_today'];
 
@@ -90,7 +90,7 @@ if (!empty($search_query)) {
         FROM 
             found_items
         JOIN 
-            location ON found_items.found_location = location.location_id -- เชื่อมกับตาราง location
+            location ON found_items.found_location = location.location_id -- เชื่อมกับข้อมูล location
         JOIN 
             statuses ON found_items.status_id = statuses.status_id
     ";
@@ -311,7 +311,7 @@ if (!$result) {
               }
           ?>
           <style>
-                      .card {
+          .card {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -325,25 +325,28 @@ if (!$result) {
             justify-content: space-between;
             align-items: center;
             text-align: center;
-            padding: 10px;
+            margin-top: ; /* ทำให้ card-body ชิดล่าง */
+            padding: 2px;
           }
 
           .card-img-top {
             width: 100%;
-            max-width: 250px; /* ปรับให้ขนาดไม่ใหญ่เกินไป */
+            max-width: 200px; /* ปรับให้ขนาดไม่ใหญ่เกินไป */
             height: auto;
             display: block;
             margin: 0 auto;
+            padding: 10px;
+            object-fit: cover; /* ทำให้รูปภาพครอบคลุมพื้นที่โดยไม่ผิดรูป */
           }
 
           .card-title,
           .card-text {
-            margin: 10px 0;
+            margin: 2px 0;
           }
 
           .card-footer {
             text-align: center;
-            padding: 10px;
+            padding: 2px;
           }
           </style>
 

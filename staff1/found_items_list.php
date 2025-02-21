@@ -165,7 +165,7 @@ if (!$result) {
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งทรัพย์สินที่เก็บได้</p>
+                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -199,12 +199,12 @@ if (!$result) {
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">ข้อมูลแจ้งทรัพย์สินที่เก็บได้</h1>
+            <h1 class="m-0">ข้อมูลแจ้งพบทรัพสิน</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">ข้อมูลแจ้งทรัพย์สินที่เก็บได้</li>
+              <li class="breadcrumb-item active">ข้อมูลแจ้งพบทรัพสิน</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->

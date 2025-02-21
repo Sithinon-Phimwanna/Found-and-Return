@@ -19,17 +19,6 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
 
 // ตรวจสอบว่ามีการส่งค่า item_id มาหรือไม่
 if (!isset($_GET['item_id'])) {
-    echo '<script>
-            setTimeout(function() {
-                swal({
-                title: "ไม่พบข้อมูลทรัพย์สิน",
-                type: "error"
-                }, function() {
-                window.location = "lost_edit.php";
-                });
-            }, 1000);
-          </script>';
-    exit;
 }
 
 $item_id = $_GET['item_id'];
@@ -42,17 +31,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    echo '<script>
-            setTimeout(function() {
-                swal({
-                title: "ไม่พบข้อมูลทรัพย์สิน",
-                type: "error"
-                }, function() {
-                window.location = "lost_edit.php";
-                });
-            }, 1000);
-          </script>';
-    exit;
 }
 
 $item = $result->fetch_assoc();
@@ -75,10 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   // ตรวจสอบค่าที่ได้รับจากฟอร์ม
   if (empty($owner_name) || empty($item_name) || empty($item_description) || empty($lost_date) || empty($lost_location) || empty($status_id)) {
-      echo '<script>
-              Swal.fire({ title: "กรุณากรอกข้อมูลให้ครบถ้วน", icon: "error" }).then(() => { window.location = "lost_edit.php"; });
-            </script>';
-      exit;
   }
 
   // ดึงชื่อไฟล์รูปภาพเก่าจากฐานข้อมูล
@@ -102,18 +76,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               $new_image_name = $formatted_timestamp . "_" . preg_replace("/[^a-zA-Z0-9]/", "_", $original_name) . "." . $imageFileType;
               $target_file = $target_dir . $new_image_name;
 
-              $allowed_types = ["jpg", "jpeg", "png", "gif"];
-              if (!in_array($imageFileType, $allowed_types) || $files['size'][$key] > 1048576) {
-                  echo '<script>
-                          Swal.fire({ title: "ไฟล์ต้องเป็น JPG, JPEG, PNG หรือ GIF และไม่เกิน 1MB", icon: "error" }).then(() => { window.location = "lost_edit.php"; });
-                        </script>';
-                  exit;
+              $allowed_types = ["jpg", "jpeg", "png"];
+              // ตรวจสอบประเภทไฟล์
+              if (!in_array($imageFileType, $allowed_types)) {
+                header("Location: lost_items_list.php?success=2");
+                exit;
               }
 
+              // ตรวจสอบขนาดไฟล์
+              if ($files['size'][$key] > 1048576) {
+                header("Location: lost_items_list.php?success=4");
+              }
+
+              
+
               if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
-                  echo '<script>
-                          Swal.fire({ title: "เกิดข้อผิดพลาดในการอัปโหลดไฟล์", icon: "error" }).then(() => { window.location = "lost_edit.php"; });
-                        </script>';
+                header("Location: lost_items_list.php?success=5");
                   exit;
               }
 
@@ -253,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งทรัพย์สินที่เก็บได้</p>
+                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -449,5 +427,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+<!-- เพิ่ม SweetAlert CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css" rel="stylesheet">
+
+<!-- เพิ่ม SweetAlert JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
+
 </body>
 </html>

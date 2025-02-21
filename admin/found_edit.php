@@ -10,22 +10,6 @@ if (!isset($_SESSION['user_id'])) {
 
 // ตรวจสอบว่ามีการส่งค่า found_id มาหรือไม่
 if (!isset($_GET['found_id'])) {
-    // sweet alert 
-    echo '
-    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-    echo '<script>
-            setTimeout(function() {
-                swal({
-                title: "แก้ไขเรียบร้อยแล้ว",
-                type: "success"
-                }, function() {
-                window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
-                });
-            }, 1000);
-          </script>';
-           exit;
 }
 
 $found_id = $_GET['found_id'];
@@ -38,22 +22,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    // sweet alert 
-    echo '
-    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-    echo '<script>
-            setTimeout(function() {
-                swal({
-                title: "ไม่พบข้อมูลทรัพย์สินที่ต้องการแก้ไข",
-                type: "error"
-                }, function() {
-                window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
-                });
-            }, 1000);
-          </script>';
-          exit;
 }
 
 $item = $result->fetch_assoc();
@@ -99,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $target_file = $target_dir . $new_image_name;
 
             // ตรวจสอบประเภทไฟล์
-            $allowed_types = ["jpg", "jpeg", "png", "gif"];
+            $allowed_types = ["jpg", "jpeg", "png"];
             if (!in_array($imageFileType, $allowed_types)) {
                 echo '
                 <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
@@ -108,10 +76,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo '<script>
                         setTimeout(function() {
                             swal({
-                            title: "ไฟล์ที่อัปโหลดต้องเป็นรูปภาพเท่านั้น (JPG, JPEG, PNG, GIF)",
+                            title: "ไฟล์ ' . $filename . ' ต้องเป็น JPEG หรือ PNG เท่านั้น",
                             type: "error"
                             }, function() {
-                            window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
+                            window.location = "found_items_list.php"; //หน้าที่ต้องการให้กระโดดไป
                             });
                         }, 1000);
                       </script>';
@@ -128,10 +96,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo '<script>
                         setTimeout(function() {
                             swal({
-                            title: "ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
+                            title: "ไฟล์' . $filename . 'มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
                             type: "error"
                             }, function() {
-                            window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
+                            window.location = "found_items_list.php"; //หน้าที่ต้องการให้กระโดดไป
                             });
                         }, 1000);
                       </script>';
@@ -150,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             title: "เกิดข้อผิดพลาดในการอัปโหลดไฟล์",
                             type: "error"
                             }, function() {
-                            window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
+                            window.location = "found_items_list.php"; //หน้าที่ต้องการให้กระโดดไป
                             });
                         }, 1000);
                       </script>';
@@ -195,7 +163,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     title: "เกิดข้อผิดพลาดในการอัพเดทไฟล์",
                     type: "error"
                     }, function() {
-                    window.location = "found_edit.php"; //หน้าที่ต้องการให้กระโดดไป
+                    window.location = "found_items_list.php"; //หน้าที่ต้องการให้กระโดดไป
                     });
                 }, 1000);
               </script>';
@@ -307,7 +275,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งทรัพย์สินที่เก็บได้</p>
+                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
                 </a>
               </li>
               <li class="nav-item">

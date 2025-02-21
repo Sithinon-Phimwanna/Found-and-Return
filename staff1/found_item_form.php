@@ -154,7 +154,7 @@ $users = isset($data['users']) ? $data['users'] : [];
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งทรัพย์สินที่เก็บได้</p>
+                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
                 </a>
               </li>
               <li class="nav-item">

@@ -41,7 +41,7 @@ $visits_today = $result_today->fetch_assoc()['visit_count'];
 $result_lost = $mysqli->query("SELECT COUNT(*) AS lost_count FROM lost_items WHERE item_id");
 $lost_count = $result_lost->fetch_assoc()['lost_count'];
 
-// นับจำนวนแจ้งทรัพย์สินที่เก็บได้
+// นับจำนวนแจ้งพบทรัพสิน
 $result_found = $mysqli->query("SELECT COUNT(*) AS found_count FROM found_items WHERE found_id");
 $found_count = $result_found->fetch_assoc()['found_count'];
 
@@ -49,7 +49,7 @@ $found_count = $result_found->fetch_assoc()['found_count'];
 $result_lost_today = $mysqli->query("SELECT COUNT(*) AS lost_count_today FROM lost_items WHERE item_id AND DATE(lost_date) = '$current_date'");
 $lost_count_today = $result_lost_today->fetch_assoc()['lost_count_today'];
 
-// นับจำนวนแจ้งทรัพย์สินที่เก็บได้ (เฉพาะวันปัจจุบัน)
+// นับจำนวนแจ้งพบทรัพสิน (เฉพาะวันปัจจุบัน)
 $result_found_today = $mysqli->query("SELECT COUNT(*) AS found_count_today FROM found_items WHERE found_id AND DATE(found_date) = '$current_date'");
 $found_count_today = $result_found_today->fetch_assoc()['found_count_today'];
 
@@ -171,7 +171,7 @@ $adminName = $_SESSION['UserAdminName'];
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งทรัพย์สินที่เก็บได้</p>
+                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
                 </a>
               </li>
               <li class="nav-item">
