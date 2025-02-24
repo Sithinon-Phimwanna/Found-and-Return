@@ -13,10 +13,10 @@ if (isset($_SESSION['user_id'])) {
             header('Location: ../staff1/staff1_index.php');
             exit;
         case 2:
-            header('Location: ../staff2_index.php');
+            header('Location: staff2_index.php');
             exit;
         case 3:
-            header('Location: admin/admin_index.php');
+            header('Location: ../admin/admin_index.php');
             exit;
         default:
             header('Location: login.php');
@@ -60,10 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header('Location: ../staff1/staff1_index.php');
                     exit;
                 case 2:
-                    header('Location: ../staff2_index.php');
+                    header('Location: staff2_index.php');
                     exit;
                 case 3:
-                    header('Location: admin/admin_index.php');
+                    header('Location: ../admin/admin_index.php');
                     exit;
                 default:
                     $error = "ไม่พบสิทธิ์ที่เหมาะสม!";

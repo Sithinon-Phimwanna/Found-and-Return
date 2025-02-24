@@ -145,7 +145,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
               <li class="nav-item">
                 <a href="found_item_form.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>แจ้งเก็บทรัพย์สินได้</p>
+                  <p>แจ้งพบทรัพย์สิน</p>
                 </a>
               </li>
               <li class="nav-item">

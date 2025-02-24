@@ -119,7 +119,7 @@ try {
               <li class="nav-item">
                 <a href="found_item_form.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>แจ้งเก็บทรัพย์สินได้</p>
+                  <p>แจ้งพบทรัพย์สิน</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -180,12 +180,12 @@ try {
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">แจ้งเก็บทรัพย์สินได้</h1>
+            <h1 class="m-0">แจ้งพบทรัพย์สิน</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">แจ้งเก็บทรัพย์สินได้</li>
+              <li class="breadcrumb-item active">แจ้งพบทรัพย์สิน</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
