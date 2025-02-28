@@ -6,15 +6,33 @@ require 'config.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// ตรวจสอบว่าผู้ใช้ล็อกอินหรือไม่
+// ป้องกันการเข้าถึงโดยไม่ได้ล็อกอิน
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอินให้ไปหน้า login
     exit;
 }
-
 // ตรวจสอบว่าในเซสชันมีการตั้งค่า UserAdminName หรือไม่
 $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminName'] : 'ไม่ทราบชื่อ';
 
+// ดึงข้อมูลผู้ใช้จากฐานข้อมูล
+try {
+    $user_id = $_SESSION['user_id'];
+    $query = "SELECT UserAdminName, email FROM users WHERE id = ?";
+    $stmt = $mysqli->prepare($query); // ใช้ $mysqli
+    $stmt->bind_param("d", $user_id); // ใช้ integer สำหรับ user_id
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+
+    if (!$user) {
+        throw new Exception("ไม่พบข้อมูลผู้ใช้ในระบบ");
+    }
+
+    $name = $user['UserAdminName'] ?? '';
+    $contact = $user['email'] ?? '';
+} catch (Exception $e) {
+    die("ข้อผิดพลาด: " . $e->getMessage());
+}
 // ตรวจสอบว่ามีการส่งค่า item_id มาหรือไม่
 if (!isset($_GET['item_id'])) {
     echo "ไม่พบรหัสรายการ";
@@ -51,13 +69,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $lost_location = $_POST['lost_location'];
   $deliverer = $_POST['deliverer'];
   $status_id = $_POST['status_id'];
+  $return_date = date('Y-m-d H:i:s');  // รับค่าของ return_date
   $item_id = $_POST['item_id'];
 
   // ตรวจสอบค่าที่ได้รับจากฟอร์ม
-  if (empty($owner_name) || empty($item_name) || empty($item_description) || empty($lost_date) || empty($lost_location) || empty($status_id)) {
+  if (empty($owner_name) || empty($item_name) || empty($item_description) || empty($lost_date) || empty($lost_location) || empty($status_id) || empty($return_date)) {
       echo "กรุณากรอกข้อมูลให้ครบถ้วน";
       exit;
   }
+
+  if (!empty($return_date)) {
+    // ตรวจสอบการแปลงค่า return_date
+    $formatted_return_date = date('Y-m-d H:i:s', strtotime($return_date)); // แปลงให้เป็นรูปแบบที่ฐานข้อมูลรับได้
+}
+$return_date = strtotime($return_date); // แปลงจาก string เป็น timestamp ถ้ามีเวลาอยู่
+  $return_date = date('Y-m-d H:i:s', $return_date); // แปลงกลับเป็นรูปแบบ MySQL
 
   // ตรวจสอบว่ามีการอัปโหลดไฟล์หรือไม่
   if (!isset($_FILES['item_image']) || !isset($_FILES['finder_image'])) {
@@ -76,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $old_finder_image = $row['finder_image'];
 
   // ฟังก์ชันบีบอัดและปรับขนาดภาพ
-  function resizeImage($sourcePath, $targetPath, $imageType, $maxWidth = 800, $maxHeight = 800) {
+  function resizeImage($sourcePath, $targetPath, $imageType, $maxWidth = 1024, $maxHeight = 1024) {
       switch ($imageType) {
           case IMAGETYPE_JPEG:
               $sourceImage = imagecreatefromjpeg($sourcePath);
@@ -118,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   // ฟังก์ชันอัปโหลดและบีบอัดไฟล์
-  function uploadImages($files, $target_dir, $old_images, $maxWidth = 800, $maxHeight = 800) {
+  function uploadImages($files, $target_dir, $old_images, $maxWidth = 1024, $maxHeight = 1024) {
       $uploaded_images = [];
       foreach ($files['name'] as $key => $file_name) {
           if (!empty($file_name)) {
@@ -144,31 +170,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       exit;
                   }
               } else {
-                // ตรวจสอบข้อผิดพลาดของการอัปโหลดไฟล์
-if ($_FILES['item_image']['error'][0] !== UPLOAD_ERR_OK) {
-  $upload_errors = [
-      UPLOAD_ERR_INI_SIZE   => 'ไฟล์มีขนาดเกินกว่าที่กำหนดใน php.ini',
-      UPLOAD_ERR_FORM_SIZE  => 'ไฟล์มีขนาดเกินขีดจำกัดที่กำหนดในฟอร์ม',
-      UPLOAD_ERR_PARTIAL    => 'ไฟล์ถูกอัปโหลดไม่สมบูรณ์',
-      UPLOAD_ERR_NO_FILE    => 'ไม่มีไฟล์ถูกเลือก',
-      UPLOAD_ERR_NO_TMP_DIR => 'ไม่มีไดเรกทอรีชั่วคราว',
-      UPLOAD_ERR_CANT_WRITE => 'ไม่สามารถเขียนไฟล์ไปยังดิสก์ได้',
-      UPLOAD_ERR_EXTENSION  => 'การอัปโหลดถูกยกเลิกเนื่องจากส่วนขยายของ PHP'
-  ];
-
-  echo "เกิดข้อผิดพลาด: " . $upload_errors[$_FILES['item_image']['error'][0]] ?? 'ข้อผิดพลาดที่ไม่ทราบสาเหตุ';
-  exit;
-}
-
-// ถ้าขนาดไม่เกิน 1MB ให้ย้ายไฟล์โดยตรง
-if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
-  $error = error_get_last(); // ดึงข้อมูลข้อผิดพลาดล่าสุด
-  echo "ไม่สามารถย้ายไฟล์ได้: " . $error['message']; // แสดงข้อความข้อผิดพลาด
-  exit;
-}
-
-              }
-              
+                if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
+                  // ดึงข้อมูลข้อผิดพลาดล่าสุด
+                  $error = error_get_last();
+                    // ตรวจสอบข้อผิดพลาดจากการอัปโหลดไฟล์
+                    if ($files['error'][$key] != UPLOAD_ERR_OK) {
+                        $upload_error_message = "ข้อผิดพลาดในการอัปโหลดไฟล์: ";
+                        // แสดงข้อความข้อผิดพลาดจากการอัปโหลด
+                        echo nl2br($upload_error_message);
+                    }
+                    
+                    // หยุดการทำงานของสคริปต์
+                    exit;
+                }
+                
+              }             
 
               // ลบไฟล์เก่า (ถ้ามี)
               if (!empty($old_images) && file_exists($target_dir . $old_images)) {
@@ -188,24 +204,21 @@ if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
   $new_finder_image = uploadImages($_FILES['finder_image'], "../return_images/", $old_finder_image);
 
   // อัปเดตข้อมูลในฐานข้อมูล
-  $query = "UPDATE lost_items SET owner_name=?, owner_contact=?, item_name=?, item_description=?, lost_date=?, lost_location=?, item_image=?, finder_image=?, deliverer=?, status_id=? WHERE item_id=?";
+  $query = "UPDATE lost_items SET owner_name=?, owner_contact=?, item_name=?, item_description=?, lost_date=?, lost_location=?, item_image=?, finder_image=?, deliverer=?, status_id=?, return_date=? WHERE item_id=?";
   $stmt = $mysqli->prepare($query);
-  $stmt->bind_param('sssssissssi', $owner_name, $owner_contact, $item_name, $item_description, $lost_date, $lost_location, $new_item_image, $new_finder_image, $deliverer, $status_id, $item_id);
+  $stmt->bind_param('sssssisssssi', $owner_name, $owner_contact, $item_name, $item_description, $lost_date, $lost_location, $new_item_image, $new_finder_image, $deliverer, $status_id, $return_date, $item_id);
 
   if ($stmt->execute()) {
-      header("Location: lost_items_list.php?success=3");
+      header("Location: return_item.php?success=3");
       exit;
   } else {
       echo '<script>
-              Swal.fire({ title: "เกิดข้อผิดพลาดในการอัปเดตข้อมูล", icon: "error" }).then(() => { window.location = "lost_edit.php"; });
+              Swal.fire({ title: "เกิดข้อผิดพลาดในการอัปเดตข้อมูล", icon: "error" }).then(() => { window.location = "return_item.php"; });
             </script>';
       exit;
   }
 }
-
 ?>
-
-
 
 
 <!DOCTYPE html>
@@ -238,7 +251,7 @@ if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="staff2_index.php" class="nav-link">Home</a>
+        <a href="admin_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -247,7 +260,7 @@ if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="staff2_index.php" class="brand-link">
+    <a href="admin_index.php" class="brand-link">
       <img src="../assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">lost & Return</span>
     </a>
@@ -388,12 +401,12 @@ if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">แก้ไขข้อมูลทรัพย์สินที่หาย</h1>
+            <h1 class="m-0">ส่งคืนทรัพย์สิน</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">แก้ไขข้อมูลทรัพย์สินหาย</li>
+              <li class="breadcrumb-item active">ส่งคืนทรัพย์สิน</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -497,7 +510,11 @@ if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
         <?php endif; ?>
     </div>
 
-
+            <div class="form-group row">
+            <label for="return_date" class="col-sm-2">วันที่และเวลาคืน:</label>
+            <input type="date" class="form-control-sm-4" id="return_date" name="return_date" value="<?= date('Y-m-d\TH:i', strtotime($item['return_date'] ?? '')) ?>">
+            </div>
+            
 
             
             <div class="form-group row">
@@ -514,7 +531,7 @@ if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
                                 <label class="col-sm-2"></label>
                                   <div class="col-sm-4">
                                     <button type="submit" class="btn btn-primary">บันทึก</button>
-                                    <button type="submit" class="btn btn-danger"><a href="lost_items_list.php" style="color:white;">ยกเลิก</a></button>
+                                    <button type="submit" class="btn btn-danger"><a href="return_item.php" style="color:white;">ยกเลิก</a></button>
                                   </div>
                                 </div>
         </form>
@@ -670,7 +687,7 @@ function resizeImage($sourcePath, $targetPath, $imageType, $maxWidth = 800, $max
 }
 
 // ฟังก์ชันอัปโหลดและบีบอัดไฟล์
-function uploadImages($files, $target_dir, $old_images, $maxWidth = 800, $maxHeight = 800) {
+function uploadImages($files, $target_dir, $old_images, $maxWidth = 1024, $maxHeight = 1024) {
     $uploaded_images = [];
     foreach ($files['name'] as $key => $file_name) {
         if (!empty($file_name)) {

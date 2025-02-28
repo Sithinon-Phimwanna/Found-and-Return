@@ -107,17 +107,6 @@ if (!$result) {
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="../assets/dist/img/user-gear.png" class="img-circle elevation-2" alt="User Image">
-        </div>
-        <div class="info">
-        <span class="me-3" style="color: white;"><?= htmlspecialchars($_SESSION['UserAdminName']); ?></span>
-        </div>
-      </div>
 
       <!-- Sidebar Menu -->
       <nav class="mt-2">
@@ -145,12 +134,6 @@ if (!$result) {
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="resize.php" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>ลดขนาดไฟล์รูปภาพ</p>
-                </a>
-              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -165,7 +148,7 @@ if (!$result) {
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
+                  <p>ข้อมูลแจ้งพบทรัพย์สิน</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -176,20 +159,69 @@ if (!$result) {
               </li>
             </ul>
           </li>
-          <li class="nav-header">การจัดการ</li>
           <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas far fa-regular fa-hand-holding-heart"></i>
+              <p>
+                ส่งคืนทรัพย์สิน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="return_item.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ส่งคืนทรัพย์สิน</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-pie"></i>
+              <p>
+                รายงาน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="show_result_found_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายเดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_result_found.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายปี</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งทรัพย์สินหาย เดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงายแจ้งทรัพย์สินหาย รายปี</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-header">ล็อกเอาท์</li>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
                       <p>ลงชื่อออก</p>
                     </a>
-            </li>
-            </ul>
+            </li>  
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
     </div>
-    <!-- /.sidebar -->
   </aside>
 
   <!-- Content Wrapper. Contains page content -->

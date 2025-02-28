@@ -180,7 +180,7 @@ if (!$result) {
             <a href="#" class="nav-link">
               <i class="nav-icon far fa-user"></i>
               <p>
-                จัดการ แอดมิน
+                เมนูเฉพาะแอดมิน
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
@@ -273,7 +273,7 @@ if (!$result) {
             <!-- small box -->
             <div class="small-box bg-danger">
               <div class="inner">
-                <h3>แผนภูมิ</h3>
+                <h3>รายงาน</h3>
 
                 <p>แสดงจำนวนทรัพย์สิน</p>
               </div>

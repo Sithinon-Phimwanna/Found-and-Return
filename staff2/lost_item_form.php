@@ -133,12 +133,6 @@ $users = isset($data['users']) ? $data['users'] : [];
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="resize.php" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>ลดขนาดไฟล์รูปภาพ</p>
-                </a>
-              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -153,7 +147,7 @@ $users = isset($data['users']) ? $data['users'] : [];
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
+                  <p>ข้อมูลแจ้งพบทรัพย์สิน</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -164,14 +158,65 @@ $users = isset($data['users']) ? $data['users'] : [];
               </li>
             </ul>
           </li>
-          <li class="nav-header">การจัดการ</li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas far fa-regular fa-hand-holding-heart"></i>
+              <p>
+                ส่งคืนทรัพย์สิน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="return_item.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ส่งคืนทรัพย์สิน</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-pie"></i>
+              <p>
+                รายงาน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="show_result_found_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายเดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_result_found.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายปี</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งทรัพย์สินหาย เดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงายแจ้งทรัพย์สินหาย รายปี</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-header">ล็อกเอาท์</li>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
                       <p>ลงชื่อออก</p>
                     </a>
-            </li>
-            </ul>
+            </li>  
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
@@ -243,7 +288,7 @@ $users = isset($data['users']) ? $data['users'] : [];
     </div>
     <div class="form-group row">
         <label for="item_image" class="col-sm-2">อัพโหลดภาพ:</label>
-        <input class="form-control-sm-4" type="file" id="item_image" name="item_image[]" multiple>
+        <input class="form-control-sm-4" type="file" id="item_image" name="item_image[]" multiple onchange="resizeImages(event)"required>
     </div>
     <div class="form-group row">
         <label class="col-sm-2"></label>
@@ -257,171 +302,105 @@ $users = isset($data['users']) ? $data['users'] : [];
 </div>
                       <!--php sunmit -->
                       <?php
-require 'config.php';
+                      require 'config.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // รับค่าจากฟอร์ม
-    $owner_name = $_POST['owner_name'];
-    $owner_contact = $_POST['owner_contact'];
-    $item_name = $_POST['item_name'];
-    $item_description = $_POST['item_description'];
-    $lost_location = $_POST['lost_location'];
-    $lost_date = date('Y-m-d H:i:s'); // เวลาปัจจุบัน
-    $status_id = 1; // สถานะเริ่มต้น
+                      function resizeImage($source, $destination, $max_width, $max_height) {
+                          list($orig_width, $orig_height, $image_type) = getimagesize($source);
+                          
+                          $allowed_types = [IMAGETYPE_JPEG, IMAGETYPE_PNG];
+                          if (!in_array($image_type, $allowed_types)) {
+                              return false;
+                          }
 
-    // อัปโหลดภาพ
-    $upload_dir = '../lost_images/';
-if (!is_dir($upload_dir)) {
-    mkdir($upload_dir, 0777, true); // สร้างโฟลเดอร์ถ้ายังไม่มี
-}
+                          $ratio = min($max_width / $orig_width, $max_height / $orig_height);
+                          $new_width = round($orig_width * $ratio);
+                          $new_height = round($orig_height * $ratio);
 
-$images = [];
+                          $image_p = imagecreatetruecolor($new_width, $new_height);
+                          
+                          if ($image_type == IMAGETYPE_JPEG) {
+                              $image = imagecreatefromjpeg($source);
+                              imagecopyresampled($image_p, $image, 0, 0, 0, 0, $new_width, $new_height, $orig_width, $orig_height);
+                              imagejpeg($image_p, $destination, 90);
+                          } elseif ($image_type == IMAGETYPE_PNG) {
+                              $image = imagecreatefrompng($source);
+                              imagecopyresampled($image_p, $image, 0, 0, 0, 0, $new_width, $new_height, $orig_width, $orig_height);
+                              imagepng($image_p, $destination, 9);
+                          }
+                          
+                          return true;
+                      }
 
-if (!empty($_FILES['item_image']['name'][0])) {
-    foreach ($_FILES['item_image']['name'] as $key => $filename) {
-        $tmp_name = $_FILES['item_image']['tmp_name'][$key];
-        $error = $_FILES['item_image']['error'][$key];
-        $file_size = $_FILES['item_image']['size'][$key]; // ขนาดไฟล์
-        $file_type = $_FILES['item_image']['type'][$key];
+                      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                          $owner_name = $_POST['owner_name'];
+                          $owner_contact = $_POST['owner_contact'];
+                          $item_name = $_POST['item_name'];
+                          $item_description = $_POST['item_description'];
+                          $lost_location = $_POST['lost_location'];
+                          $lost_date = date('Y-m-d H:i:s');
 
-        // ตรวจสอบข้อผิดพลาดในการอัปโหลดไฟล์
-        // ตรวจสอบข้อผิดพลาดจากการอัปโหลดไฟล์
-        if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
-          // ข้อผิดพลาดเกิดจากขนาดไฟล์เกินที่ตั้งไว้
-          echo '
-          <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-          <script>
-              setTimeout(function() {
-                  swal({
-                  title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
-                  type: "error"
-                  }, function() {
-                  window.location = "lost_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                  });
-              }, 1000);
-          </script>';
-          die(); // หยุดการทำงานเมื่อเกิดข้อผิดพลาดขนาดไฟล์
-      }
-  
-      // ตรวจสอบประเภทไฟล์
-      if (!in_array($file_type, ['image/jpeg', 'image/png'])) {
-          echo '
-          <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-          <script>
-              setTimeout(function() {
-                  swal({
-                  title: "ไฟล์ ' . $filename . ' ต้องเป็น JPEG หรือ PNG เท่านั้น",
-                  type: "error"
-                  }, function() {
-                  window.location = "lost_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                  });
-              }, 1000);
-          </script>';
-          die(); // หยุดการทำงานเมื่อเกิดข้อผิดพลาดประเภทไฟล์
-      }
+                          $images = [];
+                          if (isset($_FILES['item_image']) && !empty($_FILES['item_image']['name'][0])) {
+                              $upload_dir = '../lost_images/';
+                              if (!is_dir($upload_dir)) {
+                                  mkdir($upload_dir, 0777, true);
+                              }
 
-        // ตรวจสอบขนาดไฟล์ (ไม่เกิน 1MB) ก่อนการตรวจสอบประเภทไฟล์
-        if ($file_size > 1048576) { // 1MB = 1048576 bytes
-            showError("ไฟล์ $filename มีขนาดใหญ่เกินไป (สูงสุด 1MB)");
-            continue;
-        }
+                              foreach ($_FILES['item_image']['name'] as $key => $filename) {
+                                  $tmp_name = $_FILES['item_image']['tmp_name'][$key];
+                                  $error = $_FILES['item_image']['error'][$key];
+                                  $file_size = $_FILES['item_image']['size'][$key];
+                                  $file_type = $_FILES['item_image']['type'][$key];
+                                  
+                                  // ตรวจสอบข้อผิดพลาดในการอัปโหลด
+                                  if ($error !== UPLOAD_ERR_OK) continue;
+                                  if (!in_array($file_type, ['image/jpeg', 'image/png'])) continue;
+                                  if ($file_size > 1048576) continue;
+                                  
+                                  $timestamp = date('Y-m-d_H-i-s');
+                                  $extension = pathinfo($filename, PATHINFO_EXTENSION);
+                                  $new_filename = $timestamp . '_' . pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
+                                  $target_file = $upload_dir . $new_filename;
 
-        // ตรวจสอบประเภทไฟล์ (อนุญาตเฉพาะ JPEG และ PNG)
-        $allowed_types = ['image/jpeg', 'image/png'];
+                                  if (move_uploaded_file($tmp_name, $target_file)) {
+                                    // สร้างไฟล์รีไซส์
+                                    $resized_file = $upload_dir . 'resized_' . $new_filename;
+                                    if (resizeImage($target_file, $resized_file, 1024, 1024)) {
+                                        unlink($target_file); // ลบไฟล์ต้นฉบับถ้าสำเร็จ
+                                        $images[] = basename($resized_file); // เพิ่มชื่อไฟล์รีไซส์ลงในอาร์เรย์
+                                        echo "Image resized successfully: " . $resized_file; // แสดงข้อความว่าการรีไซส์สำเร็จ
+                                    } else {
+                                        // ถ้ารีไซส์ไม่สำเร็จ
+                                        echo "Error: Image resize failed for: " . $target_file; // แสดงข้อผิดพลาด
+                                        echo "<br>Error details: Unable to resize the image. Please check the file format or size."; // ข้อความเพิ่มเติม
+                                        unlink($target_file); // ลบไฟล์ต้นฉบับที่ไม่สามารถรีไซส์ได้
+                                        exit; // หยุดการดำเนินการเพื่อไม่ให้ส่งไฟล์ไป
+                                    }
+                                }
+                                
+                                
+                              }
+                          }
 
-        // ใช้ getimagesize เพื่อตรวจสอบประเภทของไฟล์
-        $image_info = getimagesize($tmp_name);
-        if ($image_info === false || !in_array($image_info['mime'], $allowed_types)) {
-            showError("ไฟล์ $filename ต้องเป็น JPEG หรือ PNG เท่านั้น");
-            continue; // ข้ามไฟล์นี้ไป
-        }
+                          $images_str = !empty($images) ? implode(',', $images) : NULL;
+                          $status_id = 1;
 
-            // ตั้งชื่อไฟล์ใหม่เป็น timestamp + ชื่อไฟล์เดิม
-            $timestamp = date('YmdHis'); // ใช้ timestamp
-            $extension = pathinfo($filename, PATHINFO_EXTENSION);
-            $new_filename = $timestamp . '_' . pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
-            $target_file = $upload_dir . $new_filename;
+                          // เปลี่ยนคำสั่ง SQL สำหรับตาราง lost_items
+                          $stmt = $mysqli->prepare("INSERT INTO lost_items (owner_name, owner_contact, item_name, item_description, lost_date, lost_location, item_image, status_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
-            // ถ้าผ่านการตรวจสอบทั้งหมดแล้ว ค่อยทำการอัปโหลด
-            if (move_uploaded_file($tmp_name, $target_file)) {
-                $images[] = $new_filename;
-            } else {
-                showError("เกิดข้อผิดพลาดในการอัปโหลดไฟล์ $filename");
-            }
-        }
-    }
-
-    // แปลงอาร์เรย์ภาพเป็นสตริง
-    $images_str = !empty($images) ? implode(',', $images) : NULL;
-
-    // เตรียม SQL และบันทึกข้อมูล
-    $stmt = $mysqli->prepare("INSERT INTO lost_items 
-        (owner_name, owner_contact, item_name, item_description, lost_date, lost_location, item_image, finder_image, deliverer, status_id) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?)");
-
-    if (!$stmt) {
-        die("เกิดข้อผิดพลาดในการเตรียม SQL: " . $mysqli->error);
-    }
-
-    $stmt->bind_param("sssssssi", $owner_name, $owner_contact, $item_name, $item_description, $lost_date, $lost_location, $images_str, $status_id);
-
-    if ($stmt->execute()) {
-        showSuccess("บันทึกข้อมูลสำเร็จ!", "lost_item_form.php");
-    } else {
-        showError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
-    }
-
-    $stmt->close();
-    $mysqli->close();
-}
-
-// ฟังก์ชันแจ้งเตือนข้อผิดพลาด
-function showError($message) {
-    echo '<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-          <script>
-              setTimeout(function() {
-                  swal({
-                      title: "' . $message . '",
-                      type: "error"
-                  }, function() {
-                      window.location = "lost_item_form.php";
-                  });
-              }, 1000);
-          </script>';
-    exit;
-}
-
-// ฟังก์ชันแจ้งเตือนความสำเร็จ
-function showSuccess($message, $redirect) {
-    echo '<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-          <script>
-              setTimeout(function() {
-                  swal({
-                      title: "' . $message . '",
-                      type: "success"
-                  }, function() {
-                      window.location = "' . $redirect . '";
-                  });
-              }, 1000);
-          </script>';
-    exit;
-}
-?>
-
-                     
-
-
-
-
-
+                          if ($stmt) {
+                              $stmt->bind_param("sssssssi", $owner_name, $owner_contact, $item_name, $item_description, $lost_date, $lost_location, $images_str, $status_id);
+                              if ($stmt->execute()) {
+                                  echo '<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>';
+                                  echo '<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>';
+                                  echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                                  echo '<script>setTimeout(function() { swal({ title: "บันทึกข้อมูลสำเร็จ", type: "success" }, function() { window.location = "lost_item_form.php"; }); }, 1000);</script>';
+                              }
+                              $stmt->close();
+                          }
+                          $mysqli->close();
+                      }
+                      ?>
 
       </div><!-- /.container-fluid -->
     </section>
@@ -473,6 +452,62 @@ function showSuccess($message, $redirect) {
             }
         })
         .catch(error => console.error("Error fetching user data:", error));
+}
+
+function resizeImages(event) {
+    const files = event.target.files;
+    const maxSize = 1024; // กำหนดขนาดสูงสุด 1024px
+
+    let resizedFiles = [];
+
+    Array.from(files).forEach(file => {
+        if (!file.type.startsWith("image/")) return; // ตรวจสอบว่าเป็นรูปภาพเท่านั้น
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onload = function (e) {
+            const img = new Image();
+            img.src = e.target.result;
+
+            img.onload = function () {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxSize) {
+                        height *= maxSize / width;
+                        width = maxSize;
+                    }
+                } else {
+                    if (height > maxSize) {
+                        width *= maxSize / height;
+                        height = maxSize;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(blob => {
+                    const newFile = new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() });
+
+                    resizedFiles.push(newFile);
+
+                    if (resizedFiles.length === files.length) {
+                        const dataTransfer = new DataTransfer();
+                        resizedFiles.forEach(resizedFile => dataTransfer.items.add(resizedFile));
+
+                        document.getElementById("item_image").files = dataTransfer.files;
+                    }
+                }, "image/jpeg", 0.8);
+            };
+        };
+    });
 }
 
     </script>

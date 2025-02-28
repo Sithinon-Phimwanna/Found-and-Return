@@ -1,12 +1,20 @@
 <?php
 include 'config.php';
 
-$item_id = $_GET['item_id'];
+$item_id = isset($_GET['item_id']) ? $_GET['item_id'] : null;
+if (!$item_id) {
+    die("ไม่พบรหัสข้อมูล (item_id) ใน URL");
+}
+
+// ตรวจสอบการเชื่อมต่อฐานข้อมูล
+if ($mysqli->connect_error) {
+    die("การเชื่อมต่อฐานข้อมูลล้มเหลว: " . $mysqli->connect_error);
+}
 
 // ใช้ JOIN เพื่อดึงชื่อสถานะจากข้อมูล statuses
 $query = "SELECT li.item_id, li.owner_name, li.owner_contact, li.item_name, 
                  li.item_description, li.lost_location, li.lost_date, li.item_image, 
-                 li.deliverer,li.finder_image,li.status_id, s.status_name 
+                 li.deliverer, li.finder_image, li.status_id, s.status_name 
           FROM lost_items li 
           LEFT JOIN status_lost s ON li.status_id = s.status_id 
           WHERE li.item_id = ?";
@@ -17,6 +25,27 @@ $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
 
+// ตรวจสอบข้อมูล
+if (!$row) {
+    die("ไม่พบข้อมูลของ item_id: " . htmlspecialchars($item_id));
+}
+
+// ดึงชื่อผู้รับแจ้งจาก users
+$consignee_id = $row['deliverer']; // แก้ไขให้ตรงกับชื่อคอลัมน์ที่เก็บข้อมูลผู้รับแจ้ง
+$UserAdminName = "ไม่พบข้อมูล";
+
+$userQuery = $mysqli->prepare("SELECT UserAdminName FROM users WHERE id = ?");
+if ($userQuery) {
+    $userQuery->bind_param("i", $consignee_id);
+    $userQuery->execute();
+    $userResult = $userQuery->get_result();
+    $userRow = $userResult->fetch_assoc();
+    
+    if ($userRow) {
+        $UserAdminName = htmlspecialchars($userRow['UserAdminName']);
+    }
+}
+
 // แสดงข้อมูลที่ดึงมา
 echo "<p><strong>รหัส:</strong> " . $row['item_id'] . "</p>";
 echo "<p><strong>ชื่อผู้แจ้ง:</strong> " . htmlspecialchars($row['owner_name']) . "</p>";
@@ -24,7 +53,7 @@ echo "<p><strong>ช่องทางติดต่อ:</strong> " . htmlspeci
 echo "<p><strong>ประเภททรัพย์สิน:</strong> " . htmlspecialchars($row['item_name']) . "</p>";
 echo "<p><strong>รายละเอียด:</strong> " . htmlspecialchars($row['item_description']) . "</p>";
 echo "<p><strong>สถานที่:</strong> " . htmlspecialchars($row['lost_location']) . "</p>";
-echo "<p><strong>วันที่แจ้ง:</strong> " . date('d/m/Y H:i', strtotime($row['lost_date'])) . "</p>";
+echo "<p><strong>วันที่แจ้ง:</strong> " . date('d/m/Y H:i น.', strtotime($row['lost_date'])) . "</p>";
 
 // แสดงสถานะ
 echo "<p><strong>สถานะ:</strong> " . htmlspecialchars($row['status_name']) . "</p>";
@@ -59,5 +88,5 @@ if ($row['finder_image']) {
 }
 
 // ผู้ส่งมอบทรัพย์สิน
-echo "<p><strong>ผู้ส่งมอบทรัพย์สิน:</strong> " . htmlspecialchars($row['deliverer']) . "</p>";
+echo "<p><strong>ผู้ส่งมอบทรัพย์สิน:</strong> " . $UserAdminName . "</p>";
 ?>

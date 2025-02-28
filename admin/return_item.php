@@ -102,7 +102,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="staff2_index.php" class="nav-link">Home</a>
+        <a href="admin_index.php" class="nav-link">Home</a>
       </li>
     </ul>
   </nav>
@@ -111,7 +111,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="staff2_index.php" class="brand-link">
+    <a href="admin_index.php" class="brand-link">
       <img src="../assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
@@ -252,12 +252,12 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">ข้อมูลแจ้งทรัพย์สินหาย</h1>
+            <h1 class="m-0">ส่งคืนทรัพย์สิน</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">ข้อมูลแจ้งทรัพย์สินหาย</li>
+              <li class="breadcrumb-item active">ส่งคืนทรัพย์สิน</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -286,7 +286,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                     <th style="font-size: 14px;">วันที่แจ้ง</th>
                     <th style="font-size: 14px;">สถานะ</th>
                     <th style="font-size: 14px;">เพิ่มเติม</th>
-                    <th style="font-size: 14px;">แก้ไข</th>
+                    <th style="font-size: 14px;">ส่งคืนทรัพย์สิน</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -306,7 +306,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                 <button class="btn btn-info" onclick="viewDetails(<?= $row['item_id'] ?>)" style="font-size: 14px;">ดูรายละเอียดเพิ่มเติม</button>
                               </td>
                               <td style="font-size: 14px;">
-                                    <button class="btn btn-warning" onclick="window.location.href='lost_edit.php?item_id=<?= $row['item_id'] ?>'" style="font-size: 14px;">แก้ไข</button>
+                                    <button class="btn btn-warning" onclick="window.location.href='return_item_update.php?item_id=<?= $row['item_id'] ?>'" style="font-size: 14px;">ส่งคืนทรัพย์สิน</button>
                                     <?php
                                         // ตรวจสอบค่า success ใน URL
                                         if (isset($_GET['success']) && $_GET['success'] == 3) {
@@ -321,7 +321,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                                         text: "ข้อมูลถูกแก้ไขเรียบร้อยแล้ว",
                                                         type: "success"
                                                     }, function() {
-                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
+                                                        window.location = "return_item.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
                                                     });
                                                 }, 1000);
                                             </script>';
@@ -341,7 +341,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                                         title: "ไฟล์ ' . $filename . ' ต้องเป็น JPEG หรือ PNG เท่านั้น",
                                                         type: "error"
                                                     }, function() {
-                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
+                                                        window.location = "return_item.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
                                                     });
                                                 }, 1000);
                                             </script>';
@@ -361,7 +361,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                                         title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
                                                         type: "error"
                                                     }, function() {
-                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
+                                                        window.location = "return_item.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
                                                     });
                                                 }, 1000);
                                             </script>';
@@ -369,31 +369,26 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                         }
                                         ?>
                                         <?php
-                                          // ตรวจสอบค่า success ใน URL
-                                          if (isset($_GET['success']) && $_GET['success'] == 5) {
-                                              // รับข้อความผิดพลาดจาก URL
-                                              $error_message = isset($_GET['message']) ? htmlspecialchars($_GET['message']) : 'ไม่สามารถอัปโหลดไฟล์ได้';
-
-                                              echo '
-                                              <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                              <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                              <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                              <script>
-                                                  setTimeout(function() {
-                                                      swal({
-                                                          title: "อัปโหลดไฟล์ผิดพลาด",
-                                                          text: "' . $error_message . '", // แสดงข้อความผิดพลาด
-                                                          type: "error"
-                                                      }, function() {
-                                                          window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
-                                                      });
-                                                  }, 1000);
-                                              </script>';
-                                              exit;
-                                          }
-                                          ?>
-
-                                    </td>   
+                                        // ตรวจสอบค่า success ใน URL
+                                        if (isset($_GET['success']) && $_GET['success'] == 5) {
+                                            echo '
+                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+                                            <script>
+                                                setTimeout(function() {
+                                                    swal({
+                                                        title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
+                                                        type: "error"
+                                                    }, function() {
+                                                        window.location = "return_item.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
+                                                    });
+                                                }, 1000);
+                                            </script>';
+                                            exit;
+                                        }
+                                        ?>
+                                    </td>
                   </tr>
                   <?php endwhile; ?>
                   </tbody>

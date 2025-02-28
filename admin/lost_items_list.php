@@ -154,12 +154,6 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="resize.php" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>ลดขนาดไฟล์รูปภาพ</p>
-                </a>
-              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -174,7 +168,7 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
+                  <p>ข้อมูลแจ้งพบทรัพย์สิน</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -185,14 +179,65 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
               </li>
             </ul>
           </li>
-          <li class="nav-header">การจัดการ</li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas far fa-regular fa-hand-holding-heart"></i>
+              <p>
+                ส่งคืนทรัพย์สิน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="return_item.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ส่งคืนทรัพย์สิน</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-pie"></i>
+              <p>
+                รายงาน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="show_result_found_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายเดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_result_found.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายปี</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งทรัพย์สินหาย เดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงายแจ้งทรัพย์สินหาย รายปี</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-header">ล็อกเอาท์</li>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
                       <p>ลงชื่อออก</p>
                     </a>
-            </li>
-            </ul>
+            </li>  
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
@@ -325,25 +370,30 @@ $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminNam
                                         }
                                         ?>
                                         <?php
-                                        // ตรวจสอบค่า success ใน URL
-                                        if (isset($_GET['success']) && $_GET['success'] == 5) {
-                                            echo '
-                                            <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                            <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                            <script>
-                                                setTimeout(function() {
-                                                    swal({
-                                                        title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
-                                                        type: "error"
-                                                    }, function() {
-                                                        window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
-                                                    });
-                                                }, 1000);
-                                            </script>';
-                                            exit;
-                                        }
-                                        ?>
+// ตรวจสอบค่า success ใน URL
+if (isset($_GET['success']) && $_GET['success'] == 5) {
+    // รับข้อความผิดพลาดจาก URL
+    $error_message = isset($_GET['message']) ? htmlspecialchars($_GET['message']) : 'ไม่สามารถอัปโหลดไฟล์ได้';
+
+    echo '
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+    <script>
+        setTimeout(function() {
+            swal({
+                title: "อัปโหลดไฟล์ผิดพลาด",
+                text: "' . $error_message . '", // แสดงข้อความผิดพลาด
+                type: "error"
+            }, function() {
+                window.location = "lost_items_list.php";  // รีไดเร็กต์ไปหน้า list หลังแสดงผล
+            });
+        }, 1000);
+    </script>';
+    exit;
+}
+?>
+
                                     </td>
                               <td style="font-size: 14px;">
                                   <button onclick="deleteItem(<?= $row['item_id'] ?>)" class="btn btn-danger" style="font-size: 14px;">ลบ</button>

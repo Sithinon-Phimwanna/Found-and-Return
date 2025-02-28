@@ -286,9 +286,25 @@ foreach ($months as $month) {
             <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
-                <h3>แผนภูมิ</h3>
+                <h3>รายงานแจ้งพบ</h3>
 
-                <p>แสดงรายงานแจ้งพบ</p>
+                <p>รายงานรายเดือน</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+              </div>
+              <a href="show_result_found_m.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+           <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3>รายงานแจ้งพบ</h3>
+
+                <p>รายงานรายปี</p>
               </div>
               <div class="icon">
                 <i class="ion ion-stats-bars"></i>
@@ -302,9 +318,25 @@ foreach ($months as $month) {
             <!-- small box -->
             <div class="small-box bg-danger">
               <div class="inner">
-                <h3>แผนภูมิ</h3>
+                <h3>รายงานแจ้งหาย</h3>
 
-                <p>แสดงรายงานแจ้งหาย</p>
+                <p>รายงานรายเดือน</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-pie-graph"></i>
+              </div>
+              <a href="show_result_lost_m.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+           <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-danger">
+              <div class="inner">
+                <h3>รายงานแจ้งหาย</h3>
+
+                <p>รายงานรายปี</p>
               </div>
               <div class="icon">
                 <i class="ion ion-pie-graph"></i>

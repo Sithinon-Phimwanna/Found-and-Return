@@ -96,20 +96,8 @@ $users = isset($data['users']) ? $data['users'] : [];
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="../assets/dist/img/user-gear.png" class="img-circle elevation-2" alt="User Image">
-        </div>
-        <div class="info">
-        <span class="me-3" style="color: white;"><?= htmlspecialchars($_SESSION['UserAdminName']); ?></span>
-        </div>
-      </div>
-
-      <!-- Sidebar Menu -->
-      <nav class="mt-2">
+    <!-- Sidebar Menu -->
+    <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
@@ -134,12 +122,6 @@ $users = isset($data['users']) ? $data['users'] : [];
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="resize.php" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>ลดขนาดไฟล์รูปภาพ</p>
-                </a>
-              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -154,7 +136,7 @@ $users = isset($data['users']) ? $data['users'] : [];
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
+                  <p>ข้อมูลแจ้งพบทรัพย์สิน</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -165,7 +147,59 @@ $users = isset($data['users']) ? $data['users'] : [];
               </li>
             </ul>
           </li>
-          <li class="nav-header">การจัดการ</li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas far fa-regular fa-hand-holding-heart"></i>
+              <p>
+                ส่งคืนทรัพย์สิน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="return_item.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ส่งคืนทรัพย์สิน</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-pie"></i>
+              <p>
+                รายงาน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="show_result_found_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายเดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_result_found.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายปี</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งทรัพย์สินหาย เดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงายแจ้งทรัพย์สินหาย รายปี</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-header">ล็อกเอาท์</li>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
@@ -207,7 +241,7 @@ $users = isset($data['users']) ? $data['users'] : [];
     <form action="" method="POST" enctype="multipart/form-data">
         <!-- ช่องให้ผู้ใช้กรอก ID หรือชื่อ -->
         <div class="form-group row">
-            <label for="user_id" class="col-sm-2">ค้นหา (ID หรือ ชื่อ):</label>
+            <label for="user_id" class="col-sm-2">รหัสนักศึกษา:</label>
             <input type="text" class="form-control-sm-4" id="user_id" placeholder="กรอกเลข ID หรือ ชื่อ" oninput="fetchUserData()">
         </div>
         
@@ -243,11 +277,14 @@ $users = isset($data['users']) ? $data['users'] : [];
         </div>
         <div class="form-group row">
            <label for="consignee" class="col-sm-2">ผู้รับแจ้ง:</label> 
-           <input type="text" class="form-control-sm-4" id="consignee" name="consignee" value="<?php echo htmlspecialchars($name); ?>" required>
+           <input type="text" class="form-control-sm-4" id="consignee" name="consignee_display" 
+                value="<?php echo htmlspecialchars($name); ?>" required disabled>
+          <input type="hidden" name="consignee" value="<?php echo htmlspecialchars($_SESSION['user_id']); ?>">
+
         </div>
         <div class="form-group row">
             <label for="found_image" class="col-sm-2">อัพโหลดภาพทรัพย์สินที่เก็บได้:</label>
-            <input class="form-control-sm-4" type="file" id="found_image" name="found_image[]" multiple>
+            <input class="form-control-sm-4" type="file" name="found_image[]" id="found_image" multiple onchange="resizeImages(event)"required>
         </div>
         <div class="form-group row">
             <label class="col-sm-2"></label>
@@ -261,175 +298,95 @@ $users = isset($data['users']) ? $data['users'] : [];
                     <?php
                       require 'config.php';
 
+                      function resizeImage($source, $destination, $max_width, $max_height) {
+                          list($orig_width, $orig_height, $image_type) = getimagesize($source);
+                          
+                          $allowed_types = [IMAGETYPE_JPEG, IMAGETYPE_PNG];
+                          if (!in_array($image_type, $allowed_types)) {
+                              return false;
+                          }
+
+                          $ratio = min($max_width / $orig_width, $max_height / $orig_height);
+                          $new_width = round($orig_width * $ratio);
+                          $new_height = round($orig_height * $ratio);
+
+                          $image_p = imagecreatetruecolor($new_width, $new_height);
+                          
+                          if ($image_type == IMAGETYPE_JPEG) {
+                              $image = imagecreatefromjpeg($source);
+                              imagecopyresampled($image_p, $image, 0, 0, 0, 0, $new_width, $new_height, $orig_width, $orig_height);
+                              imagejpeg($image_p, $destination, 90);
+                          } elseif ($image_type == IMAGETYPE_PNG) {
+                              $image = imagecreatefrompng($source);
+                              imagecopyresampled($image_p, $image, 0, 0, 0, 0, $new_width, $new_height, $orig_width, $orig_height);
+                              imagepng($image_p, $destination, 9);
+                          }
+                          
+                          return true;
+                      }
+
                       if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                          // รับค่าจากฟอร์ม
                           $finder_name = $_POST['finder_name'];
                           $finder_contact = $_POST['finder_contact'];
                           $found_name = $_POST['found_name'];
                           $found_description = $_POST['found_description'];
                           $found_location = $_POST['found_location'];
-                          $consignee =$_POST['consignee'];
-
-                          // ใช้เวลาปัจจุบัน
+                          $consignee = $_POST['consignee'];
                           $found_date = date('Y-m-d H:i:s');
 
-                          // ตรวจสอบและจัดการอัปโหลดภาพหลายไฟล์ (ทำให้ไม่บังคับ)
                           $images = [];
                           if (isset($_FILES['found_image']) && !empty($_FILES['found_image']['name'][0])) {
                               $upload_dir = '../found_images/';
-
                               if (!is_dir($upload_dir)) {
-                                  mkdir($upload_dir, 0777, true); // สร้างโฟลเดอร์ถ้ายังไม่มี
+                                  mkdir($upload_dir, 0777, true);
                               }
 
                               foreach ($_FILES['found_image']['name'] as $key => $filename) {
-                                $tmp_name = $_FILES['found_image']['tmp_name'][$key];
-                                $error = $_FILES['found_image']['error'][$key];
-                                $file_size = $_FILES['found_image']['size'][$key];
-                                $file_type = $_FILES['found_image']['type'][$key];
-                            
-                                // ตรวจสอบข้อผิดพลาดจากการอัปโหลดไฟล์
-                                if ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
-                                    // ข้อผิดพลาดเกิดจากขนาดไฟล์เกินที่ตั้งไว้
-                                    echo '
-                                    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                    <script>
-                                        setTimeout(function() {
-                                            swal({
-                                            title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
-                                            type: "error"
-                                            }, function() {
-                                            window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                            });
-                                        }, 1000);
-                                    </script>';
-                                    die(); // หยุดการทำงานเมื่อเกิดข้อผิดพลาดขนาดไฟล์
-                                }
-                            
-                                // ตรวจสอบประเภทไฟล์
-                                if (!in_array($file_type, ['image/jpeg', 'image/png'])) {
-                                    echo '
-                                    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                    <script>
-                                        setTimeout(function() {
-                                            swal({
-                                            title: "ไฟล์ ' . $filename . ' ต้องเป็น JPEG หรือ PNG เท่านั้น",
-                                            type: "error"
-                                            }, function() {
-                                            window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                            });
-                                        }, 1000);
-                                    </script>';
-                                    die(); // หยุดการทำงานเมื่อเกิดข้อผิดพลาดประเภทไฟล์
-                                }
-                            
-                                // ตรวจสอบขนาดไฟล์ที่เกิน 1MB
-                                $max_file_size = 1048576; // 1MB
-                                if ($file_size > $max_file_size) {
-                                    echo '
-                                    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                    <script>
-                                        setTimeout(function() {
-                                            swal({
-                                            title: "ไฟล์ ' . $filename . ' มีขนาดใหญ่เกินไป (สูงสุด 1MB)",
-                                            type: "error"
-                                            }, function() {
-                                            window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                            });
-                                        }, 1000);
-                                    </script>';
-                                    die(); // หยุดการทำงานเมื่อขนาดไฟล์เกินขีดจำกัด
-                                }
-                            
-                                // ตั้งชื่อไฟล์ใหม่และอัปโหลดไฟล์
-                                $timestamp = date('Y-m-d_H-i-s');
-                                $extension = pathinfo($filename, PATHINFO_EXTENSION);
-                                $new_filename = $timestamp . '_' . pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
-                                $target_file = $upload_dir . $new_filename;
-                            
-                                if (move_uploaded_file($tmp_name, $target_file)) {
-                                    $images[] = basename($target_file);
-                                } else {
-                                    echo '
-                                    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
-                                    <script>
-                                        setTimeout(function() {
-                                            swal({
-                                            title: "ขออภัย, เกิดข้อผิดพลาดในการอัปโหลดไฟล์",
-                                            type: "error"
-                                            }, function() {
-                                            window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                            });
-                                        }, 1000);
-                                    </script>';
-                                    exit; // หยุดการทำงานเมื่อเกิดข้อผิดพลาดในการอัปโหลดไฟล์
-                                }
-                            }
-                            
-                            
-                            
-                          }      
+                                  $tmp_name = $_FILES['found_image']['tmp_name'][$key];
+                                  $error = $_FILES['found_image']['error'][$key];
+                                  $file_size = $_FILES['found_image']['size'][$key];
+                                  $file_type = $_FILES['found_image']['type'][$key];
+                                  
+                                  if ($error !== UPLOAD_ERR_OK) continue;
+                                  if (!in_array($file_type, ['image/jpeg', 'image/png'])) continue;
+                                  if ($file_size > 1048576) continue;
+                                  
+                                  $timestamp = date('Y-m-d_H-i-s');
+                                  $extension = pathinfo($filename, PATHINFO_EXTENSION);
+                                  $new_filename = $timestamp . '_' . pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
+                                  $target_file = $upload_dir . $new_filename;
+                                  
+                                  if (move_uploaded_file($tmp_name, $target_file)) {
+                                      $resized_file = $upload_dir . 'resized_' . $new_filename;
+                                      if (resizeImage($target_file, $resized_file, 1024, 1024)) {
+                                          unlink($target_file);
+                                          $images[] = basename($resized_file);
+                                      } else {
+                                          $images[] = basename($target_file);
+                                      }
+                                  }
+                              }
+                          }
 
-                          // แปลงอาร์เรย์ชื่อไฟล์เป็นสตริง (ใช้ , แยก) หรือใช้ NULL ถ้าไม่อัปโหลดไฟล์
                           $images_str = !empty($images) ? implode(',', $images) : NULL;
+                          $status_id = 1;
 
-                          $status_id = 1; // 'พบ' ในข้อมูล statuses
+                          $stmt = $mysqli->prepare("INSERT INTO found_items (finder_name, finder_contact, found_name, found_description, found_date, found_location, consignee, found_image, status_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-                          // เตรียมคำสั่ง SQL เพื่อบันทึกข้อมูล
-                          $stmt = $mysqli->prepare("INSERT INTO found_items (finder_name, finder_contact, found_name, found_description, found_date, found_location, consignee, found_image, status_id) 
-                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-                          if ($stmt === false) {
-                              die('เกิดข้อผิดพลาดในการเตรียมคำสั่ง SQL: ' . $mysqli->error);
+                          if ($stmt) {
+                              $stmt->bind_param("ssssssssi", $finder_name, $finder_contact, $found_name, $found_description, $found_date, $found_location, $consignee, $images_str, $status_id);
+                              if ($stmt->execute()) {
+                                  echo '<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>';
+                                  echo '<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>';
+                                  echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
+                                  echo '<script>setTimeout(function() { swal({ title: "บันทึกข้อมูลสำเร็จ", type: "success" }, function() { window.location = "found_item_form.php"; }); }, 1000);</script>';
+                              }
+                              $stmt->close();
                           }
-
-                          // ผูกค่าตัวแปรกับคำสั่ง SQL
-                          $stmt->bind_param("ssssssssi", $finder_name, $finder_contact, $found_name, $found_description, $found_date, $found_location, $consignee, $images_str, $status_id);
-
-                          // บันทึกข้อมูลลงฐานข้อมูล
-                          if ($stmt->execute()) {
-                              // Sweet alert แจ้งเตือน
-                              echo '
-                              <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-                              <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-                              <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">';
-                              echo '<script>
-                                  setTimeout(function() {
-                                      swal({
-                                          title: "บันทึกข้อมูลสำเร็จ",
-                                          type: "success"
-                                      }, function() {
-                                          window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                      });
-                                  }, 1000);
-                              </script>';
-                          } else {
-                              // Sweet alert แจ้งเตือน
-                              echo '<script>
-                                  setTimeout(function() {
-                                      swal({
-                                          title: "เกิดข้อผิดพลาด",
-                                          type: "error"
-                                      }, function() {
-                                          window.location = "found_item_form.php"; //หน้าที่ต้องการให้กระโดดไป
-                                      });
-                                  }, 1000);
-                              </script>';
-                          }
-
-                          // ปิดการเชื่อมต่อฐานข้อมูล
-                          $stmt->close();
                           $mysqli->close();
                       }
-                      ?> 
+                      ?>
+
             </div>
         </div>
         <!-- /.row -->
@@ -483,6 +440,62 @@ $users = isset($data['users']) ? $data['users'] : [];
             }
         })
         .catch(error => console.error("Error fetching user data:", error));
+}
+
+function resizeImages(event) {
+    const files = event.target.files;
+    const maxSize = 1024; // กำหนดขนาดสูงสุด 1024px
+
+    let resizedFiles = [];
+
+    Array.from(files).forEach(file => {
+        if (!file.type.startsWith("image/")) return; // ตรวจสอบว่าเป็นรูปภาพเท่านั้น
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onload = function (e) {
+            const img = new Image();
+            img.src = e.target.result;
+
+            img.onload = function () {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxSize) {
+                        height *= maxSize / width;
+                        width = maxSize;
+                    }
+                } else {
+                    if (height > maxSize) {
+                        width *= maxSize / height;
+                        height = maxSize;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(blob => {
+                    const newFile = new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() });
+
+                    resizedFiles.push(newFile);
+
+                    if (resizedFiles.length === files.length) {
+                        const dataTransfer = new DataTransfer();
+                        resizedFiles.forEach(resizedFile => dataTransfer.items.add(resizedFile));
+
+                        document.getElementById("found_image").files = dataTransfer.files;
+                    }
+                }, "image/jpeg", 0.8);
+            };
+        };
+    });
 }
 
     </script>

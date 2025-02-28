@@ -24,7 +24,7 @@ echo "<p><strong>ช่องทางติดต่อ:</strong> " . htmlspeci
 echo "<p><strong>ประเภททรัพย์สิน:</strong> " . htmlspecialchars($row['item_name']) . "</p>";
 echo "<p><strong>รายละเอียด:</strong> " . htmlspecialchars($row['item_description']) . "</p>";
 echo "<p><strong>สถานที่:</strong> " . htmlspecialchars($row['lost_location']) . "</p>";
-echo "<p><strong>วันที่แจ้ง:</strong> " . date('d/m/Y H:i', strtotime($row['lost_date'])) . "</p>";
+echo "<p><strong>วันที่แจ้ง:</strong> " . date('d/m/Y H:i น.', strtotime($row['lost_date'])) . "</p>";
 
 // แสดงสถานะ
 echo "<p><strong>สถานะ:</strong> " . htmlspecialchars($row['status_name']) . "</p>";

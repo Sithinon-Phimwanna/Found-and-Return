@@ -2,9 +2,9 @@
 session_start(); // เริ่มเซสชัน
 
 // ตรวจสอบการล็อกอินและบทบาทผู้ใช้
-if (!isset($_SESSION['user_id']) || $_SESSION['level_id'] !== 2) {
-    header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอิน หรือไม่ใช่แอดมิน ให้เปลี่ยนเส้นทางไปหน้า login
-    exit;
+if (!isset($_SESSION['user_id'])) {
+  header('Location: login.php'); // ถ้ายังไม่ได้ล็อกอิน ให้เปลี่ยนเส้นทางไปหน้า login
+  exit;
 }
 
 require 'config.php';
@@ -53,6 +53,7 @@ $lost_count_today = $result_lost_today->fetch_assoc()['lost_count_today'];
 // นับจำนวนแจ้งพบทรัพสิน (เฉพาะวันปัจจุบัน)
 $result_found_today = $mysqli->query("SELECT COUNT(*) AS found_count_today FROM found_items WHERE found_id AND DATE(found_date) = '$current_date'");
 $found_count_today = $result_found_today->fetch_assoc()['found_count_today'];
+
 
 // ตรวจสอบว่าผู้ใช้ล็อกอินและบทบาทเป็นแอดมินหรือไม่
 if (!isset($_SESSION['user_id']) || $_SESSION['level_id'] !== 2) {
@@ -152,12 +153,6 @@ $adminName = $_SESSION['UserAdminName'];
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="resize.php" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>ลดขนาดไฟล์รูปภาพ</p>
-                </a>
-              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -172,7 +167,7 @@ $adminName = $_SESSION['UserAdminName'];
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
+                  <p>ข้อมูลแจ้งพบทรัพย์สิน</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -183,13 +178,65 @@ $adminName = $_SESSION['UserAdminName'];
               </li>
             </ul>
           </li>
-          <li class="nav-header">การจัดการ</li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas far fa-regular fa-hand-holding-heart"></i>
+              <p>
+                ส่งคืนทรัพย์สิน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="return_item.php" class="nav-link">
+                  <i class="fa-solid fa-share-from-square"></i>
+                  <p>ส่งคืนทรัพย์สิน</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-pie"></i>
+              <p>
+                รายงาน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="show_result_found_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายเดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_result_found.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายปี</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งทรัพย์สินหาย เดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงายแจ้งทรัพย์สินหาย รายปี</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-header">ล็อกเอาท์</li>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
                       <p>ลงชื่อออก</p>
                     </a>
-            </li>
+            </li>  
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
@@ -233,7 +280,7 @@ $adminName = $_SESSION['UserAdminName'];
               <div class="icon">
                 <i class="ion ion-stats-bars"></i>
               </div>
-              <a href="#" class="small-box-footer">แจ้งทรัพย์สินหาย(วันนี้): <?= $lost_count_today ?></a>
+              <a href="#" class="small-box-footer">แจ้งทรัพย์สินหาย (วันนี้): <?= $lost_count_today ?></a>
             </div>
           </div>
           <!-- ./col -->
@@ -271,14 +318,14 @@ $adminName = $_SESSION['UserAdminName'];
             <!-- small box -->
             <div class="small-box bg-danger">
               <div class="inner">
-                <h3>แผนภูมิ</h3>
+                <h3>รายงาน</h3>
 
                 <p>แสดงจำนวนทรัพย์สิน</p>
               </div>
               <div class="icon">
                 <i class="ion ion-pie-graph"></i>
               </div>
-              <a href="chart_staff2.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
+              <a href="chart_admin.php" class="small-box-footer">คลิกเพื่อดูข้อมูล<i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
           <!-- ./col -->

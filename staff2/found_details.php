@@ -25,7 +25,7 @@ echo "<p><strong>ทรัพย์สิน:</strong> " . htmlspecialchars($row
 echo "<p><strong>รายละเอียด:</strong> " . htmlspecialchars($row['found_description']) . "</p>";
 echo "<p><strong>สถานที่เก็บได้:</strong> " . htmlspecialchars($row['found_location']) . "</p>";
 echo "<p><strong>ผู้รับแจ้ง:</strong> " . htmlspecialchars($row['consignee']) . "</p>";
-echo "<p><strong>วันที่เก็บได้:</strong> " . date('d/m/Y H:i', strtotime($row['found_date'])) . "</p>";
+echo "<p><strong>วันที่เก็บได้:</strong> " . date('d/m/Y H:i น.', strtotime($row['found_date'])) . "</p>";
 
 // แสดงภาพ
 if ($row['found_image']) {

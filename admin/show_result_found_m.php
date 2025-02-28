@@ -9,73 +9,81 @@ if ($mysqli->connect_error) {
     die("เชื่อมต่อฐานข้อมูลล้มเหลว: " . $mysqli->connect_error);
 }
 
-// ตรวจสอบว่ามีการเลือกปีจากฟอร์มหรือไม่
+// ตรวจสอบว่ามีการเลือกเดือนและปีจากฟอร์มหรือไม่
+$month = isset($_GET['month']) ? $_GET['month'] : '';
 $year = isset($_GET['year']) ? $_GET['year'] : '';
 
-// ดึงข้อมูลจากฐานข้อมูล
-$query = "
-    SELECT 
-        YEAR(found_date) AS year,
-        status_id,
-        COUNT(found_id) AS count
-    FROM 
-        found_items
-    WHERE 
-        1=1
-";
-
-if (!empty($year)) {
-    $query .= " AND YEAR(found_date) = ?";
-}
-
-$query .= "
-    GROUP BY 
-        YEAR(found_date), status_id
-    ORDER BY 
-        YEAR(found_date) DESC
-";
-
-$stmt = $mysqli->prepare($query);
-if ($stmt === false) {
-    die('ข้อผิดพลาดในคำสั่ง SQL: ' . $mysqli->error);
-}
-
-$params = [];
-if (!empty($year)) $params[] = $year;
-
-if (count($params) > 0) {
-    $stmt->bind_param(str_repeat('s', count($params)), ...$params);
-}
-
-$stmt->execute();
-$result = $stmt->get_result();
-
-$data = [];
-while ($row = $result->fetch_assoc()) {
-    $data[$row['status_id']] = $row['count'];
-}
-
-// แปลงข้อมูลสำหรับ CanvasJS
+// ถ้ายังไม่ได้เลือกเดือนและปี ไม่ต้องดึงข้อมูลจากฐานข้อมูล
 $dataPoints = [];
-$statusLabels = [
-    1 => "แจ้งพบ",
-    2 => "คืนแล้ว",
-    3 => "ค้างในระบบเกิน 1 สัปดาห์"
-];
+if (!empty($year) && !empty($month)) {
+    // ดึงข้อมูลจากฐานข้อมูล
+    $query = "
+        SELECT 
+            MONTH(found_date) AS month,
+            status_id,
+            COUNT(found_id) AS count
+        FROM 
+            found_items
+        WHERE 
+            1=1
+    ";
 
-$colors = [
-    1 => "#007bff", // สีน้ำเงิน สำหรับ "แจ้งพบ"
-    2 => "#28a745", // สีเขียว สำหรับ "คืนแล้ว"
-    3 => "#FFCC66"  // สีแดง สำหรับ "ค้างในระบบเกิน 1 สัปดาห์"
-];
+    if (!empty($year)) {
+        $query .= " AND YEAR(found_date) = ?";
+    }
+    if (!empty($month)) {
+        $query .= " AND MONTH(found_date) = ?";
+    }
 
-foreach ($statusLabels as $statusId => $label) {
-    $count = isset($data[$statusId]) ? $data[$statusId] : 0;
-    $dataPoints[] = [
-        'label' => $label,
-        'y' => $count,
-        'color' => $colors[$statusId]  // เพิ่มสีที่กำหนดลงใน dataPoint
+    $query .= "
+        GROUP BY 
+            MONTH(found_date), status_id
+        ORDER BY 
+            MONTH(found_date) ASC
+    ";
+
+    $stmt = $mysqli->prepare($query);
+    if ($stmt === false) {
+        die('ข้อผิดพลาดในคำสั่ง SQL: ' . $mysqli->error);
+    }
+
+    $params = [];
+    if (!empty($year)) $params[] = $year;
+    if (!empty($month)) $params[] = $month;
+
+    if (count($params) > 0) {
+        $stmt->bind_param(str_repeat('s', count($params)), ...$params);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[$row['status_id']] = $row['count'];
+    }
+
+    // แปลงข้อมูลสำหรับ CanvasJS
+    $statusLabels = [
+        1 => "แจ้งพบ",
+        2 => "คืนแล้ว",
+        3 => "ค้างในระบบเกิน 1 สัปดาห์"
     ];
+
+    $colors = [
+        1 => "#007bff", // สีน้ำเงิน สำหรับ "แจ้งพบ"
+        2 => "#28a745", // สีเขียว สำหรับ "คืนแล้ว"
+        3 => "#FFCC66"  // สีแดง สำหรับ "ค้างในระบบเกิน 1 สัปดาห์"
+    ];
+
+    foreach ($statusLabels as $statusId => $label) {
+        $count = isset($data[$statusId]) ? $data[$statusId] : 0;
+        $dataPoints[] = [
+            'label' => $label,
+            'y' => floor($count),
+            'color' => $colors[$statusId]  // เพิ่มสีที่กำหนดลงใน dataPoint
+        ];
+    }
 }
 ?>
 
@@ -257,12 +265,12 @@ foreach ($statusLabels as $statusId => $label) {
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">เลือกพื่อดูข้อมูล รายปี</h1>
+            <h1 class="m-0">เลือกพื่อดูข้อมูล รายเดือน</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">รายงานข้อมูลแจ้งพบ รายปี</li>
+              <li class="breadcrumb-item active">รายงานข้อมูลแจ้งพบ รายเดือน</li>
             </ol>
           </div>
         </div>
@@ -287,29 +295,56 @@ foreach ($statusLabels as $statusId => $label) {
                   ?>
                 </select>
               </div>
+              <div class="form-group">
+                <label for="month">รายงานเดือน:</label>
+                <select name="month" id="month" class="form-control">
+                  <option value="">-- เลือกเดือน --</option>
+                  <?php
+                  $thaiMonths = [
+                    1 => "มกราคม",
+                    2 => "กุมภาพันธ์",
+                    3 => "มีนาคม",
+                    4 => "เมษายน",
+                    5 => "พฤษภาคม",
+                    6 => "มิถุนายน",
+                    7 => "กรกฎาคม",
+                    8 => "สิงหาคม",
+                    9 => "กันยายน",
+                    10 => "ตุลาคม",
+                    11 => "พฤศจิกายน",
+                    12 => "ธันวาคม"
+                ];
+                  // สร้างตัวเลือกเดือนในฟอร์ม
+                  foreach ($thaiMonths as $i => $monthName) {
+                    echo "<option value=\"$i\" " . ($month == $i ? "selected" : "") . ">$monthName</option>";
+                }
+                  ?>
+                </select>
+              </div>
               <button type="submit" class="btn btn-primary">แสดงรายงาน</button>
             </form>
           </div>
         </div>
         
         <div class="card-body">
-          <?php if (!empty($year)): ?>
+          <?php if (!empty($year) && !empty($month)): ?>
             <div id="chartContainer" style="height: 370px; width: 100%;"></div>
             <script>
             window.onload = function() {
                 var chart = new CanvasJS.Chart("chartContainer", {
                     animationEnabled: true,
                     title: {
-                        text: "รายงานข้อมูลแจ้งพบ รายปี"
+                        text: "รายงานข้อมูลแจ้งพบ รายเดือน"
                     },
                     axisY: {
                         title: "จำนวน",
+                        interval: 1,
+                        valueFormatString: "#0",
                         includeZero: true
                     },
                     data: [{
                         type: "bar",
-                        yValueFormatString: "#,##0 ชิ้น",
-                        xValueFormatString: "#,##0",
+                        yValueFormatString: "#0 ชิ้น",
                         indexLabel: "{y}",
                         indexLabelPlacement: "inside",
                         indexLabelFontWeight: "bolder",
@@ -321,7 +356,7 @@ foreach ($statusLabels as $statusId => $label) {
             }
             </script>
           <?php else: ?>
-            <p>กรุณาเลือกปีเพื่อดูรายงาน</p>
+            <p>กรุณาเลือกปีและเดือนเพื่อดูรายงาน</p>
           <?php endif; ?>
         </div>
       </div>

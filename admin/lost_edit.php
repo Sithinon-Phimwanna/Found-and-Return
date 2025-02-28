@@ -2,7 +2,6 @@
 session_start();
 require 'config.php';
 
-
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -16,9 +15,10 @@ if (!isset($_SESSION['user_id'])) {
 // ตรวจสอบว่าในเซสชันมีการตั้งค่า UserAdminName หรือไม่
 $current_user_name = isset($_SESSION['UserAdminName']) ? $_SESSION['UserAdminName'] : 'ไม่ทราบชื่อ';
 
-
 // ตรวจสอบว่ามีการส่งค่า item_id มาหรือไม่
 if (!isset($_GET['item_id'])) {
+    echo "ไม่พบรหัสรายการ";
+    exit;
 }
 
 $item_id = $_GET['item_id'];
@@ -31,6 +31,8 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
+    echo "ไม่พบข้อมูลที่เกี่ยวข้องกับรหัสรายการนี้";
+    exit;
 }
 
 $item = $result->fetch_assoc();
@@ -53,6 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   // ตรวจสอบค่าที่ได้รับจากฟอร์ม
   if (empty($owner_name) || empty($item_name) || empty($item_description) || empty($lost_date) || empty($lost_location) || empty($status_id)) {
+      echo "กรุณากรอกข้อมูลให้ครบถ้วน";
+      exit;
+  }
+
+  // ตรวจสอบว่ามีการอัปโหลดไฟล์หรือไม่
+  if (!isset($_FILES['item_image']) || !isset($_FILES['finder_image'])) {
+      echo "ไม่มีไฟล์อัปโหลด";
+      exit;
   }
 
   // ดึงชื่อไฟล์รูปภาพเก่าจากฐานข้อมูล
@@ -65,8 +75,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $old_item_image = $row['item_image'];
   $old_finder_image = $row['finder_image'];
 
-  // ฟังก์ชันอัปโหลดไฟล์
-  function uploadImages($files, $target_dir, $old_images) {
+  // ฟังก์ชันบีบอัดและปรับขนาดภาพ
+  function resizeImage($sourcePath, $targetPath, $imageType, $maxWidth = 800, $maxHeight = 800) {
+      switch ($imageType) {
+          case IMAGETYPE_JPEG:
+              $sourceImage = imagecreatefromjpeg($sourcePath);
+              break;
+          case IMAGETYPE_PNG:
+              $sourceImage = imagecreatefrompng($sourcePath);
+              break;
+          case IMAGETYPE_GIF:
+              $sourceImage = imagecreatefromgif($sourcePath);
+              break;
+          default:
+              return false;
+      }
+
+      list($origWidth, $origHeight) = getimagesize($sourcePath);
+      $ratio = min($maxWidth / $origWidth, $maxHeight / $origHeight);
+      $newWidth = (int)($origWidth * $ratio);
+      $newHeight = (int)($origHeight * $ratio);
+
+      $newImage = imagecreatetruecolor($newWidth, $newHeight);
+      imagecopyresampled($newImage, $sourceImage, 0, 0, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
+
+      switch ($imageType) {
+          case IMAGETYPE_JPEG:
+              imagejpeg($newImage, $targetPath, 90);
+              break;
+          case IMAGETYPE_PNG:
+              imagepng($newImage, $targetPath, 8);
+              break;
+          case IMAGETYPE_GIF:
+              imagegif($newImage, $targetPath);
+              break;
+      }
+
+      imagedestroy($sourceImage);
+      imagedestroy($newImage);
+
+      return true;
+  }
+
+  // ฟังก์ชันอัปโหลดและบีบอัดไฟล์
+  function uploadImages($files, $target_dir, $old_images, $maxWidth = 800, $maxHeight = 800) {
       $uploaded_images = [];
       foreach ($files['name'] as $key => $file_name) {
           if (!empty($file_name)) {
@@ -77,41 +129,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               $target_file = $target_dir . $new_image_name;
 
               $allowed_types = ["jpg", "jpeg", "png"];
+
               // ตรวจสอบประเภทไฟล์
               if (!in_array($imageFileType, $allowed_types)) {
-                header("Location: lost_items_list.php?success=2");
-                exit;
-              }
-
-              // ตรวจสอบขนาดไฟล์
-              if ($files['size'][$key] > 1048576) {
-                header("Location: lost_items_list.php?success=4");
-              }
-
-              
-
-              if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
-                header("Location: lost_items_list.php?success=5");
+                  echo "ไฟล์ที่อัปโหลดไม่ถูกต้อง (รองรับเฉพาะ JPG, JPEG, PNG)";
                   exit;
               }
 
-              // Only delete old image if a new one is uploaded
+              // ตรวจสอบขนาดไฟล์ก่อนบีบอัด
+              if ($files['size'][$key] > 1048576) { // 1MB
+                  $imageType = exif_imagetype($files['tmp_name'][$key]);
+                  if (!resizeImage($files['tmp_name'][$key], $target_file, $imageType, $maxWidth, $maxHeight)) {
+                      echo "ไม่สามารถบีบอัดภาพได้";
+                      exit;
+                  }
+              } else {
+                // ตรวจสอบข้อผิดพลาดของการอัปโหลดไฟล์
+if ($_FILES['item_image']['error'][0] !== UPLOAD_ERR_OK) {
+  $upload_errors = [
+      UPLOAD_ERR_INI_SIZE   => 'ไฟล์มีขนาดเกินกว่าที่กำหนดใน php.ini',
+      UPLOAD_ERR_FORM_SIZE  => 'ไฟล์มีขนาดเกินขีดจำกัดที่กำหนดในฟอร์ม',
+      UPLOAD_ERR_PARTIAL    => 'ไฟล์ถูกอัปโหลดไม่สมบูรณ์',
+      UPLOAD_ERR_NO_FILE    => 'ไม่มีไฟล์ถูกเลือก',
+      UPLOAD_ERR_NO_TMP_DIR => 'ไม่มีไดเรกทอรีชั่วคราว',
+      UPLOAD_ERR_CANT_WRITE => 'ไม่สามารถเขียนไฟล์ไปยังดิสก์ได้',
+      UPLOAD_ERR_EXTENSION  => 'การอัปโหลดถูกยกเลิกเนื่องจากส่วนขยายของ PHP'
+  ];
+
+  echo "เกิดข้อผิดพลาด: " . $upload_errors[$_FILES['item_image']['error'][0]] ?? 'ข้อผิดพลาดที่ไม่ทราบสาเหตุ';
+  exit;
+}
+
+// ถ้าขนาดไม่เกิน 1MB ให้ย้ายไฟล์โดยตรง
+if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
+  $error = error_get_last(); // ดึงข้อมูลข้อผิดพลาดล่าสุด
+  echo "ไม่สามารถย้ายไฟล์ได้: " . $error['message']; // แสดงข้อความข้อผิดพลาด
+  exit;
+}
+
+              }
+              
+
+              // ลบไฟล์เก่า (ถ้ามี)
               if (!empty($old_images) && file_exists($target_dir . $old_images)) {
                   unlink($target_dir . $old_images);
               }
+
               $uploaded_images[] = $new_image_name;
           } else {
-              $uploaded_images[] = $old_images; // Keep old image if no new file is uploaded
+              $uploaded_images[] = $old_images; // ใช้รูปเก่าถ้าไม่มีการอัปโหลดใหม่
           }
       }
       return implode(',', $uploaded_images);
   }
 
-  // อัปโหลดรูปภาพ
+  // อัปโหลดรูปภาพและบีบอัดถ้าจำเป็น
   $new_item_image = uploadImages($_FILES['item_image'], "../lost_images/", $old_item_image);
   $new_finder_image = uploadImages($_FILES['finder_image'], "../return_images/", $old_finder_image);
 
-  // อัปเดตข้อมูล
+  // อัปเดตข้อมูลในฐานข้อมูล
   $query = "UPDATE lost_items SET owner_name=?, owner_contact=?, item_name=?, item_description=?, lost_date=?, lost_location=?, item_image=?, finder_image=?, deliverer=?, status_id=? WHERE item_id=?";
   $stmt = $mysqli->prepare($query);
   $stmt->bind_param('sssssissssi', $owner_name, $owner_contact, $item_name, $item_description, $lost_date, $lost_location, $new_item_image, $new_finder_image, $deliverer, $status_id, $item_id);
@@ -126,7 +202,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       exit;
   }
 }
+
 ?>
+
 
 
 <!DOCTYPE html>
@@ -211,12 +289,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   <p>แจ้งทรัพย์สินหาย</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="resize.php" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>ลดขนาดไฟล์รูปภาพ</p>
-                </a>
-              </li>
             </ul>
           </li>
           <li class="nav-item">
@@ -231,7 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <li class="nav-item">
                 <a href="found_items_list.php" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>ข้อมูลแจ้งพบทรัพสิน</p>
+                  <p>ข้อมูลแจ้งพบทรัพย์สิน</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -242,14 +314,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </li>
             </ul>
           </li>
-          <li class="nav-header">การจัดการ</li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas far fa-regular fa-hand-holding-heart"></i>
+              <p>
+                ส่งคืนทรัพย์สิน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="return_item.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ส่งคืนทรัพย์สิน</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-pie"></i>
+              <p>
+                รายงาน
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="show_result_found_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายเดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_result_found.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งพบทรัพสิน รายปี</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost_m.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงานแจ้งทรัพย์สินหาย เดือน</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="show_resoult_lost.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>รายงายแจ้งทรัพย์สินหาย รายปี</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-header">ล็อกเอาท์</li>
             <li class="nav-item">
                     <a href="../logout.php" class="nav-link">
                       <i class="far fa-sign-out nav-icon"></i>
                       <p>ลงชื่อออก</p>
                     </a>
-            </li>
-            </ul>
+            </li>  
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
@@ -264,12 +387,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">แก้ไขข้อมูลทรัพย์ที่หาย</h1>
+            <h1 class="m-0">แก้ไขข้อมูลทรัพย์สินที่หาย</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">แก้ไขข้อมูลทรัพย์หาย</li>
+              <li class="breadcrumb-item active">แก้ไขข้อมูลทรัพย์สินหาย</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -324,40 +447,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <div class="form-group row">
                 <label for="item_image" class="col-sm-2">อัปโหลดรูปภาพใหม่ (ถ้ามี)</label>
-                <input type="file" name="item_image[]" class="form-control-sm-4" multiple>
+                <input type="file" id="item_image" name="item_image[]" class="form-control-sm-4" multiple>
                 <p class="form-control-sm-4">รูปภาพปัจจุบัน:</p>
                 <?php
-                  if ($item['item_image']) {
-                      $images = explode(',', $item['item_image']); // แยกรูปภาพหลายๆ ไฟล์
-                      foreach ($images as $image) {
-                          if (file_exists("../lost_images/" . $image)) {
-                              echo '<img src="../lost_images/' . htmlspecialchars($image) . '" alt="รูปภาพทรัพย์สิน" style="max-width: 150px; margin-right: 10px;">';
-                          }
-                      }
-                  } else {
-                      echo 'ไม่มีรูปภาพ';
-                  }
-                  ?>
-                
+                if ($item['item_image']) {
+                    $images = explode(',', $item['item_image']);
+                    foreach ($images as $image) {
+                        if (file_exists("../lost_images/" . $image)) {
+                            echo '<img src="../lost_images/' . htmlspecialchars($image) . '" alt="รูปภาพทรัพย์สิน" style="max-width: 150px; margin-right: 10px;">';
+                        }
+                    }
+                } else {
+                    echo 'ไม่มีรูปภาพ';
+                }
+                ?>
             </div>
 
             <!-- รูปภาพผู้รับคืน -->
             <div class="form-group row">
                 <label for="finder_image" class="col-sm-2">อัปโหลดรูปภาพผู้รับคืน (ถ้ามี)</label>
-                <input type="file" name="finder_image[]" class="form-control-sm-4" multiple>
+                <input type="file" id="finder_image" name="finder_image[]" class="form-control-sm-4" multiple>
                 <p class="form-control-sm-4">รูปภาพปัจจุบัน:</p>
                 <?php
-                  if ($item['finder_image']) {
-                      $finder_images = explode(',', $item['finder_image']); // แยกรูปภาพผู้รับคืนหลายๆ ไฟล์
-                      foreach ($finder_images as $finder_image) {
-                          if (file_exists("../return_images/" . $finder_image)) {
-                              echo '<img src="../return_images/' . htmlspecialchars($finder_image) . '" alt="รูปภาพผู้รับคืน" style="max-width: 150px; margin-right: 10px;">';
-                          }
-                      }
-                  } else {
-                      echo 'ไม่มีรูปภาพ';
-                  }
-                  ?>
+                if ($item['finder_image']) {
+                    $finder_images = explode(',', $item['finder_image']);
+                    foreach ($finder_images as $finder_image) {
+                        if (file_exists("../return_images/" . $finder_image)) {
+                            echo '<img src="../return_images/' . htmlspecialchars($finder_image) . '" alt="รูปภาพผู้รับคืน" style="max-width: 150px; margin-right: 10px;">';
+                        }
+                    }
+                } else {
+                    echo 'ไม่มีรูปภาพ';
+                }
+                ?>
             </div>
 
             <!-- ผู้ส่งมอบทรัพย์สิน -->
@@ -432,6 +554,169 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- เพิ่ม SweetAlert JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
+<script>
+    // แสดงตัวอย่างภาพที่ผู้ใช้เลือก
+    document.getElementById('item_image').addEventListener('change', function(event) {
+        let files = event.target.files;
+        let previewContainer = document.getElementById('itemPreviewContainer');
+        previewContainer.innerHTML = ''; // ลบตัวอย่างภาพเดิม
+        for (let i = 0; i < files.length; i++) {
+            let file = files[i];
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '150px';
+                img.style.marginRight = '10px';
+                previewContainer.appendChild(img);
+            }
+            reader.readAsDataURL(file);
+        }
+    });
 
+    document.getElementById('finder_image').addEventListener('change', function(event) {
+        let files = event.target.files;
+        let previewContainer = document.getElementById('finderPreviewContainer');
+        previewContainer.innerHTML = ''; // ลบตัวอย่างภาพเดิม
+        for (let i = 0; i < files.length; i++) {
+            let file = files[i];
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '150px';
+                img.style.marginRight = '10px';
+                previewContainer.appendChild(img);
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+
+<script>
+   // ฟังก์ชันบีบอัดภาพและย้ายไฟล์ไปยังโฟลเดอร์ปลายทาง
+function resizeImageAndUpload($file, $target_dir, $maxWidth = 800, $maxHeight = 800) {
+    // ตรวจสอบว่าไฟล์ถูกเลือกหรือไม่
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        echo "เกิดข้อผิดพลาดในการอัปโหลดไฟล์";
+        return false;
+    }
+
+    // ตรวจสอบประเภทไฟล์
+    $imageFileType = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $allowed_types = ["jpg", "jpeg", "png"];
+    if (!in_array($imageFileType, $allowed_types)) {
+        echo "ไฟล์ที่อัปโหลดไม่ถูกต้อง (รองรับเฉพาะ JPG, JPEG, PNG)";
+        return false;
+    }
+
+    // ฟังก์ชันบีบอัดภาพ
+    $imageType = exif_imagetype($file['tmp_name']);
+    $new_image_name = date("d-m-Y_H-i-s") . "_" . preg_replace("/[^a-zA-Z0-9]/", "_", pathinfo($file['name'], PATHINFO_FILENAME)) . '.' . $imageFileType;
+    $target_file = $target_dir . $new_image_name;
+
+    // บีบอัดและปรับขนาดภาพ
+    if (!resizeImage($file['tmp_name'], $target_file, $imageType, $maxWidth, $maxHeight)) {
+        echo "ไม่สามารถบีบอัดภาพได้";
+        return false;
+    }
+
+    return $new_image_name; // คืนชื่อไฟล์ใหม่
+}
+
+// ฟังก์ชันบีบอัดภาพ
+function resizeImage($sourcePath, $targetPath, $imageType, $maxWidth = 800, $maxHeight = 800) {
+    switch ($imageType) {
+        case IMAGETYPE_JPEG:
+            $sourceImage = imagecreatefromjpeg($sourcePath);
+            break;
+        case IMAGETYPE_PNG:
+            $sourceImage = imagecreatefrompng($sourcePath);
+            break;
+        case IMAGETYPE_GIF:
+            $sourceImage = imagecreatefromgif($sourcePath);
+            break;
+        default:
+            return false;
+    }
+
+    list($origWidth, $origHeight) = getimagesize($sourcePath);
+    $ratio = min($maxWidth / $origWidth, $maxHeight / $origHeight);
+    $newWidth = (int)($origWidth * $ratio);
+    $newHeight = (int)($origHeight * $ratio);
+
+    $newImage = imagecreatetruecolor($newWidth, $newHeight);
+    imagecopyresampled($newImage, $sourceImage, 0, 0, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
+
+    switch ($imageType) {
+        case IMAGETYPE_JPEG:
+            imagejpeg($newImage, $targetPath, 90);
+            break;
+        case IMAGETYPE_PNG:
+            imagepng($newImage, $targetPath, 8);
+            break;
+        case IMAGETYPE_GIF:
+            imagegif($newImage, $targetPath);
+            break;
+    }
+
+    imagedestroy($sourceImage);
+    imagedestroy($newImage);
+
+    return true;
+}
+
+// ฟังก์ชันอัปโหลดและบีบอัดไฟล์
+function uploadImages($files, $target_dir, $old_images, $maxWidth = 800, $maxHeight = 800) {
+    $uploaded_images = [];
+    foreach ($files['name'] as $key => $file_name) {
+        if (!empty($file_name)) {
+            $original_name = pathinfo($file_name, PATHINFO_FILENAME);
+            $imageFileType = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+            $formatted_timestamp = date("d-m-Y_H-i-s");
+            $new_image_name = $formatted_timestamp . "_" . preg_replace("/[^a-zA-Z0-9]/", "_", $original_name) . "." . $imageFileType;
+            $target_file = $target_dir . $new_image_name;
+
+            $allowed_types = ["jpg", "jpeg", "png"];
+
+            // ตรวจสอบประเภทไฟล์
+            if (!in_array($imageFileType, $allowed_types)) {
+                echo "ไฟล์ที่อัปโหลดไม่ถูกต้อง (รองรับเฉพาะ JPG, JPEG, PNG)";
+                exit;
+            }
+
+            // ตรวจสอบขนาดไฟล์ก่อนบีบอัด
+            if ($files['size'][$key] > 1048576) { // 1MB
+                $imageType = exif_imagetype($files['tmp_name'][$key]);
+                if (!resizeImage($files['tmp_name'][$key], $target_file, $imageType, $maxWidth, $maxHeight)) {
+                    echo "ไม่สามารถบีบอัดภาพได้";
+                    exit;
+                }
+            } else {
+                // ถ้าขนาดไม่เกิน 1MB ให้ย้ายไฟล์โดยตรง
+                if (!move_uploaded_file($files['tmp_name'][$key], $target_file)) {
+                    echo "ไม่สามารถย้ายไฟล์ได้";
+                    exit;
+                }
+            }
+
+            // ลบไฟล์เก่า (ถ้ามี)
+            if (!empty($old_images) && file_exists($target_dir . $old_images)) {
+                unlink($target_dir . $old_images);
+            }
+
+            $uploaded_images[] = $new_image_name;
+        } else {
+            $uploaded_images[] = $old_images; // ใช้รูปเก่าถ้าไม่มีการอัปโหลดใหม่
+        }
+    }
+    return implode(',', $uploaded_images);
+}
+
+// ตัวอย่างการเรียกใช้ฟังก์ชัน
+$new_item_image = uploadImages($_FILES['item_image'], "../lost_images/", $old_item_image);
+$new_finder_image = uploadImages($_FILES['finder_image'], "../return_images/", $old_finder_image);
+
+    </script>
 </body>
 </html>

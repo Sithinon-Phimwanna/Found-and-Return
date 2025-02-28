@@ -9,14 +9,13 @@ if ($mysqli->connect_error) {
     die("เชื่อมต่อฐานข้อมูลล้มเหลว: " . $mysqli->connect_error);
 }
 
+// ตรวจสอบว่ามีการเลือกปีจากฟอร์มหรือไม่
 $year = isset($_GET['year']) ? $_GET['year'] : '';
-$month = isset($_GET['month']) ? $_GET['month'] : '';
-$status = isset($_GET['status']) ? $_GET['status'] : '';
 
+// ดึงข้อมูลจากฐานข้อมูล
 $query = "
     SELECT 
         YEAR(found_date) AS year,
-        MONTH(found_date) AS month,
         status_id,
         COUNT(found_id) AS count
     FROM 
@@ -28,15 +27,12 @@ $query = "
 if (!empty($year)) {
     $query .= " AND YEAR(found_date) = ?";
 }
-if (!empty($month)) {
-    $query .= " AND MONTH(found_date) = ?";
-}
 
 $query .= "
     GROUP BY 
-        YEAR(found_date), MONTH(found_date), status_id
+        YEAR(found_date), status_id
     ORDER BY 
-        YEAR(found_date) DESC, MONTH(found_date) DESC
+        YEAR(found_date) DESC
 ";
 
 $stmt = $mysqli->prepare($query);
@@ -46,7 +42,6 @@ if ($stmt === false) {
 
 $params = [];
 if (!empty($year)) $params[] = $year;
-if (!empty($month)) $params[] = $month;
 
 if (count($params) > 0) {
     $stmt->bind_param(str_repeat('s', count($params)), ...$params);
@@ -57,52 +52,31 @@ $result = $stmt->get_result();
 
 $data = [];
 while ($row = $result->fetch_assoc()) {
-    $monthKey = $row['year'] . '-' . str_pad($row['month'], 2, '0', STR_PAD_LEFT);
-    $data[$monthKey][$row['status_id']] = $row['count'];
+    $data[$row['status_id']] = $row['count'];
 }
 
-// แปลงข้อมูลสำหรับ Chart.js
-$months = array_keys($data);
+// แปลงข้อมูลสำหรับ CanvasJS
+$dataPoints = [];
 $statusLabels = [
-    2 => "แจ้งพบ",
-    3 => "คืนแล้ว",
-    4 => "ค้างในระบบเกิน 1 สัปดาห์"
+    1 => "แจ้งพบ",
+    2 => "คืนแล้ว",
+    3 => "ค้างในระบบเกิน 1 สัปดาห์"
 ];
 
-$datasets = [];
+$colors = [
+    1 => "#007bff", // สีน้ำเงิน สำหรับ "แจ้งพบ"
+    2 => "#28a745", // สีเขียว สำหรับ "คืนแล้ว"
+    3 => "#FFCC66"  // สีแดง สำหรับ "ค้างในระบบเกิน 1 สัปดาห์"
+];
+
 foreach ($statusLabels as $statusId => $label) {
-    $dataset = [
+    $count = isset($data[$statusId]) ? $data[$statusId] : 0;
+    $dataPoints[] = [
         'label' => $label,
-        'data' => [],
-        'backgroundColor' => ($statusId == 2 ? 'rgba(28, 245, 136, 0.5)' : 
-                              ($statusId == 3 ? 'rgba(54, 162, 235, 0.5)' : 
-                              'rgba(255, 206, 86, 0.5)')),
-        'borderColor' => ($statusId == 2 ? 'rgba(52, 250, 151, 1)' : 
-                          ($statusId == 3 ? 'rgba(54, 162, 235, 1)' : 
-                          'rgba(255, 206, 86, 1)')),
-        'borderWidth' => 1
+        'y' => $count,
+        'color' => $colors[$statusId]  // เพิ่มสีที่กำหนดลงใน dataPoint
     ];
-    
-    foreach ($months as $month) {
-        $dataset['data'][] = $data[$month][$statusId] ?? 0;
-    }
-    
-    $datasets[] = $dataset;
 }
-
-// แปลงชื่อเดือนเป็นภาษาไทย
-$thaiMonths = [
-    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-];
-
-$monthsFormatted = [];
-foreach ($months as $month) {
-    $timestamp = strtotime($month . '-01');
-    $monthNum = date("n", $timestamp) - 1;
-    $monthsFormatted[] = $thaiMonths[$monthNum] . ' ' . date("Y", $timestamp);
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -129,7 +103,6 @@ foreach ($months as $month) {
 <div class="wrapper">
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-    <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
@@ -143,29 +116,22 @@ foreach ($months as $month) {
 
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <!-- Brand Logo -->
-    <a href="index3.php" class="brand-link">
+    <a href="index.php" class="brand-link">
       <img src="assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Found & Return</span>
     </a>
-
-    <!-- Sidebar -->
     <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
           <img src="assets/dist/img/avatar5.png" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-        <P class="mr-2 user-none" style="color: white;">ผู้ใช้งานทั่วไป</P>
+          <p class="mr-2 user-none" style="color: white;">ผู้ใช้งานทั่วไป</p>
         </div>
       </div>
 
-      <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
           <li class="nav-header">การจัดการ</li>
           <li class="nav-item">
             <a href="#" class="nav-link">
@@ -175,119 +141,98 @@ foreach ($months as $month) {
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="login.php" class="nav-link">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>ล็อกอิน</p>
-                    </a>
-                  </li>          
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="login.php" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>ล็อกอิน</p>
+                </a>
+              </li>
             </ul>
+          </li>
         </ul>
       </nav>
-      <!-- /.sidebar-menu -->
     </div>
-    <!-- /.sidebar -->
   </aside>
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">แผนภูมิข้อมูลแจ้งพบ</h1>
-          </div><!-- /.col -->
+            <h1 class="m-0">เลือกพื่อดูข้อมูล รายปี</h1>
+          </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">แผนภูมิข้อมูลแจ้งพบ</li>
+              <li class="breadcrumb-item active">รายงานข้อมูลแจ้งพบ รายปี</li>
             </ol>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
+          </div>
+        </div>
+      </div>
     </div>
-    <!-- /.content-header -->
 
     <!-- Main content -->
     <section class="content">
       <div class="container">
-      <form method="GET" action="">
-      <div class="container mt-5">
-      <div class="card-body">
-        <div class="form-group">
-            <label for="year">เลือกปี : </label>
-            <select id="year" class="form-control-sm-4"></select>
-            </div>
-
-          <div class="form-group">
-            <label for="month">เลือกเดือน : </label>
-            <select name="month" id="month" class="form-control-sm-4">
-              <option value="">ทุกเดือน</option>
-              <option value="1">มกราคม</option>
-              <option value="2">กุมภาพันธ์</option>
-              <option value="3">มีนาคม</option>
-              <option value="4">เมษายน</option>
-              <option value="5">พฤษภาคม</option>
-              <option value="6">มิถุนายน</option>
-              <option value="7">กรกฎาคม</option>
-              <option value="8">สิงหาคม</option>
-              <option value="9">กันยายน</option>
-              <option value="10">ตุลาคม</option>
-              <option value="11">พฤศจิกายน</option>
-              <option value="12">ธันวาคม</option>
-            </select>
-          </div>
-
-          <button type="submit" class="btn btn-primary">ค้นหาข้อมูล</button>
-        </form>
-
         <div class="row">
-          <div class="col-sm-12">
-            <canvas id="myChart" width="400" height="200"></canvas>
-            <canvas id="myChart" width="400" height="200"></canvas>
-<script>
-  var ctx = document.getElementById("myChart").getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: <?php echo json_encode($monthsFormatted); ?>,
-      datasets: <?php echo json_encode($datasets); ?>
-    },
-    options: {
-      responsive: true,
-      scales: {
-        x: {
-          stacked: false, // ให้ Bar แต่ละอันแยกกัน (ถ้า stacked: true จะเป็นแถบรวม)
-          title: {
-            display: true,
-            text: 'เดือนและปี'
-          }
-        },
-        y: {
-          ticks: {
-            beginAtZero: true,
-            stepSize: 5  // กำหนดขั้นของแกน Y เป็นจำนวนเต็มที่เป็นขั้น
-          },
-          title: {
-            display: true,
-            text: 'จำนวน'
-          }
-        }
-      }
-    }
-  });
-</script>
-
-            </div>
+          <div class="col-md-4">
+            <form method="GET" action="">
+              <div class="form-group">
+                <label for="year">รายงานปี:</label>
+                <select name="year" id="year" class="form-control">
+                  <option value="">-- เลือกปี --</option>
+                  <?php
+                  // สร้างตัวเลือกปีในฟอร์ม
+                  for ($i = 2020; $i <= date("Y"); $i++) {
+                      echo "<option value=\"$i\" " . ($year == $i ? "selected" : "") . ">$i</option>";
+                  }
+                  ?>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">แสดงรายงาน</button>
+            </form>
           </div>
+        </div>
+        
+        <div class="card-body">
+          <?php if (!empty($year)): ?>
+            <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+            <script>
+            window.onload = function() {
+                var chart = new CanvasJS.Chart("chartContainer", {
+                    animationEnabled: true,
+                    title: {
+                        text: "รายงานข้อมูลแจ้งพบ รายปี"
+                    },
+                    axisY: {
+                        title: "จำนวน",
+                        includeZero: true
+                    },
+                    data: [{
+                        type: "bar",
+                        yValueFormatString: "#,##0 ชิ้น",
+                        xValueFormatString: "#,##0",
+                        indexLabel: "{y}",
+                        indexLabelPlacement: "inside",
+                        indexLabelFontWeight: "bolder",
+                        indexLabelFontColor: "white",
+                        dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
+                    }]
+                });
+                chart.render();
+            }
+            </script>
+          <?php else: ?>
+            <p>กรุณาเลือกปีเพื่อดูรายงาน</p>
+          <?php endif; ?>
         </div>
       </div>
     </section>
-    <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+  
   <footer class="main-footer text-center">
     <strong>สำนักวิทยบริการและเทคโนโลยีสารสนเทศ มหาวิทยาลัยราชภัฏพิบูลสงราม. &copy; 2024 <a href="https://library.psru.ac.th/">LIBRARY.PSRU</a>.</strong>
   </footer>
@@ -299,24 +244,12 @@ foreach ($months as $month) {
 <script src="assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="assets/dist/js/adminlte.js"></script>
-<!-- โหลด jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- โหลด jQuery UI สำหรับ Datepicker -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-    // ดึงปีปัจจุบัน
-    var currentYear = new Date().getFullYear();
-    
-    // กำหนดปีเริ่มต้นและปีสิ้นสุด (ใช้ปีปัจจุบันเป็นปีเริ่มต้น)
-    var startYear = currentYear;
-    var endYear = currentYear + 10; // เพิ่มปีในอนาคต 10 ปี
-
-    // สร้างตัวเลือกปีใน <select>
-    for (var year = startYear; year <= endYear; year++) {
-      $('#year').append('<option value="' + year + '">' + year + '</option>');
-    }
-  </script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js Datalabels Plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 </body>
 </html>
